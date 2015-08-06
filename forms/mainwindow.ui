@@ -20,16 +20,43 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="tabPosition">
+       <enum>QTabWidget::West</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="dataTab">
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="tabBarAutoHide">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="tabControl">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Control</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QwtDial" name="Dial">
+          <property name="upperBound">
+           <double>30.000000000000000</double>
+          </property>
+          <property name="scaleMaxMajor">
+           <number>20</number>
+          </property>
+          <property name="scaleMaxMinor">
+           <number>10</number>
+          </property>
+          <property name="totalSteps">
+           <UInt>30</UInt>
+          </property>
+          <property name="pageSteps">
+           <UInt>5</UInt>
+          </property>
           <property name="readOnly">
            <bool>false</bool>
           </property>
@@ -46,29 +73,20 @@
            <enum>QwtDial::Sunken</enum>
           </property>
           <property name="mode">
-           <enum>QwtDial::RotateScale</enum>
-          </property>
-          <property name="origin">
-           <double>180.000000000000000</double>
-          </property>
-          <property name="minScaleArc">
-           <double>60.000000000000000</double>
-          </property>
-          <property name="maxScaleArc">
-           <double>180.000000000000000</double>
+           <enum>QwtDial::RotateNeedle</enum>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="programTab">
+      <widget class="QWidget" name="tabProgram">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Program</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="historyTab">
+      <widget class="QWidget" name="tabHistory">
        <attribute name="title">
-        <string>Page</string>
+        <string>History</string>
        </attribute>
       </widget>
      </widget>
@@ -84,8 +102,52 @@
      <height>23</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionReport_Bug"/>
+    <addaction name="separator"/>
+    <addaction name="actionAbout_LabPowerQt"/>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSettings">
+   <property name="text">
+    <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+  </action>
+  <action name="actionReport_Bug">
+   <property name="text">
+    <string>Report Bug</string>
+   </property>
+  </action>
+  <action name="actionAbout_LabPowerQt">
+   <property name="text">
+    <string>About LabPowerQt</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

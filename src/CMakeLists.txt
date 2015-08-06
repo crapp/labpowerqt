@@ -33,7 +33,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Widgets 5.1 REQUIRED)
 message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
 
-find_package(Qwt REQUIRED)
+find_package(Qwt 6.1 REQUIRED)
 
 # generate ui_*.h files
 qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
@@ -52,12 +52,17 @@ configure_file (
 )
 
 set(HEADER
+    ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
 )
 
 set(SOURCE
+    ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
 )
 
 add_executable(labpowerqt ${HEADER} ${SOURCE} ${${CMAKE_PROJECT_NAME}_FORMS})

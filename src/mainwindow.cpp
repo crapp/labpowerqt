@@ -17,14 +17,71 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QString titleString;
+    QTextStream titleStream(&titleString, QIODevice::WriteOnly);
+    titleStream << "LabPowerQt " << VERSION_MAJOR << "." << VERSION_MINOR << "."
+                << VERSION_PATCH;
+    this->setWindowTitle(titleString);
+
+    // Restore saved geometry and state
+    QSettings settings;
+    settings.beginGroup(SETTINGS_MAINWINDOW_GROUP);
+    this->restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEO).toByteArray());
+    this->restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
+    settings.endGroup();
+
+    this->setupMenuBarActions();
 }
 
-MainWindow::~MainWindow()
+MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::setupMenuBarActions()
 {
-    delete ui;
+    // File menu
+    QObject::connect(ui->actionSettings, SIGNAL(triggered()), this,
+                     SLOT(showSettings()));
+    QObject::connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
+
+    // Help menu
+    QObject::connect(ui->actionReport_Bug, SIGNAL(triggered()), this,
+                     SLOT(fileBugReport()));
+    QObject::connect(ui->actionAbout_LabPowerQt, SIGNAL(triggered()), this,
+                     SLOT(showAbout()));
+    QObject::connect(ui->actionAbout_Qt, SIGNAL(triggered()), this,
+                     SLOT(showAboutQt()));
+}
+
+void MainWindow::fileBugReport()
+{
+    // TODO: Change URL as soon as github repo is created
+    QDesktopServices::openUrl(QUrl("https://github.com/crapp"));
+}
+
+void MainWindow::showAbout()
+{
+    AboutMe abm;
+    abm.exec(); // show it application modal
+}
+
+void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
+
+void MainWindow::showSettings()
+{
+    SettingsDialog sd;
+    sd.exec();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.beginGroup(SETTINGS_MAINWINDOW_GROUP);
+    settings.setValue(SETTINGS_MAINWINDOW_GEO, this->saveGeometry());
+    settings.setValue(SETTINGS_MAINWINDOW_STATE, this->saveState());
+    settings.endGroup();
+    QWidget::closeEvent(event);
 }
