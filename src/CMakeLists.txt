@@ -30,8 +30,10 @@ set(CMAKE_AUTOMOC ON)
 # Find Threads
 #find_package(Threads REQUIRED)
 # Find the QtWidgets library. This has dependencies on QtGui and QtCore!
-find_package(Qt5Widgets 5.1 REQUIRED)
+find_package(Qt5Widgets 5.2 REQUIRED)
 message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
+find_package(Qt5SerialPort REQUIRED)
+find_package(Qt5Quick REQUIRED)
 
 find_package(Qwt 6.1 REQUIRED)
 
@@ -66,5 +68,6 @@ set(SOURCE
 )
 
 add_executable(labpowerqt ${HEADER} ${SOURCE} ${${CMAKE_PROJECT_NAME}_FORMS})
-target_link_libraries(labpowerqt Qt5::Widgets ${QWT_LIBRARY})
+target_link_libraries(labpowerqt Qt5::Widgets Qt5::SerialPort Qt5::Quick Qt5::Qml ${QWT_LIBRARY})
+
 

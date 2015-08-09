@@ -2,6 +2,13 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QListWidgetItem>
+#include <QQuickView>
+
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
+
+#include <QDebug>
 
 namespace Ui
 {
@@ -18,6 +25,11 @@ public:
 
 private:
     Ui::SettingsDialog *ui;
+
+    void setupSettingsList();
+
+private slots:
+    void settingChanged(QListWidgetItem *current, QListWidgetItem *previous);
 };
 
 #endif // SETTINGSDIALOG_H

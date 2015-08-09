@@ -21,7 +21,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="tabPosition">
-       <enum>QTabWidget::West</enum>
+       <enum>QTabWidget::North</enum>
       </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
@@ -40,40 +40,72 @@
         <string>Control</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QwtDial" name="Dial">
+        <item row="0" column="2">
+         <widget class="QLCDNumber" name="lcdNumber">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="smallDecimalPoint">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="1">
+         <widget class="QwtKnob" name="Knob">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="upperBound">
            <double>30.000000000000000</double>
           </property>
           <property name="scaleMaxMajor">
-           <number>20</number>
+           <number>30</number>
           </property>
           <property name="scaleMaxMinor">
            <number>10</number>
           </property>
           <property name="totalSteps">
-           <UInt>30</UInt>
+           <UInt>3000</UInt>
+          </property>
+          <property name="singleSteps">
+           <UInt>1</UInt>
           </property>
           <property name="pageSteps">
-           <UInt>5</UInt>
+           <UInt>50</UInt>
           </property>
-          <property name="readOnly">
-           <bool>false</bool>
+          <property name="knobStyle">
+           <enum>QwtKnob::Raised</enum>
           </property>
-          <property name="wrapping">
-           <bool>false</bool>
+          <property name="numTurns">
+           <number>1</number>
           </property>
-          <property name="invertedControls">
-           <bool>false</bool>
+          <property name="markerStyle">
+           <enum>QwtKnob::Dot</enum>
           </property>
-          <property name="lineWidth">
-           <number>4</number>
+          <property name="markerSize">
+           <number>15</number>
           </property>
-          <property name="frameShadow">
-           <enum>QwtDial::Sunken</enum>
-          </property>
-          <property name="mode">
-           <enum>QwtDial::RotateNeedle</enum>
+          <property name="borderWidth">
+           <number>6</number>
           </property>
          </widget>
         </item>
@@ -151,9 +183,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtDial</class>
+   <class>QwtKnob</class>
    <extends>QWidget</extends>
-   <header>qwt_dial.h</header>
+   <header>qwt_knob.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

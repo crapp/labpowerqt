@@ -36,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent)
     settings.endGroup();
 
     this->setupMenuBarActions();
+
+    QObject::connect(ui->Knob, SIGNAL(valueChanged(double)), ui->lcdNumber,
+                     SLOT(display(double)));
 }
 
 MainWindow::~MainWindow() { delete ui; }

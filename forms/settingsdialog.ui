@@ -6,12 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>756</width>
-    <height>422</height>
+    <width>550</width>
+    <height>460</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>550</width>
+    <height>460</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Settings</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
@@ -20,7 +29,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
      </property>
     </widget>
    </item>
@@ -32,11 +41,14 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
+     <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,100">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
       <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget">
+       <widget class="QListWidget" name="listWidgetSettings">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -47,12 +59,255 @@
           <height>0</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QListView::item {
+	border: 0;
+	padding-left: 2px;
+}</string>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="currentRow">
+         <number>-1</number>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QStackedWidget" name="stackedWidget">
-        <widget class="QWidget" name="page"/>
-        <widget class="QWidget" name="page_2"/>
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="pageGeneral">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>General</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageDevice">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QGroupBox" name="groupBoxDeviceProtocoll">
+            <property name="title">
+             <string>Protocoll</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="QComboBox" name="comboBoxDeviceProtocoll">
+               <item>
+                <property name="text">
+                 <string>Korad</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBoxDeviceElectrical">
+            <property name="title">
+             <string>Electrical Specifications</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0" colspan="2">
+              <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Output Voltage Range:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QSpinBox" name="spinBoxDeviceVoltageMin">
+               <property name="toolTip">
+                <string>Minimum Voltage</string>
+               </property>
+               <property name="suffix">
+                <string notr="true">V</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSpinBox" name="spinBoxdeviceVoltageMax">
+               <property name="toolTip">
+                <string>Maximum Voltage</string>
+               </property>
+               <property name="suffix">
+                <string notr="true">V</string>
+               </property>
+               <property name="value">
+                <number>30</number>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QSpinBox" name="spinBoxDeviceCurrentMin">
+               <property name="toolTip">
+                <string>Minimum Current</string>
+               </property>
+               <property name="suffix">
+                <string notr="true">A</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QSpinBox" name="spinBoxDeviceCurrentMax">
+               <property name="toolTip">
+                <string>Maximum Current</string>
+               </property>
+               <property name="suffix">
+                <string notr="true">A</string>
+               </property>
+               <property name="value">
+                <number>5</number>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="2">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Output Current Range:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>Read back Accuracy:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QComboBox" name="comboBoxDeviceVoltageAccu">
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1mV</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>10mV</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>100mV</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1V</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="5" column="2">
+              <widget class="QComboBox" name="comboBoxDeviceCurrentAccu">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1mA</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>10mA</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>100mA</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1A</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBoxDeviceCommunication">
+            <property name="title">
+             <string>Communication</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="2" column="0">
+              <widget class="QPushButton" name="pushButtonDeviceTestConnection">
+               <property name="text">
+                <string>Test Connection</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Port:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="0" colspan="2">
+              <widget class="QComboBox" name="comboBoxDeviceComPort"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -69,8 +324,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -85,8 +340,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
