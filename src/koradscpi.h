@@ -27,6 +27,7 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
 #include <QString>
+#include <QThread>
 
 #include "serialqueue.h"
 #include "serialcommand.h"
@@ -84,7 +85,7 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port is not open
      */
-    KoradSCPI(QString serialPortName);
+    KoradSCPI(const QString serialPortName);
     ~KoradSCPI();
 
     QString getserialPortName();
@@ -106,7 +107,8 @@ private:
 
     std::map<int, QString> serialCommandMap;
 
-    QSerialPort serialPort;
+    QString serialPortName;
+    QSerialPort *serialPort;
     std::mutex serialPortGuard;
 
     bool backgroundWorkerThreadRun;
