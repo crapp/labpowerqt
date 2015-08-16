@@ -17,6 +17,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+namespace setcon = settings_constants;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -30,9 +32,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Restore saved geometry and state
     QSettings settings;
-    settings.beginGroup(SETTINGS_MAINWINDOW_GROUP);
-    this->restoreGeometry(settings.value(SETTINGS_MAINWINDOW_GEO).toByteArray());
-    this->restoreState(settings.value(SETTINGS_MAINWINDOW_STATE).toByteArray());
+    settings.beginGroup(setcon::MAINWINDOW_GROUP);
+    this->restoreGeometry(settings.value(setcon::MAINWINDOW_GEO).toByteArray());
+    this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());
     settings.endGroup();
 
     this->setupMenuBarActions();
@@ -43,9 +45,14 @@ MainWindow::MainWindow(QWidget *parent)
     // Connect signal slots
     QObject::connect(ui->Knob, SIGNAL(valueChanged(double)), this,
                      SLOT(setLCDDisplay(double)));
-    QObject::connect(
-        ui->pushButton_2,
-        SIGNAL(clicked()), this, SLOT(showHideVoltCurrentSpinners()));
+    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
+                     SLOT(showHideVoltCurrentSpinners()));
+
+    qRegisterMetaType<std::shared_ptr<SerialCommand> >();
+
+    // create controller
+    this->controller =
+        std::unique_ptr<LabPowerController>(new LabPowerController());
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -77,14 +84,14 @@ void MainWindow::setupAnimations()
     this->hideVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
         new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
     this->hideVoltCurrentSpinner->setDuration(500);
-    this->hideVoltCurrentSpinner->setStartValue(this->showVoltCurrentSpinner->endValue());
+    this->hideVoltCurrentSpinner->setStartValue(
+        this->showVoltCurrentSpinner->endValue());
     this->hideVoltCurrentSpinner->setEndValue(0);
 }
 
 void MainWindow::fileBugReport()
 {
-    // TODO: Change URL as soon as github repo is created
-    QDesktopServices::openUrl(QUrl("https://github.com/crapp"));
+    QDesktopServices::openUrl(QUrl("https://github.com/crapp/labpowerqt"));
 }
 
 void MainWindow::showAbout()
@@ -97,8 +104,13 @@ void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
 
 void MainWindow::showSettings()
 {
+    // release the serial port.
+    // TODO: Maybe instead of releasing get the actual scpi object to the
+    // settings.
+    this->controller->freeSerialPort();
     SettingsDialog sd;
     sd.exec();
+    this->controller->setupPowerSupplyConnector();
 }
 
 void MainWindow::showHideVoltCurrentSpinners()
@@ -108,6 +120,7 @@ void MainWindow::showHideVoltCurrentSpinners()
     } else {
         this->hideVoltCurrentSpinner->start();
     }
+    this->controller->getIdentification();
 }
 
 void MainWindow::setLCDDisplay(double val)
@@ -118,9 +131,9 @@ void MainWindow::setLCDDisplay(double val)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
-    settings.beginGroup(SETTINGS_MAINWINDOW_GROUP);
-    settings.setValue(SETTINGS_MAINWINDOW_GEO, this->saveGeometry());
-    settings.setValue(SETTINGS_MAINWINDOW_STATE, this->saveState());
+    settings.beginGroup(setcon::MAINWINDOW_GROUP);
+    settings.setValue(setcon::MAINWINDOW_GEO, this->saveGeometry());
+    settings.setValue(setcon::MAINWINDOW_STATE, this->saveState());
     settings.endGroup();
     QWidget::closeEvent(event);
 }

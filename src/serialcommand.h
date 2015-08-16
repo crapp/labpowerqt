@@ -19,9 +19,22 @@
 
 #include <QByteArray>
 #include <QVariant>
+#include <memory>
 
 struct SerialCommand {
 public:
+    /**
+     * @brief SerialCommand default constructor that we need to register our
+     * custom Type
+     */
+    SerialCommand()
+    {
+        this->command = 100;
+        this->powerSupplyChannel = 1;
+        this->value = QVariant();
+        this->commandWithReply = false;
+    };
+
     SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
                   bool withReply = false)
         : command(command), powerSupplyChannel(channel), value(value),
@@ -33,6 +46,7 @@ public:
     bool getCommandWithReply() { return this->commandWithReply; };
 
     void setReply(QByteArray data) { this->reply = data; };
+    QByteArray getReply() { return this->reply; }
 
 private:
     int command;
@@ -42,5 +56,9 @@ private:
 
     QByteArray reply;
 };
+
+// Register our metatype. Needed to send this kind of object wrapped in a std
+// smart pointer via SIGNAL/SLOT mechanism
+Q_DECLARE_METATYPE(std::shared_ptr<SerialCommand>)
 
 #endif // SERIALCOMMAND

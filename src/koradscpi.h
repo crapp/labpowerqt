@@ -29,6 +29,7 @@
 #include <QString>
 
 #include "serialqueue.h"
+#include "serialcommand.h"
 
 namespace KoradSCPI_constants
 {
@@ -48,7 +49,7 @@ enum COMMANDS {
     SAVESETTINGS,
     SETOCP,
     SETOVP,
-    SETDUMMY
+    SETDUMMY = 100
 };
 
 const std::map<int, QString> SERIALCOMMANDMAP = {
@@ -65,7 +66,7 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
     {GETSTATUS, "STATUS?"},        // request status
     {GETIDN, "*IDN?"},             // get device identification string
     {GETSAVEDSETTINGS, "RCL%1"},   // set device to memorized settings
-    {SAVESETTINGS, "SAV%1"},       // save current settings on memery position
+    {SAVESETTINGS, "SAV%1"},       // save current settings on memory position
     {SETOCP, "OCP%1"},             // switch over current protection
     {SETOVP, "OVP%1"},             // switch over voltage protection
     {SETDUMMY, "DUMMY"},           // just some dummy command
@@ -86,6 +87,8 @@ public:
     KoradSCPI(QString serialPortName);
     ~KoradSCPI();
 
+    QString getserialPortName();
+
     void getIdentification();
     void getStatus();
 
@@ -103,7 +106,7 @@ private:
 
     std::map<int, QString> serialCommandMap;
 
-    std::unique_ptr<QSerialPort> serialPort;
+    QSerialPort serialPort;
     std::mutex serialPortGuard;
 
     bool backgroundWorkerThreadRun;

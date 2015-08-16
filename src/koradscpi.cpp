@@ -20,18 +20,17 @@ namespace korcon = KoradSCPI_constants;
 
 KoradSCPI::KoradSCPI(QString seriaPortName)
 {
-    this->serialPort =
-        std::unique_ptr<QSerialPort>(new QSerialPort(seriaPortName));
+    this->serialPort.setPortName(seriaPortName);
 
-    if (!this->serialPort->open(QIODevice::ReadWrite)) {
-        throw std::runtime_error(this->serialPort->errorString().toStdString());
+    if (!this->serialPort.open(QIODevice::ReadWrite)) {
+        throw std::runtime_error(this->serialPort.errorString().toStdString());
     }
 
-    this->serialPort->setBaudRate(this->BAUDRATE);
-    this->serialPort->setFlowControl(this->FLOWCONTROL);
-    this->serialPort->setDataBits(this->DATABITS);
-    this->serialPort->setParity(this->PARITY);
-    this->serialPort->setStopBits(this->STOPBITS);
+    this->serialPort.setBaudRate(this->BAUDRATE);
+    this->serialPort.setFlowControl(this->FLOWCONTROL);
+    this->serialPort.setDataBits(this->DATABITS);
+    this->serialPort.setParity(this->PARITY);
+    this->serialPort.setStopBits(this->STOPBITS);
 
     this->backgroundWorkerThreadRun = true;
     backgroundWorkerThread = std::thread(&KoradSCPI::threadFunc, this);
@@ -39,16 +38,23 @@ KoradSCPI::KoradSCPI(QString seriaPortName)
 
 KoradSCPI::~KoradSCPI()
 {
-    if (this->serialPort->isOpen()) {
-        this->serialPort->close();
+    if (this->serialPort.isOpen()) {
+        this->serialPort.close();
     }
+    this->backgroundWorkerThreadRun = false;
     this->serQueue.push(static_cast<int>(korcon::COMMANDS::SETDUMMY));
     this->backgroundWorkerThread.join();
 }
 
+QString KoradSCPI::getserialPortName()
+{
+    return this->serialPort.portName();
+}
+
 void KoradSCPI::getIdentification()
 {
-    this->serQueue.push(static_cast<int>(korcon::COMMANDS::GETIDN));
+    // parameters two and three are irrelevant here.
+    this->serQueue.push(static_cast<int>(korcon::COMMANDS::GETIDN), 1, 0, true);
 }
 
 void KoradSCPI::threadFunc()
@@ -69,16 +75,16 @@ void KoradSCPI::readWriteData(std::shared_ptr<SerialCommand> com)
                               .arg(com->getValue().toString());
 
     QByteArray commandByte = commandString.toLocal8Bit();
-    serialPort->write(commandByte);
+    this->serialPort.write(commandByte);
     // wait for ouur bytes to be written
-    if (serialPort->waitForBytesWritten(1000)) {
+    if (this->serialPort.waitForBytesWritten(1000)) {
         // is this command with a feedback?
         if (com->getCommandWithReply()) {
             // wait until port is ready to read
-            this->serialPort->waitForReadyRead(1000);
-            QByteArray reply = serialPort->readAll();
-            while (this->serialPort->waitForReadyRead(10)) {
-                reply += serialPort->readAll();
+            this->serialPort.waitForReadyRead(1000);
+            QByteArray reply = this->serialPort.readAll();
+            while (this->serialPort.waitForReadyRead(10)) {
+                reply += this->serialPort.readAll();
             }
             com->setReply(reply);
             // send our com object with the signal
@@ -87,7 +93,7 @@ void KoradSCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     } else {
         qDebug() << Q_FUNC_INFO
                  << "Could not write to serial port. Error number: "
-                 << this->serialPort->error();
+                 << this->serialPort.error();
         ;
         // TODO emit an error
     }

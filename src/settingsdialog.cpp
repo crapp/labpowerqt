@@ -17,6 +17,8 @@
 #include "settingsdialog.h"
 #include "ui_settingsdialog.h"
 
+namespace setcon = settings_constants;
+
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::SettingsDialog)
 {
@@ -33,15 +35,15 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     this->setupSettingsList();
 
-    for(const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
+    QObject::connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)), this,
+                     SLOT(buttonBoxClicked(QAbstractButton *)));
+
+    for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
         ui->comboBoxDeviceComPort->addItem(port.portName());
         qDebug() << "Info: " << port.portName();
-        qDebug() << "Desc "  << port.description();
+        qDebug() << "Desc " << port.description();
         qDebug() << "Manu: " << port.manufacturer();
     }
-
-
-
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
@@ -62,6 +64,40 @@ void SettingsDialog::settingChanged(QListWidgetItem *current,
         break;
     case 1:
         ui->stackedWidget->setCurrentIndex(1);
+        break;
+    default:
+        break;
+    }
+}
+
+void SettingsDialog::buttonBoxClicked(QAbstractButton *button)
+{
+    QSettings settings;
+    switch (ui->buttonBox->buttonRole(button)) {
+    case QDialogButtonBox::ApplyRole:
+        if (ui->stackedWidget->currentIndex() == 1) {
+            settings.beginGroup(setcon::DEVICE_GROUP);
+            settings.setValue(setcon::DEVICE_PORT,
+                              ui->comboBoxDeviceComPort->currentText());
+            settings.setValue(setcon::DEVICE_PROTOCOL,
+                              ui->comboBoxDeviceProtocoll->currentText());
+            // TODO: Add a text widget to specify a device Name
+            // settings.setValue(setcon::DEVICE_NAME, "Foo");
+            settings.setValue(setcon::DEVICE_CHANNELS,
+                              ui->spinBoxDeviceChannels->value());
+            settings.setValue(setcon::DEVICE_CURRENT_MIN,
+                              ui->spinBoxDeviceCurrentMin->value());
+            settings.setValue(setcon::DEVICE_CURRENT_MAX,
+                              ui->spinBoxDeviceCurrentMax->value());
+            settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
+                              ui->comboBoxDeviceCurrentAccu->currentText());
+            settings.setValue(setcon::DEVICE_VOLTAGE_MIN,
+                              ui->spinBoxDeviceVoltageMin->value());
+            settings.setValue(setcon::DEVICE_VOLTAGE_MAX,
+                              ui->spinBoxdeviceVoltageMax->value());
+            settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY,
+                              ui->comboBoxDeviceVoltageAccu->currentText());
+        }
         break;
     default:
         break;

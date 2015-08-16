@@ -17,8 +17,22 @@
 #ifndef SETTINGSDEFINITIONS_H
 #define SETTINGSDEFINITIONS_H
 
-#define SETTINGS_MAINWINDOW_GROUP "mainwindow"
-#define SETTINGS_MAINWINDOW_GEO "geometry"
-#define SETTINGS_MAINWINDOW_STATE "state"
+namespace settings_constants
+{
+const char *const MAINWINDOW_GROUP = "mainwindow";
+const char *const MAINWINDOW_STATE = "state";
+const char *const MAINWINDOW_GEO = "geometry";
 
+const char *const DEVICE_GROUP = "device";
+const char *const DEVICE_PROTOCOL = "protocol";
+const char *const DEVICE_NAME = "name";
+const char *const DEVICE_PORT = "port";
+const char *const DEVICE_CHANNELS = "channels";
+const char *const DEVICE_CURRENT_MIN = "current_min";
+const char *const DEVICE_CURRENT_MAX = "current_max";
+const char *const DEVICE_CURRENT_ACCURACY = "current_accuracy";
+const char *const DEVICE_VOLTAGE_MIN = "voltage_min";
+const char *const DEVICE_VOLTAGE_MAX = "voltage_max";
+const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
+}
 #endif // SETTINGSDEFINITIONS_H

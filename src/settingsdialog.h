@@ -20,11 +20,16 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QQuickView>
+#include <QAbstractButton>
+#include <QDialogButtonBox>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
 #include <QDebug>
+#include <QSettings>
+
+#include "settingsdefinitions.h"
 
 namespace Ui
 {
@@ -46,6 +51,8 @@ private:
 
 private slots:
     void settingChanged(QListWidgetItem *current, QListWidgetItem *previous);
+
+    void buttonBoxClicked(QAbstractButton *button);
 };
 
 #endif // SETTINGSDIALOG_H
