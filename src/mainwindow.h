@@ -24,8 +24,11 @@
 // QUrl and QDesktopServices to open Webbrowser (file a bug report)
 #include <QUrl>
 #include <QDesktopServices>
+#include <QPropertyAnimation>
 
 #include <QMessageBox>
+
+#include <memory>
 
 #include "config.h"
 #include "settingsdefinitions.h"
@@ -49,18 +52,25 @@ public:
 private:
     Ui::MainWindow *ui;
 
+    std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
+    std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
+
     /**
      * @brief setupMenuBarActions
      *
      * Connect MenuBar Actions
      */
     void setupMenuBarActions();
+    void setupAnimations();
 
 private slots:
     void fileBugReport();
     void showAbout();
     void showAboutQt();
     void showSettings();
+
+    void showHideVoltCurrentSpinners();
+    void setLCDDisplay(double val);
 
     // QWidget interface
 protected:

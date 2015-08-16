@@ -14,26 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ABOUTME_H
-#define ABOUTME_H
+#ifndef SERIALQUEUE_H
+#define SERIALQUEUE_H
 
-#include <QDialog>
+#include <mutex>
+#include <memory>
+/*
+ * We use a std::queue as basis for this threadsafe queue
+ */
+#include <queue>
+/*
+ * We need a conditional variable to signal a waiting thread
+ */
+#include <condition_variable>
 
-namespace Ui
+#include "serialcommand.h"
+
+class SerialQueue
 {
-class AboutMe;
-}
-
-class AboutMe : public QDialog
-{
-    Q_OBJECT
-
 public:
-    explicit AboutMe(QWidget *parent = 0);
-    ~AboutMe();
+    SerialQueue();
+
+    void push(int command, int channel = 1, QVariant value = QVariant(),
+              bool withReply = false);
+    std::shared_ptr<SerialCommand> pop();
+
+    bool empty();
 
 private:
-    Ui::AboutMe *ui;
+    std::queue<std::shared_ptr<SerialCommand>> internalQueue;
+    std::mutex mtx;
+    std::condition_variable threadWakeUpCondition;
 };
 
-#endif // ABOUTME_H
+#endif // SERIALQUEUE_H

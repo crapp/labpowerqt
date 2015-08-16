@@ -55,15 +55,22 @@ configure_file (
 
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/koradspic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
 )
 
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/koradspic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
 )
 

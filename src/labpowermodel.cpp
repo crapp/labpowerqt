@@ -14,26 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ABOUTME_H
-#define ABOUTME_H
+#include "labpowermodel.h"
 
-#include <QDialog>
-
-namespace Ui
+LabPowerModel::LabPowerModel()
 {
-class AboutMe;
+
 }
 
-class AboutMe : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit AboutMe(QWidget *parent = 0);
-    ~AboutMe();
-
-private:
-    Ui::AboutMe *ui;
-};
-
-#endif // ABOUTME_H

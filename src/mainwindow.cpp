@@ -36,9 +36,16 @@ MainWindow::MainWindow(QWidget *parent)
     settings.endGroup();
 
     this->setupMenuBarActions();
+    this->setupAnimations();
 
-    QObject::connect(ui->Knob, SIGNAL(valueChanged(double)), ui->lcdNumber,
-                     SLOT(display(double)));
+    this->ui->frame_2->setMaximumHeight(0);
+
+    // Connect signal slots
+    QObject::connect(ui->Knob, SIGNAL(valueChanged(double)), this,
+                     SLOT(setLCDDisplay(double)));
+    QObject::connect(
+        ui->pushButton_2,
+        SIGNAL(clicked()), this, SLOT(showHideVoltCurrentSpinners()));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -59,6 +66,21 @@ void MainWindow::setupMenuBarActions()
                      SLOT(showAboutQt()));
 }
 
+void MainWindow::setupAnimations()
+{
+    this->showVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
+        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
+    this->showVoltCurrentSpinner->setDuration(500);
+    this->showVoltCurrentSpinner->setStartValue(0);
+    this->showVoltCurrentSpinner->setEndValue(ui->frame_2->height());
+
+    this->hideVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
+        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
+    this->hideVoltCurrentSpinner->setDuration(500);
+    this->hideVoltCurrentSpinner->setStartValue(this->showVoltCurrentSpinner->endValue());
+    this->hideVoltCurrentSpinner->setEndValue(0);
+}
+
 void MainWindow::fileBugReport()
 {
     // TODO: Change URL as soon as github repo is created
@@ -77,6 +99,20 @@ void MainWindow::showSettings()
 {
     SettingsDialog sd;
     sd.exec();
+}
+
+void MainWindow::showHideVoltCurrentSpinners()
+{
+    if (ui->frame_2->maximumHeight() == 0) {
+        this->showVoltCurrentSpinner->start();
+    } else {
+        this->hideVoltCurrentSpinner->start();
+    }
+}
+
+void MainWindow::setLCDDisplay(double val)
+{
+    ui->lcdNumber->display(QString::number(val, 'f', 2));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

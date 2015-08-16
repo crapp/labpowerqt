@@ -14,26 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef ABOUTME_H
-#define ABOUTME_H
+#ifndef SERIALCOMMAND
+#define SERIALCOMMAND
 
-#include <QDialog>
+#include <QByteArray>
+#include <QVariant>
 
-namespace Ui
-{
-class AboutMe;
-}
-
-class AboutMe : public QDialog
-{
-    Q_OBJECT
-
+struct SerialCommand {
 public:
-    explicit AboutMe(QWidget *parent = 0);
-    ~AboutMe();
+    SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
+                  bool withReply = false)
+        : command(command), powerSupplyChannel(channel), value(value),
+          commandWithReply(withReply){};
+
+    int getCommand() { return this->command; };
+    int getPowerSupplyChannel() { return this->powerSupplyChannel; };
+    bool getCommandWithReply() { return this->commandWithReply; };
+
+    void setReply(QByteArray data) { this->reply = data; };
 
 private:
-    Ui::AboutMe *ui;
+    int command;
+    int powerSupplyChannel;
+    QVariant value;
+    bool commandWithReply;
+
+    QByteArray reply;
 };
 
-#endif // ABOUTME_H
+#endif // SERIALCOMMAND
