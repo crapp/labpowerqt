@@ -55,7 +55,8 @@ configure_file (
 
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/koradspic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
@@ -66,7 +67,8 @@ set(HEADER
 
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/koradspic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp

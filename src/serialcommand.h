@@ -29,6 +29,7 @@ public:
 
     int getCommand() { return this->command; };
     int getPowerSupplyChannel() { return this->powerSupplyChannel; };
+    QVariant getValue() { return this->value; }
     bool getCommandWithReply() { return this->commandWithReply; };
 
     void setReply(QByteArray data) { this->reply = data; };

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef KORADSPIC_H
-#define KORADSPIC_H
+#ifndef KORADSCPI_H
+#define KORADSCPI_H
 
 #include <memory>
 #include <mutex>
@@ -23,13 +23,14 @@
 #include <exception>
 
 #include <QObject>
+#include <QDebug>
 #include <QtSerialPort/QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
 #include <QString>
 
 #include "serialqueue.h"
 
-namespace KoradSPIC_constants
+namespace KoradSCPI_constants
 {
 enum COMMANDS {
     SETCURRENT = 1,
@@ -71,7 +72,7 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
 };
 }
 
-class KoradSPIC : public QObject
+class KoradSCPI : public QObject
 {
 
     Q_OBJECT
@@ -82,8 +83,8 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port is not open
      */
-    KoradSPIC(QString serialPortName);
-    ~KoradSPIC();
+    KoradSCPI(QString serialPortName);
+    ~KoradSCPI();
 
     void getIdentification();
     void getStatus();
@@ -115,4 +116,4 @@ private:
     void readWriteData(std::shared_ptr<SerialCommand> com);
 };
 
-#endif // KORADSPIC_H
+#endif // KORADSCPI_H

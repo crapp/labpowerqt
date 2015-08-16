@@ -32,6 +32,7 @@
 
 #include "config.h"
 #include "settingsdefinitions.h"
+#include "labpowercontroller.h"
 
 #include "aboutme.h"
 #include "settingsdialog.h"
@@ -54,6 +55,8 @@ private:
 
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
+
+    std::unique_ptr<LabPowerController> controller;
 
     /**
      * @brief setupMenuBarActions
