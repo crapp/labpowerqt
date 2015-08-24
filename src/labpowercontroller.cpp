@@ -22,7 +22,7 @@ void LabPowerController::setupPowerSupplyConnector()
                 QObject::connect(
                     this->powerSupplyConnector.get(),
                     SIGNAL(requestFinished(std::shared_ptr<SerialCommand>)),
-                    this, SLOT(dataReceived(std::shared_ptr<SerialCommand>)));
+                    this, SLOT(receiveData(std::shared_ptr<SerialCommand>)));
             }
         } catch (const std::runtime_error &ex) {
             qDebug() << Q_FUNC_INFO << "Could not open com port: " << ex.what();
@@ -52,7 +52,23 @@ void LabPowerController::getIdentification()
     this->powerSupplyConnector->getIdentification();
 }
 
-void LabPowerController::dataReceived(std::shared_ptr<SerialCommand> com)
+void LabPowerController::getStatus()
+{
+    this->powerSupplyConnector->getStatus();
+}
+
+void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
 {
     qDebug() << Q_FUNC_INFO << "com: " << com->getReply();
+}
+
+void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status)
+{
+    qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
+    qDebug() << Q_FUNC_INFO << "Beeper: " << status->getBeeper();
+    qDebug() << Q_FUNC_INFO << "Locked: " << status->getLocked();
+    qDebug() << Q_FUNC_INFO << "OCP: " << status->getOcp();
+    qDebug() << Q_FUNC_INFO << "OVP: " << status->getOvp();
+    qDebug() << Q_FUNC_INFO << "Actual Current: " << status->getActualCurrent(1);
+    qDebug() << Q_FUNC_INFO << "Actual Voltage: " << status->getActualVoltage(1);
 }

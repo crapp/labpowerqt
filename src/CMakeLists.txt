@@ -1,6 +1,6 @@
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG          "-Wextra -O0 -g")
+set(CMAKE_CXX_FLAGS_DEBUG          "-Wextra -O0 -g -Wno-reorder") # No reorder warnings since this pop up frequently if you are using the Q_OBJECT macro
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
@@ -60,6 +60,8 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/powersupplystatus.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
@@ -73,6 +75,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
 )

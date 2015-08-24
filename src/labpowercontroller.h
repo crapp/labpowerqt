@@ -12,6 +12,7 @@
 #include "settingsdefinitions.h"
 #include "koradscpi.h"
 #include "serialcommand.h"
+#include "powersupplystatus.h"
 
 class LabPowerController : public QObject
 {
@@ -30,8 +31,10 @@ public slots:
     void readCurrentVoltage();
 
     void getIdentification();
+    void getStatus();
 
-    void dataReceived(std::shared_ptr<SerialCommand> com);
+    void receiveData(std::shared_ptr<SerialCommand> com);
+    void receiveStatus(std::shared_ptr<PowerSupplyStatus> status);
 
 private:
     std::unique_ptr<KoradSCPI> powerSupplyConnector;

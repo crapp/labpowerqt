@@ -48,7 +48,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
                      SLOT(showHideVoltCurrentSpinners()));
 
-    qRegisterMetaType<std::shared_ptr<SerialCommand> >();
+    qRegisterMetaType<std::shared_ptr<SerialCommand>>();
+    qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
 
     // create controller
     this->controller =
@@ -120,7 +121,7 @@ void MainWindow::showHideVoltCurrentSpinners()
     } else {
         this->hideVoltCurrentSpinner->start();
     }
-    this->controller->getIdentification();
+    this->controller->getStatus();
 }
 
 void MainWindow::setLCDDisplay(double val)
