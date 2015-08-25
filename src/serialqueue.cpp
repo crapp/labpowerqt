@@ -2,11 +2,11 @@
 
 SerialQueue::SerialQueue() {}
 
-void SerialQueue::push(int command, int channel, QVariant value, bool withReply)
+void SerialQueue::push(int command, int channel, QByteArray reply, bool withReply)
 {
     std::lock_guard<std::mutex> lock(this->mtx);
     std::shared_ptr<SerialCommand> com =
-        std::make_shared<SerialCommand>(command, channel, value, withReply);
+        std::make_shared<SerialCommand>(command, channel, reply, withReply);
 
     this->internalQueue.push(com);
     // notify thread to wake up and pop latest command

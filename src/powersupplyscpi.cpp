@@ -53,6 +53,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     std::shared_ptr<PowerSupplyStatus> status = nullptr;
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
 
+    if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
+        return;
+    }
     if (com->getCommand() == powcon::GETSTATUS) {
         commands = this->prepareStatusCommands();
         status = std::make_shared<PowerSupplyStatus>();
@@ -98,7 +101,7 @@ PowerSupplySCPI::prepareStatusCommands()
     std::vector<std::shared_ptr<SerialCommand>> comVec;
     for (const auto &c : this->statusCommands) {
         std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-            static_cast<int>(c), 1, QVariant(), true);
+            static_cast<int>(c), 1, QByteArray(), true);
         comVec.push_back(com);
     }
     return comVec;

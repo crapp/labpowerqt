@@ -18,6 +18,7 @@
 
 namespace powcon = PowerSupplySCPI_constants;
 namespace korcon = KoradSCPI_constants;
+namespace statuscon = PowerSupplyStatus_constants;
 
 KoradSCPI::KoradSCPI(const QString serialPortName)
     : PowerSupplySCPI(serialPortName)
@@ -28,7 +29,8 @@ KoradSCPI::KoradSCPI(const QString serialPortName)
     this->PARITY = QSerialPort::Parity::NoParity;
     this->STOPBITS = QSerialPort::StopBits::OneStop;
 
-    this->statusCommands = {powcon::GETSTATUS, powcon::GETACTUALCURRENT,
+    this->statusCommands = {powcon::GETSTATUS, powcon::GETCURRENT,
+                            powcon::GETACTUALCURRENT, powcon::GETVOLTAGE,
                             powcon::GETACTUALVOLTAGE};
 }
 
@@ -50,11 +52,27 @@ void KoradSCPI::processStatusCommands(std::shared_ptr<PowerSupplyStatus> &status
                                       const std::shared_ptr<SerialCommand> &com)
 {
     if (com->getCommand() == powcon::COMMANDS::GETSTATUS) {
-        QByteArray val = com->getValue().toByteArray();
+        QByteArray val = com->getReply();
         uint8_t blas = val[0];
         if ((val[0] & 0x80) == 0x80) {
             // status->set
         }
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETCURRENT) {
+        status->setAdjustedCurrent(std::make_pair(com->getPowerSupplyChannel(),
+                                                  com->getValue().toDouble()));
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETACTUALCURRENT) {
+        status->setActualCurrent(std::make_pair(com->getPowerSupplyChannel(),
+                                                com->getValue().toDouble()));
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETVOLTAGE) {
+        status->setAdjustedVoltage(std::make_pair(com->getPowerSupplyChannel(),
+                                                  com->getValue().toDouble()));
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETACTUALVOLTAGE) {
+        status->setActualVoltage(std::make_pair(com->getPowerSupplyChannel(),
+                                                com->getValue().toDouble()));
     }
 }
 

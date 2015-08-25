@@ -35,9 +35,9 @@ public:
         this->commandWithReply = false;
     };
 
-    SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
+    SerialCommand(int command, int channel = 1, QByteArray reply = QByteArray(),
                   bool withReply = false)
-        : command(command), powerSupplyChannel(channel), value(value),
+        : command(command), powerSupplyChannel(channel), reply(reply),
           commandWithReply(withReply){};
 
     int getCommand() { return this->command; };
@@ -45,7 +45,11 @@ public:
     QVariant getValue() { return this->value; }
     bool getCommandWithReply() { return this->commandWithReply; };
 
-    void setReply(QByteArray data) { this->reply = data; };
+    void setReply(QByteArray data)
+    {
+        this->reply = data;
+        this->value = this->reply;
+    };
     QByteArray getReply() { return this->reply; }
 
 private:

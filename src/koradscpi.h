@@ -60,7 +60,7 @@ public:
      * @throw std::runtime_error when Serial Port could not be opened
      */
     KoradSCPI(const QString serialPortName);
-    virtual ~KoradSCPI();
+    ~KoradSCPI();
 
     // LabPowerSupply Interface
     void getIdentification();

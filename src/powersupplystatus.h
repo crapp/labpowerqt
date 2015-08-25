@@ -90,7 +90,7 @@ public:
     void
     setAdjustedVoltage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
-        this->adjusted_current.insert(value);
+        this->adjusted_voltage.insert(value);
     }
     /**
      * @brief getAdjustedVoltage Get value for channel
@@ -100,7 +100,7 @@ public:
      */
     const double &getAdjustedVoltage(const int &channel)
     {
-        return this->actual_current.at(channel);
+        return this->adjusted_voltage.at(channel);
     }
 
 private:

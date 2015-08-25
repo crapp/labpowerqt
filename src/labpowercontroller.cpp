@@ -23,6 +23,10 @@ void LabPowerController::setupPowerSupplyConnector()
                     this->powerSupplyConnector.get(),
                     SIGNAL(requestFinished(std::shared_ptr<SerialCommand>)),
                     this, SLOT(receiveData(std::shared_ptr<SerialCommand>)));
+                QObject::connect(
+                    this->powerSupplyConnector.get(),
+                    SIGNAL(statusReady(std::shared_ptr<PowerSupplyStatus>)),
+                    this, SLOT(receiveStatus(std::shared_ptr<PowerSupplyStatus>)));
             }
         } catch (const std::runtime_error &ex) {
             qDebug() << Q_FUNC_INFO << "Could not open com port: " << ex.what();
@@ -71,4 +75,6 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
     qDebug() << Q_FUNC_INFO << "OVP: " << status->getOvp();
     qDebug() << Q_FUNC_INFO << "Actual Current: " << status->getActualCurrent(1);
     qDebug() << Q_FUNC_INFO << "Actual Voltage: " << status->getActualVoltage(1);
+    qDebug() << Q_FUNC_INFO << "Adjusted Current: " << status->getAdjustedCurrent(1);
+    qDebug() << Q_FUNC_INFO << "Adjusted Voltage: " << status->getAdjustedVoltage(1);
 }
