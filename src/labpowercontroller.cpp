@@ -45,7 +45,9 @@ void LabPowerController::freeSerialPort()
     }
 }
 
-void LabPowerController::setVoltage(double value) {}
+void LabPowerController::setVoltage(double value) {
+    this->powerSupplyConnector->setVoltage(1, value);
+}
 
 void LabPowerController::readSetVoltage() {}
 
@@ -63,7 +65,7 @@ void LabPowerController::getStatus()
 
 void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
 {
-    qDebug() << Q_FUNC_INFO << "com: " << com->getReply();
+    qDebug() << Q_FUNC_INFO << "com: " << com->getValue();
 }
 
 void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status)
@@ -71,8 +73,6 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
     qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
     qDebug() << Q_FUNC_INFO << "Beeper: " << status->getBeeper();
     qDebug() << Q_FUNC_INFO << "Locked: " << status->getLocked();
-    qDebug() << Q_FUNC_INFO << "OCP: " << status->getOcp();
-    qDebug() << Q_FUNC_INFO << "OVP: " << status->getOvp();
     qDebug() << Q_FUNC_INFO << "Actual Current: " << status->getActualCurrent(1);
     qDebug() << Q_FUNC_INFO << "Actual Voltage: " << status->getActualVoltage(1);
     qDebug() << Q_FUNC_INFO << "Adjusted Current: " << status->getAdjustedCurrent(1);

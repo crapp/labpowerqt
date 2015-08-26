@@ -1,0 +1,6 @@
+lock unlock
+http://simpleicon.com/license-agreement/
+
+mute unmute
+https://commons.wikimedia.org/wiki/File:Speaker_Icon.svg
+https://commons.wikimedia.org/wiki/File:Mute_Icon.svg

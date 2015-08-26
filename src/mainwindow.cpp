@@ -43,10 +43,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->frame_2->setMaximumHeight(0);
 
     // Connect signal slots
-    QObject::connect(ui->Knob, SIGNAL(valueChanged(double)), this,
-                     SLOT(setLCDDisplay(double)));
     QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
                      SLOT(showHideVoltCurrentSpinners()));
+    QObject::connect(ui->pushButtonSetVoltage, SIGNAL(clicked()), this,
+                     SLOT(setVoltage()));
 
     qRegisterMetaType<std::shared_ptr<SerialCommand>>();
     qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
@@ -124,9 +124,10 @@ void MainWindow::showHideVoltCurrentSpinners()
     this->controller->getStatus();
 }
 
-void MainWindow::setLCDDisplay(double val)
+void MainWindow::setVoltage()
 {
-    ui->lcdNumber->display(QString::number(val, 'f', 2));
+    double voltage = ui->counterVoltage->value();
+    this->controller->setVoltage(voltage);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

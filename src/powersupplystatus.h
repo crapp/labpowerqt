@@ -25,13 +25,21 @@ namespace PowerSupplyStatus_constants
 {
 enum MODE { CONSTANT_CURRENT, CONSTANT_VOLTAGE };
 enum TRACKING { INDEPENDENT, SERIES, PARALELL };
+typedef std::pair<int, MODE> CHANNELMODE;
 typedef std::pair<int, double> CHANNELVALUE;
 }
 
 struct PowerSupplyStatus {
 
 public:
-    PowerSupplyStatus(){};
+    PowerSupplyStatus()
+    {
+        this->beeper = false;
+        this->locked = false;
+        this->output = false;
+        this->ovp = false;
+        this->ocp = false;
+    };
 
     void setBeeper(bool beep) { this->beeper = beep; }
     bool getBeeper() { return this->beeper; }
@@ -84,7 +92,8 @@ public:
      * @return Actual Voltage as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    const double &getActualVoltage(const int &channel) {
+    const double &getActualVoltage(const int &channel)
+    {
         return this->actual_voltage.at(channel);
     }
     void
@@ -101,6 +110,15 @@ public:
     const double &getAdjustedVoltage(const int &channel)
     {
         return this->adjusted_voltage.at(channel);
+    }
+
+    void setChannelMode(const PowerSupplyStatus_constants::CHANNELMODE &mode)
+    {
+        this->channel_mode.insert(mode);
+    }
+    const PowerSupplyStatus_constants::MODE &getChannelMode(const int &channel)
+    {
+        return this->channel_mode.at(channel);
     }
 
 private:
@@ -120,6 +138,8 @@ private:
      */
     std::map<int, double> actual_voltage;
     std::map<int, double> adjusted_voltage;
+
+    std::map<int, PowerSupplyStatus_constants::MODE> channel_mode;
 };
 
 // Register our metatype. Needed to send this kind of object wrapped in a std

@@ -24,16 +24,24 @@ enum COMMANDS {
     GETVOLTAGE,
     GETACTUALCURRENT,
     GETACTUALVOLTAGE,
-    SETOPMODE,
+    GETOPMODE, /**< CC or CV mode */
+    SETCHANNELTRACKING,
+    GETCHANNELTRACKING,
     SETBEEP,
+    GETBEEP,
+    SETLOCKED,
+    GETLOCKED,
     SETOUT,
+    GETOUT,
     GETSTATUS,
     GETIDN,
     GETSAVEDSETTINGS,
     SAVESETTINGS,
     SETOCP,
+    GETOCP,
     SETOVP,
-    SETDUMMY = 100
+    GETOVP,
+    SETDUMMY = 100 /**< A dummy command intended for internal use. */
 };
 }
 
@@ -44,9 +52,20 @@ public:
     PowerSupplySCPI(QString serialPortName, QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
+    /**
+     * @brief getserialPortName
+     * @return
+     */
     QString getserialPortName();
     virtual void getIdentification() = 0;
     virtual void getStatus() = 0;
+    virtual void setVoltage(const int &channel, const double &value) = 0;
+    virtual void setCurrent(const int &channel, const double &value) = 0;
+    virtual void setOCP(bool status) = 0;
+    virtual void setOVP(bool status) = 0;
+    virtual void setLocked(bool status) = 0;
+    virtual void setBeep(bool status) = 0;
+    virtual void setOutput(bool status) = 0;
 
 signals:
 

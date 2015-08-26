@@ -33,7 +33,7 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
     {powcon::GETVOLTAGE, "VSET%1?"},       /**< Get voltage that has been set */
     {powcon::GETACTUALCURRENT, "IOUT%1?"}, /**< Get actual current */
     {powcon::GETACTUALVOLTAGE, "VOUT%1?"}, /**< Get actual Voltage */
-    {powcon::SETOPMODE,
+    {powcon::SETCHANNELTRACKING,
      "TRACK%1"}, /**< Selects the operation mode: independent, trackingseries,
                     or tracking parallel. */
     {powcon::SETBEEP, "BEEP%1"},         // turn beep on or off
@@ -65,6 +65,13 @@ public:
     // LabPowerSupply Interface
     void getIdentification();
     void getStatus();
+    void setVoltage(const int &channel, const double &value);
+    void setCurrent(const int &channel, const double &value);
+    void setOCP(bool status);
+    void setOVP(bool status);
+    void setLocked(bool status);
+    void setBeep(bool status);
+    void setOutput(bool status);
 
 signals:
 

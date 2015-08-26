@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>mute_greenish.png</file>
+        <file>Speaker_Icon_greenish.png</file>
+        <file>lock-closed_greenish.png</file>
+        <file>lock-open_greenish.png</file>
+    </qresource>
+</RCC>

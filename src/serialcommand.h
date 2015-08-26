@@ -35,30 +35,23 @@ public:
         this->commandWithReply = false;
     };
 
-    SerialCommand(int command, int channel = 1, QByteArray reply = QByteArray(),
+    SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
                   bool withReply = false)
-        : command(command), powerSupplyChannel(channel), reply(reply),
+        : command(command), powerSupplyChannel(channel), value(value),
           commandWithReply(withReply){};
 
     int getCommand() { return this->command; };
     int getPowerSupplyChannel() { return this->powerSupplyChannel; };
     QVariant getValue() { return this->value; }
-    bool getCommandWithReply() { return this->commandWithReply; };
+    void setValue(const QVariant &value) { this->value = value; }
 
-    void setReply(QByteArray data)
-    {
-        this->reply = data;
-        this->value = this->reply;
-    };
-    QByteArray getReply() { return this->reply; }
+    bool getCommandWithReply() { return this->commandWithReply; };
 
 private:
     int command;
     int powerSupplyChannel;
     QVariant value;
     bool commandWithReply;
-
-    QByteArray reply;
 };
 
 // Register our metatype. Needed to send this kind of object wrapped in a std

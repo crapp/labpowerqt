@@ -73,7 +73,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
                 while (this->serialPort->waitForReadyRead(10)) {
                     reply += this->serialPort->readAll();
                 }
-                c->setReply(reply);
+                c->setValue(QVariant(reply));
 
                 if (status != nullptr) {
                     this->processStatusCommands(status, c);
@@ -101,7 +101,7 @@ PowerSupplySCPI::prepareStatusCommands()
     std::vector<std::shared_ptr<SerialCommand>> comVec;
     for (const auto &c : this->statusCommands) {
         std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-            static_cast<int>(c), 1, QByteArray(), true);
+            static_cast<int>(c), 1, QVariant(), true);
         comVec.push_back(com);
     }
     return comVec;

@@ -7,4 +7,5 @@ set (labpowerqt_VERSION_MINOR 1)
 set (labpowerqt_VERSION_PATCH 0)
 
 add_subdirectory(forms)
+add_subdirectory(external/qcustomplot)
 add_subdirectory(src)

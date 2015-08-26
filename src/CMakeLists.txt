@@ -35,6 +35,7 @@ find_package(Qt5Widgets 5.2 REQUIRED)
 message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
 find_package(Qt5SerialPort REQUIRED)
 find_package(Qt5Quick REQUIRED)
+find_package(Qt5PrintSupport REQUIRED)
 
 find_package(Qwt 6.1 REQUIRED)
 
@@ -45,6 +46,7 @@ qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 include_directories(
     ${PROJECT_BINARY_DIR}
     ${QWT_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/external/qcustomplot
 )
 
 # configure a header file to pass some of the CMake settings
@@ -80,12 +82,25 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
 )
 
-add_executable(labpowerqt ${HEADER} ${SOURCE} ${${CMAKE_PROJECT_NAME}_FORMS})
+set(RESOURCE ${PROJECT_SOURCE_DIR}/icons/icons.qrc)
+# add resource files so they can be compiled into the binary
+qt5_add_resources(RESOURCE_ADDED ${RESOURCE})
+
+add_executable(labpowerqt
+    ${HEADER}
+    ${SOURCE}
+    ${${CMAKE_PROJECT_NAME}_FORMS}
+    ${CUSTOMPLOT_HEADER}
+    ${CUSTOMPLOT_SOURCE}
+    ${RESOURCE_ADDED}
+)
+
 target_link_libraries(labpowerqt
 Qt5::Widgets
 Qt5::SerialPort
 Qt5::Quick
 Qt5::Qml
+Qt5::PrintSupport
 ${QWT_LIBRARY}
 ${CMAKE_THREAD_LIBS_INIT})
 

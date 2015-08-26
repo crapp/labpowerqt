@@ -73,7 +73,8 @@ private slots:
     void showSettings();
 
     void showHideVoltCurrentSpinners();
-    void setLCDDisplay(double val);
+
+    void setVoltage();
 
     // QWidget interface
 protected:

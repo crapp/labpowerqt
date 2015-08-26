@@ -39,37 +39,131 @@ KoradSCPI::~KoradSCPI() {}
 void KoradSCPI::getIdentification()
 {
     // parameters two and three are irrelevant here.
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETIDN), 1, 0, true);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETIDN), 1,
+                        QVariant(0), true);
 }
 
 void KoradSCPI::getStatus()
 {
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETSTATUS), 1, 0,
-                        true);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETSTATUS), 1,
+                        QVariant(0), true);
+}
+
+void KoradSCPI::setVoltage(const int &channel, const double &value)
+{
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETVOLTAGE), channel,
+                        QVariant(value), false);
+}
+
+void KoradSCPI::setCurrent(const int &channel, const double &value)
+{
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETCURRENT), channel,
+                        QVariant(value), false);
+}
+
+void KoradSCPI::setOCP(bool status)
+{
+    QVariant val = 0;
+    if (status) {
+        val = 1;
+    }
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOCP), 1,
+                        val, false);
+}
+
+void KoradSCPI::setOVP(bool status)
+{
+    QVariant val = 0;
+    if (status) {
+        val = 1;
+    }
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOVP), 1,
+                        val, false);
+}
+
+void KoradSCPI::setLocked(bool status)
+{
+
+}
+
+void KoradSCPI::setBeep(bool status)
+{
+    QVariant val = 0;
+    if (status) {
+        val = 1;
+    }
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETBEEP), 1,
+                        val, false);
+}
+
+void KoradSCPI::setOutput(bool status)
+{
+    QVariant val = 0;
+    if (status) {
+        val = 1;
+    }
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOUT), 1,
+                        val, false);
 }
 
 void KoradSCPI::processStatusCommands(std::shared_ptr<PowerSupplyStatus> &status,
                                       const std::shared_ptr<SerialCommand> &com)
 {
     if (com->getCommand() == powcon::COMMANDS::GETSTATUS) {
-        QByteArray val = com->getReply();
+        /*
+         * Decoding the Korad Status Byte is pretty simpel.
+         * MSB -> LSB
+         * 7   not defined
+         * 6   Output
+         * 5   Lock
+         * 4   Beep
+         * 2,3 Channel Tracking Mode
+         * 1   CH2 CC|CV mode
+         * 0   CH1 CC|CV mode
+         */
+        QByteArray val = com->getValue().toByteArray();
         uint8_t blas = val[0];
-        if ((val[0] & 0x80) == 0x80) {
-            // status->set
+        if (val[0] & (1 << 6)) {
+            status->setOutput(true);
+        }
+        if (val[0] & (1 << 5)) {
+            status->setLocked(true);
+        }
+        if (val[0] & (1 << 4)) {
+            status->setBeeper(true);
+        }
+        // TODO: Add check for tracking mode
+        if (val[0] & (1 << 1)) {
+            status->setChannelMode(std::make_pair(
+                2, PowerSupplyStatus_constants::MODE::CONSTANT_VOLTAGE));
+        } else {
+            status->setChannelMode(std::make_pair(
+                2, PowerSupplyStatus_constants::MODE::CONSTANT_CURRENT));
+        }
+        if (val[0] & (1 << 0)) {
+            status->setChannelMode(std::make_pair(
+                1, PowerSupplyStatus_constants::MODE::CONSTANT_VOLTAGE));
+        } else {
+            status->setChannelMode(std::make_pair(
+                1, PowerSupplyStatus_constants::MODE::CONSTANT_CURRENT));
         }
     }
+
     if (com->getCommand() == powcon::COMMANDS::GETCURRENT) {
         status->setAdjustedCurrent(std::make_pair(com->getPowerSupplyChannel(),
                                                   com->getValue().toDouble()));
     }
+
     if (com->getCommand() == powcon::COMMANDS::GETACTUALCURRENT) {
         status->setActualCurrent(std::make_pair(com->getPowerSupplyChannel(),
                                                 com->getValue().toDouble()));
     }
+
     if (com->getCommand() == powcon::COMMANDS::GETVOLTAGE) {
         status->setAdjustedVoltage(std::make_pair(com->getPowerSupplyChannel(),
                                                   com->getValue().toDouble()));
     }
+
     if (com->getCommand() == powcon::COMMANDS::GETACTUALVOLTAGE) {
         status->setActualVoltage(std::make_pair(com->getPowerSupplyChannel(),
                                                 com->getValue().toDouble()));
