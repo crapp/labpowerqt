@@ -45,8 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Connect signal slots
     QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
                      SLOT(showHideVoltCurrentSpinners()));
-    QObject::connect(ui->pushButtonSetVoltage, SIGNAL(clicked()), this,
-                     SLOT(setVoltage()));
 
     qRegisterMetaType<std::shared_ptr<SerialCommand>>();
     qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
@@ -57,6 +55,16 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::dataUpdated()
+{
+
+}
+
+void MainWindow::disableControls(bool status)
+{
+
+}
 
 void MainWindow::setupMenuBarActions()
 {
@@ -126,8 +134,7 @@ void MainWindow::showHideVoltCurrentSpinners()
 
 void MainWindow::setVoltage()
 {
-    double voltage = ui->counterVoltage->value();
-    this->controller->setVoltage(voltage);
+    //this->controller->setVoltage(voltage);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

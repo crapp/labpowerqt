@@ -6,9 +6,6 @@ PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QObject *parent)
     : serialPortName(serialPortName), QObject(parent)
 {
     this->serialPort = nullptr;
-
-    this->backgroundWorkerThreadRun = true;
-    backgroundWorkerThread = std::thread(&PowerSupplySCPI::threadFunc, this);
 }
 
 PowerSupplySCPI::~PowerSupplySCPI()
@@ -20,6 +17,12 @@ PowerSupplySCPI::~PowerSupplySCPI()
     delete serialPort;
 }
 
+void PowerSupplySCPI::startBackgroundThread()
+{
+    this->backgroundWorkerThreadRun = true;
+    backgroundWorkerThread = std::thread(&PowerSupplySCPI::threadFunc, this);
+}
+
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
 
 void PowerSupplySCPI::threadFunc()
@@ -27,8 +30,8 @@ void PowerSupplySCPI::threadFunc()
     if (!this->serialPort) {
         this->serialPort = new QSerialPort(this->serialPortName);
         if (!this->serialPort->open(QIODevice::ReadWrite)) {
-            throw std::runtime_error(
-                this->serialPort->errorString().toStdString());
+            emit errorOpen(this->serialPort->errorString());
+            return;
         }
 
         this->serialPort->setBaudRate(this->BAUDRATE);

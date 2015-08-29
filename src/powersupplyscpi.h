@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QByteArray>
 #include <QtSerialPort/QtSerialPort>
+#include <QString>
 
 #include "serialqueue.h"
 #include "serialcommand.h"
@@ -52,6 +53,8 @@ public:
     PowerSupplySCPI(QString serialPortName, QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
+    void startBackgroundThread();
+
     /**
      * @brief getserialPortName
      * @return
@@ -72,6 +75,17 @@ signals:
     // TODO: Sending this as const reference would be great.
     void requestFinished(std::shared_ptr<SerialCommand>);
     void statusReady(std::shared_ptr<PowerSupplyStatus>);
+
+    /**
+     * @brief errorReadWrite Signal emitted when we could not read or write the device node
+     * @param errorString
+     */
+    void errorReadWrite(QString errorString);
+    /**
+     * @brief errorOpen Signal that indicates that the device port could not be opened
+     * @param errorString String from QIODevice
+     */
+    void errorOpen(QString errorString);
 
 public slots:
 

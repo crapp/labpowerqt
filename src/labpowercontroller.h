@@ -26,14 +26,21 @@ public slots:
     void setupPowerSupplyConnector();
     void freeSerialPort();
 
-    void setVoltage(double value);
-    void readSetVoltage();
-    void readCurrentVoltage();
-
+    // Implement the Power Supply Interface
+    void deviceError(const QString &errorString);
+    void deviceReadWriteError(const QString &errorString);
+    void setVoltage(const double &value);
     void getIdentification();
     void getStatus();
-
+    /**
+     * @brief receiveData Receive a single Serial Command Object
+     * @param com
+     */
     void receiveData(std::shared_ptr<SerialCommand> com);
+    /**
+     * @brief receiveStatus Receive a status object from the power supply connector
+     * @param status
+     */
     void receiveStatus(std::shared_ptr<PowerSupplyStatus> status);
 
 private:

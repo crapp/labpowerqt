@@ -50,6 +50,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void dataUpdated();
+    void disableControls(bool status);
+
 private:
     Ui::MainWindow *ui;
 

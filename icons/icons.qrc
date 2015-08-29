@@ -4,5 +4,17 @@
         <file>Speaker_Icon_greenish.png</file>
         <file>lock-closed_greenish.png</file>
         <file>lock-open_greenish.png</file>
+        <file>plug_in_newgreen.png</file>
+        <file>plug_out_newgreen.png</file>
+        <file>lock-closed_newgreen.png</file>
+        <file>lock-open_newgreen.png</file>
+        <file>mute_newgreen.png</file>
+        <file>Speaker_Icon_newgreen.png</file>
+        <file>lock-closed_orange.png</file>
+        <file>speaker_mute_orange.png</file>
+        <file>speaker_orange.png</file>
+        <file>lock-open_orange.png</file>
+        <file>plug_in_orange.png</file>
+        <file>plug_out_orange.png</file>
     </qresource>
 </RCC>

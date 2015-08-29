@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>838</width>
-    <height>573</height>
+    <width>880</width>
+    <height>550</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>880</width>
+    <height>550</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -40,7 +46,7 @@
         <string>Control</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="3" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <widget class="QFrame" name="frame">
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
@@ -74,7 +80,7 @@
           </layout>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QFrame" name="frame_2">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -112,12 +118,18 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QFrame" name="frameDisplay">
+         <widget class="QFrame" name="frameDisplayStatsContainer">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
           </property>
           <property name="maximumSize">
            <size>
@@ -125,152 +137,83 @@
             <height>16777215</height>
            </size>
           </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(47, 47, 47);
-/*color: rgb(101, 220, 80);*/
-color: #7BCF06;</string>
-          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0" colspan="2">
-            <widget class="QFrame" name="frameDisplayHeader">
+          <layout class="QGridLayout" name="gridLayout_19">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <item row="1" column="0">
+            <widget class="QFrame" name="frameStats">
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QLabel" name="labelDisplayDeviceName">
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string notr="true">Device Name</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="labelDisplayHeaderMute">
-                <property name="text">
-                 <string notr="true"/>
-                </property>
-                <property name="pixmap">
-                 <pixmap resource="../icons/icons.qrc">:/icons/Speaker_Icon_greenish.png</pixmap>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labelDisplayHeaderLock">
-                <property name="minimumSize">
-                 <size>
-                  <width>16</width>
-                  <height>16</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string notr="true"/>
-                </property>
-                <property name="pixmap">
-                 <pixmap resource="../icons/icons.qrc">:/icons/lock-open_greenish.png</pixmap>
+                 <string>Statistics</string>
                 </property>
                </widget>
               </item>
              </layout>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QFrame" name="frameDisplayFooter">
+           <item row="0" column="0">
+            <widget class="QFrame" name="frameDisplay">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(47, 47, 47);
+/*color: rgb(101, 220, 80);*/
+color: #7BCF06;</string>
+             </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <widget class="QLabel" name="labelOCP">
-                <property name="text">
-                 <string>OCP</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="labelOVP">
-                <property name="text">
-                 <string>OVP</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QFrame" name="frameChannelsContainer">
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_7">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
+             <layout class="QGridLayout" name="gridLayout">
               <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
                <number>0</number>
               </property>
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <item row="0" column="0">
-               <widget class="QFrame" name="frameCH1Container">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="0" column="0" colspan="2">
+               <widget class="QFrame" name="frameDisplayHeader">
+                <property name="styleSheet">
+                 <string notr="true">color: #ff7e00;</string>
                 </property>
                 <property name="frameShape">
                  <enum>QFrame::NoFrame</enum>
@@ -278,7 +221,233 @@ color: #7BCF06;</string>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <layout class="QGridLayout" name="gridLayout_6">
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="labelDisplayDeviceName">
+                   <property name="text">
+                    <string notr="true">Unknown Device</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelDisplayHeaderPlug">
+                   <property name="minimumSize">
+                    <size>
+                     <width>37</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Disconnected</string>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="../icons/icons.qrc">:/icons/plug_out_orange.png</pixmap>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelDisplayHeaderMute">
+                   <property name="minimumSize">
+                    <size>
+                     <width>25</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Sound on</string>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="../icons/icons.qrc">:/icons/speaker_orange.png</pixmap>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelDisplayHeaderLock">
+                   <property name="minimumSize">
+                    <size>
+                     <width>25</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>Device Controls unlocked</string>
+                   </property>
+                   <property name="text">
+                    <string notr="true"/>
+                   </property>
+                   <property name="pixmap">
+                    <pixmap resource="../icons/icons.qrc">:/icons/lock-open_orange.png</pixmap>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="2">
+               <widget class="QFrame" name="frameDisplayFooter">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color: #ff7e00;</string>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="labelOCP">
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string>OCP:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelOCPStatus">
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-right: 1px solid #7BCF06;
+padding-right: 5px;</string>
+                   </property>
+                   <property name="text">
+                    <string>Off</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelOVP">
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string>OVP:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelOVPStatus">
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">border-right: 1px solid #7BCF06;
+padding-right: 5px;</string>
+                   </property>
+                   <property name="text">
+                    <string>Off</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelTracking">
+                   <property name="text">
+                    <string>Tracking:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ClickableLabel" name="labelTrackingMode">
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Off</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QFrame" name="frameChannelsContainer">
+                <property name="styleSheet">
+                 <string notr="true">#frameCH2Data, #frameCH2ModeOutput, #frameCH2Set,
+#frameCH1Data, #frameCH1ModeOutput, #frameCH1Set {
+	border: 1px solid #7BCF06
+}
+
+#frameCH1Data, #frameCH2Data {
+	border-bottom: none;
+}
+
+#frameCH1Data, #frameCH1ModeOutput, #frameCH1Set, #frameCH2Set {
+	border-right: none;
+}</string>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_7">
                  <property name="leftMargin">
                   <number>0</number>
                  </property>
@@ -295,14 +464,12 @@ color: #7BCF06;</string>
                   <number>0</number>
                  </property>
                  <item row="0" column="0">
-                  <widget class="QFrame" name="frameCH1Data">
-                   <property name="styleSheet">
-                    <string notr="true">#frameCH1Data {
-border-width: 1px;
-border-style: solid;
-border-bottom: none;
-border-color: #7BCF06
-}</string>
+                  <widget class="QFrame" name="frameCH1Container">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
@@ -310,135 +477,7 @@ border-color: #7BCF06
                    <property name="frameShadow">
                     <enum>QFrame::Raised</enum>
                    </property>
-                   <property name="lineWidth">
-                    <number>1</number>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_3">
-                    <property name="bottomMargin">
-                     <number>9</number>
-                    </property>
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="labelCH1Name">
-                      <property name="text">
-                       <string>CH1</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="labelCH1CurrVoltage">
-                      <property name="font">
-                       <font>
-                        <family>DejaVu Sans</family>
-                        <pointsize>20</pointsize>
-                       </font>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">padding-right: 0.5em;</string>
-                      </property>
-                      <property name="text">
-                       <string notr="true">0.000</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                      <property name="margin">
-                       <number>0</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QLabel" name="labelCH1CurrVoltageLabel">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                       <string notr="true">V</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="labelCH1CurrCurrent">
-                      <property name="font">
-                       <font>
-                        <pointsize>20</pointsize>
-                       </font>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">padding-right: 0.5em;</string>
-                      </property>
-                      <property name="text">
-                       <string notr="true">0.000</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="labelCH1Wattage">
-                      <property name="font">
-                       <font>
-                        <pointsize>20</pointsize>
-                       </font>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">padding-right: 0.5em;</string>
-                      </property>
-                      <property name="text">
-                       <string notr="true">0.000</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLabel" name="labelCH1CurrCurrentLabel">
-                      <property name="text">
-                       <string>A</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QLabel" name="labelCH1WattageLabel">
-                      <property name="text">
-                       <string>W</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QFrame" name="frameCH1SubContainer">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
-                   </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_6">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
+                   <layout class="QGridLayout" name="gridLayout_6">
                     <property name="leftMargin">
                      <number>0</number>
                     </property>
@@ -451,19 +490,14 @@ border-color: #7BCF06
                     <property name="bottomMargin">
                      <number>0</number>
                     </property>
-                    <item>
-                     <widget class="QFrame" name="frameCH1Set">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <item row="0" column="0">
+                     <widget class="QFrame" name="frameCH1Data">
                       <property name="styleSheet">
-                       <string notr="true">#frameCH1Set {
-border-width: 1px;
-border-style: solid;
-border-color: #7BCF06
+                       <string notr="true">#labelCH1CurrVoltage, #labelCH1CurrCurrent, #labelCH1Wattage {
+	padding-right: 0.5em;
 }</string>
                       </property>
                       <property name="frameShape">
@@ -472,53 +506,124 @@ border-color: #7BCF06
                       <property name="frameShadow">
                        <enum>QFrame::Raised</enum>
                       </property>
-                      <layout class="QGridLayout" name="gridLayout_9">
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="label_2">
-                         <property name="styleSheet">
-                          <string notr="true">border-bottom: 1px;
-border-style: solid;
-border-color: green;</string>
-                         </property>
+                      <property name="lineWidth">
+                       <number>1</number>
+                      </property>
+                      <layout class="QGridLayout" name="gridLayout_3">
+                       <property name="bottomMargin">
+                        <number>9</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="labelCH1Name">
                          <property name="text">
-                          <string>0.000</string>
+                          <string>CH1</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="0" colspan="2">
-                        <widget class="QLabel" name="labelSet">
+                       <item row="1" column="0">
+                        <widget class="QLabel" name="labelCH1CurrVoltage">
+                         <property name="font">
+                          <font>
+                           <family>DejaVu Sans</family>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
                          <property name="text">
-                          <string notr="true">Set</string>
+                          <string notr="true">0.00</string>
                          </property>
                          <property name="alignment">
-                          <set>Qt::AlignCenter</set>
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                         <property name="margin">
+                          <number>0</number>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="1">
+                        <widget class="QLabel" name="labelCH1CurrVoltageLabel">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string notr="true">V</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
                          </property>
                         </widget>
                        </item>
                        <item row="2" column="0">
-                        <widget class="QLabel" name="label_3">
+                        <widget class="QLabel" name="labelCH1CurrCurrent">
+                         <property name="font">
+                          <font>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
                          <property name="text">
-                          <string>0.000</string>
+                          <string notr="true">0.000</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="0">
+                        <widget class="QLabel" name="labelCH1Wattage">
+                         <property name="font">
+                          <font>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
+                         <property name="text">
+                          <string notr="true">0.000</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="1">
+                        <widget class="QLabel" name="labelCH1CurrCurrentLabel">
+                         <property name="text">
+                          <string>A</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="1">
+                        <widget class="QLabel" name="labelCH1WattageLabel">
+                         <property name="text">
+                          <string>W</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                          </property>
                         </widget>
                        </item>
                       </layout>
                      </widget>
                     </item>
-                    <item>
-                     <widget class="QFrame" name="frameCH1ModeOutput">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">#frameCH1ModeOutput {
-border-width: 1px;
-border-style: solid;
-border-color: #7BCF06
-}</string>
+                    <item row="1" column="0">
+                     <widget class="QFrame" name="frameCH1SubContainer">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>50</height>
+                       </size>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::NoFrame</enum>
@@ -526,75 +631,661 @@ border-color: #7BCF06
                       <property name="frameShadow">
                        <enum>QFrame::Raised</enum>
                       </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_6">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QFrame" name="frameCH1Set">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>90</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">#labelCH1SetVoltage, #labelCH1SetCurrent {
+	color: #ff7e00;
+}</string>
+                         </property>
+                         <property name="frameShape">
+                          <enum>QFrame::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Raised</enum>
+                         </property>
+                         <layout class="QGridLayout" name="gridLayout_9">
+                          <item row="2" column="0" colspan="2">
+                           <widget class="ClickableLabel" name="labelCH1SetCurrent">
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string notr="true">0.000</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="2">
+                           <widget class="QLabel" name="labelCH1SetVoltageLabel">
+                            <property name="font">
+                             <font>
+                              <pointsize>7</pointsize>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string notr="true">V</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="2" column="2">
+                           <widget class="QLabel" name="labelCH1SetCurrentLabel">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <pointsize>7</pointsize>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string notr="true">A</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="0" colspan="2">
+                           <widget class="ClickableLabel" name="labelCH1SetVoltage">
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string notr="true">0.00</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="0" column="0" colspan="3">
+                           <widget class="QLabel" name="labelCH1Set">
+                            <property name="text">
+                             <string notr="true">Set</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QFrame" name="frameCH1ModeOutput">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>90</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
+                         <property name="frameShape">
+                          <enum>QFrame::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Raised</enum>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout">
+                          <property name="spacing">
+                           <number>0</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QFrame" name="frameCH1Mode">
+                            <property name="minimumSize">
+                             <size>
+                              <width>90</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true">#frameCH1Mode {
+	border-bottom: 1px solid #7BCF06;
+}</string>
+                            </property>
+                            <property name="frameShape">
+                             <enum>QFrame::NoFrame</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_9">
+                             <item>
+                              <widget class="QLabel" name="labelCH1ModeOutput">
+                               <property name="text">
+                                <string notr="true">Mode</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="labelCH1ModeCV">
+                               <property name="text">
+                                <string>CV</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QFrame" name="frameCH1Output">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true">color: #ff7e00;</string>
+                            </property>
+                            <property name="frameShape">
+                             <enum>QFrame::NoFrame</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_10">
+                             <item>
+                              <widget class="QLabel" name="labelCH1Output">
+                               <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                 <horstretch>0</horstretch>
+                                 <verstretch>0</verstretch>
+                                </sizepolicy>
+                               </property>
+                               <property name="styleSheet">
+                                <string notr="true"/>
+                               </property>
+                               <property name="text">
+                                <string>Output</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="ClickableLabel" name="labelCH1OutputStatus">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>22</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>Off</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
                    </layout>
                   </widget>
                  </item>
-                </layout>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QFrame" name="frameCH2Container">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="0" column="0">
-                  <widget class="QFrame" name="frameCH2Data">
+                 <item row="0" column="1">
+                  <widget class="QFrame" name="frameCH2Container">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::NoFrame</enum>
                    </property>
                    <property name="frameShadow">
                     <enum>QFrame::Raised</enum>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_8">
+                   <layout class="QGridLayout" name="gridLayout_4">
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
                     <item row="0" column="0">
-                     <widget class="QLabel" name="labelCH2Name">
-                      <property name="text">
-                       <string>CH2</string>
+                     <widget class="QFrame" name="frameCH2Data">
+                      <property name="styleSheet">
+                       <string notr="true">#frameCH2Data {
+	border-width: 1px;
+	border-style: solid;
+	border-bottom: none;
+	border-color: #7BCF06
+}
+
+#labelCH2CurrCurrent, #labelCH2CurrVoltage, #labelCH2Wattage {
+	padding-right: 0.5em;
+}</string>
                       </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QFrame" name="frameCH2SubContainer">
-                   <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
-                   </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_7">
-                    <item>
-                     <widget class="QFrame" name="frame_3">
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
                       </property>
                       <property name="frameShadow">
                        <enum>QFrame::Raised</enum>
                       </property>
+                      <layout class="QGridLayout" name="gridLayout_8">
+                       <item row="1" column="0">
+                        <widget class="QLabel" name="labelCH2CurrVoltage">
+                         <property name="font">
+                          <font>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
+                         <property name="text">
+                          <string>0.00</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="0">
+                        <widget class="QLabel" name="labelCH2CurrCurrent">
+                         <property name="font">
+                          <font>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>0.000</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="2" column="1">
+                        <widget class="QLabel" name="labelCH2CurrCurrentLabel">
+                         <property name="text">
+                          <string>A</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="1">
+                        <widget class="QLabel" name="labelCH2CurrVoltageLabel">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="text">
+                          <string notr="true">V</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="QLabel" name="labelCH2Name">
+                         <property name="text">
+                          <string>CH2</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="0">
+                        <widget class="QLabel" name="labelCH2Wattage">
+                         <property name="font">
+                          <font>
+                           <pointsize>20</pointsize>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>0.000</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="3" column="1">
+                        <widget class="QLabel" name="labelCH2WattageLabel">
+                         <property name="text">
+                          <string>W</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
-                    <item>
-                     <widget class="QFrame" name="frame_4">
+                    <item row="1" column="0">
+                     <widget class="QFrame" name="frameCH2SubContainer">
                       <property name="frameShape">
-                       <enum>QFrame::StyledPanel</enum>
+                       <enum>QFrame::NoFrame</enum>
                       </property>
                       <property name="frameShadow">
                        <enum>QFrame::Raised</enum>
                       </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_7">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QFrame" name="frameCH2Set">
+                         <property name="minimumSize">
+                          <size>
+                           <width>90</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">#labelCH2SetVoltage, #labelCH2SetCurrent {
+	color: #ff7e00;
+}</string>
+                         </property>
+                         <property name="frameShape">
+                          <enum>QFrame::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Raised</enum>
+                         </property>
+                         <layout class="QGridLayout" name="gridLayout_11">
+                          <item row="1" column="1">
+                           <widget class="QLabel" name="labelCH2SetVoltageLabel">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <pointsize>7</pointsize>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>V</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="2" column="1">
+                           <widget class="QLabel" name="labelCH2SetCurrentLabel">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <pointsize>7</pointsize>
+                             </font>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string>A</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="1" column="0">
+                           <widget class="ClickableLabel" name="labelCH2SetVoltage">
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string>0.00</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="0" column="0" colspan="2">
+                           <widget class="QLabel" name="labelCH2Set">
+                            <property name="text">
+                             <string notr="true">Set</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="2" column="0">
+                           <widget class="ClickableLabel" name="labelCH2SetCurrent">
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string>0.000</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QFrame" name="frameCH2ModeOutput">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="frameShape">
+                          <enum>QFrame::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Raised</enum>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_2">
+                          <property name="spacing">
+                           <number>0</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QFrame" name="frameCH2Mode">
+                            <property name="styleSheet">
+                             <string notr="true">#frameCH2Mode {
+	border-bottom: 1px solid #7BCF06;
+}</string>
+                            </property>
+                            <property name="frameShape">
+                             <enum>QFrame::NoFrame</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_11">
+                             <item>
+                              <widget class="QLabel" name="labelCH2Mode">
+                               <property name="text">
+                                <string>Mode</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="labelCH2ModeStatus">
+                               <property name="text">
+                                <string>CV</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QFrame" name="frameCH2Output">
+                            <property name="styleSheet">
+                             <string notr="true">color: #ff7e00;</string>
+                            </property>
+                            <property name="frameShape">
+                             <enum>QFrame::NoFrame</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_12">
+                             <item>
+                              <widget class="QLabel" name="labelCH2Output">
+                               <property name="styleSheet">
+                                <string notr="true"/>
+                               </property>
+                               <property name="text">
+                                <string>Output</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="ClickableLabel" name="labelCH2OutputStatus">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>22</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
+                               <property name="text">
+                                <string>Off</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignCenter</set>
+                               </property>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
                    </layout>
@@ -609,29 +1300,6 @@ border-color: #7BCF06
           </layout>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="pushButtonSetVoltage">
-          <property name="text">
-           <string>GO</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QwtCounter" name="counterVoltage">
-          <property name="maximum">
-           <double>31.000000000000000</double>
-          </property>
-          <property name="numButtons">
-           <number>2</number>
-          </property>
-          <property name="stepButton3">
-           <number>100</number>
-          </property>
-          <property name="wrapping">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QFrame" name="frameGraph">
           <property name="frameShape">
@@ -641,7 +1309,7 @@ border-color: #7BCF06
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="0">
+           <item row="1" column="0">
             <widget class="QCustomPlot" name="widget" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -660,11 +1328,104 @@ border-color: #7BCF06
        <attribute name="title">
         <string>Program</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_18">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="font">
+           <font>
+            <pointsize>25</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Not yet implemented</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tabHistory">
        <attribute name="title">
         <string>History</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_16">
+        <item row="0" column="0">
+         <widget class="QListView" name="listViewHistory">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QFrame" name="frameHistoryControls">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_17">
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>History Data</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QFrame" name="frame_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QToolButton" name="toolButton">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_2">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -675,7 +1436,7 @@ border-color: #7BCF06
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>838</width>
+     <width>880</width>
      <height>23</height>
     </rect>
    </property>
@@ -728,15 +1489,15 @@ border-color: #7BCF06
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtCounter</class>
-   <extends>QWidget</extends>
-   <header>qwt_counter.h</header>
-  </customwidget>
-  <customwidget>
    <class>QCustomPlot</class>
    <extends>QWidget</extends>
    <header>qcustomplot.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ClickableLabel</class>
+   <extends>QLabel</extends>
+   <header>clickablelabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>

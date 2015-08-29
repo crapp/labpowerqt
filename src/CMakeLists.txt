@@ -58,6 +58,7 @@ configure_file (
 
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
@@ -72,6 +73,7 @@ set(HEADER
 
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.cpp
