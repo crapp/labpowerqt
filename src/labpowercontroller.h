@@ -13,23 +13,25 @@
 #include "koradscpi.h"
 #include "serialcommand.h"
 #include "powersupplystatus.h"
+#include "labpowermodel.h"
 
 class LabPowerController : public QObject
 {
     Q_OBJECT
 public:
-    LabPowerController();
+    LabPowerController(std::shared_ptr<LabPowerModel> appModel);
 
 signals:
 
 public slots:
-    void setupPowerSupplyConnector();
-    void freeSerialPort();
+    void connectDevice();
+    void disconnectDevice();
 
     // Implement the Power Supply Interface
     void deviceError(const QString &errorString);
     void deviceReadWriteError(const QString &errorString);
-    void setVoltage(const double &value);
+    void setVoltage(const int &channel, const double &value);
+    void setCurrent(const int &channel, const double &value);
     void getIdentification();
     void getStatus();
     /**
@@ -45,6 +47,9 @@ public slots:
 
 private:
     std::unique_ptr<KoradSCPI> powerSupplyConnector;
+    std::shared_ptr<LabPowerModel> applicationModel;
+
+    std::thread backgroundStatusCollector;
 };
 
 #endif // LABPOWERCONTROLLER_H

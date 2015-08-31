@@ -18,6 +18,18 @@
 
 LabPowerModel::LabPowerModel()
 {
+    this->status = nullptr;
+}
 
+void LabPowerModel::setDeviceConnected(bool connected)
+{
+    this->deviceConnected = connected;
+    emit this->deviceConnectionStatus(this->deviceConnected);
+}
+
+void LabPowerModel::updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status)
+{
+    this->status = status;
+    emit this->statusUpdate();
 }
 

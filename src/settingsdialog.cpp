@@ -25,6 +25,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->setupUi(this);
     ui->gridLayout_2->setColumnStretch(1, 100);
 
+    // dynamically set width for listWidget
     ui->listWidgetSettings->setMinimumWidth(
         ui->listWidgetSettings->sizeHintForColumn(0));
 
@@ -37,6 +38,8 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     QObject::connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)), this,
                      SLOT(buttonBoxClicked(QAbstractButton *)));
+    QObject::connect(ui->pushButtonDeviceTestConnection, SIGNAL(clicked()), this,
+                     SLOT(testClicked()));
 
     for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
         ui->comboBoxDeviceComPort->addItem(port.portName());
@@ -64,6 +67,7 @@ void SettingsDialog::settingChanged(QListWidgetItem *current,
         break;
     case 1:
         ui->stackedWidget->setCurrentIndex(1);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         break;
     default:
         break;
@@ -83,23 +87,110 @@ void SettingsDialog::buttonBoxClicked(QAbstractButton *button)
                               ui->comboBoxDeviceProtocoll->currentText());
             // TODO: Add a text widget to specify a device Name
             // settings.setValue(setcon::DEVICE_NAME, "Foo");
+            //DeviceCurrentMax
             settings.setValue(setcon::DEVICE_CHANNELS,
                               ui->spinBoxDeviceChannels->value());
             settings.setValue(setcon::DEVICE_CURRENT_MIN,
-                              ui->spinBoxDeviceCurrentMin->value());
+                              ui->doubleSpinBoxDeviceCurrentMin->value());
             settings.setValue(setcon::DEVICE_CURRENT_MAX,
-                              ui->spinBoxDeviceCurrentMax->value());
-            settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
-                              ui->comboBoxDeviceCurrentAccu->currentText());
+                              ui->doubleSpinBoxDeviceCurrentMax->value());
+            if (ui->comboBoxDeviceCurrentAccu->currentText() == "1mA") {
+                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 3);
+            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "10mA") {
+                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 2);
+            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "100mA") {
+                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 1);
+            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "1A") {
+                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 0);
+            }
+
             settings.setValue(setcon::DEVICE_VOLTAGE_MIN,
-                              ui->spinBoxDeviceVoltageMin->value());
+                              ui->doubleSpinBoxDeviceVoltageMin->value());
             settings.setValue(setcon::DEVICE_VOLTAGE_MAX,
-                              ui->spinBoxdeviceVoltageMax->value());
-            settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY,
-                              ui->comboBoxDeviceVoltageAccu->currentText());
+                              ui->doubleSpinBoxdeviceVoltageMax->value());
+            if (ui->comboBoxDeviceVoltageAccu->currentText() == "1mV") {
+                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 3);
+            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "10mV") {
+                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 2);
+            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "100mV") {
+                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 1);
+            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "1V") {
+                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 0);
+            }
         }
         break;
     default:
         break;
     }
+}
+
+void SettingsDialog::testClicked()
+{
+    ui->plainTextEditDeviceTest->setPlainText("");
+    ui->scrollArea->ensureWidgetVisible(ui->plainTextEditDeviceTest);
+    QString statustext = "Connecting to device on port " +
+                         ui->comboBoxDeviceComPort->currentText();
+    ui->plainTextEditDeviceTest->appendPlainText(statustext);
+
+    if (ui->comboBoxDeviceProtocoll->currentText() == "Korad SCPI V2") {
+        this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(
+            new KoradSCPI(ui->comboBoxDeviceComPort->currentText(),
+                          ui->spinBoxDeviceChannels->value()));
+    }
+
+    ui->plainTextEditDeviceTest->appendPlainText(
+        "Using " + ui->comboBoxDeviceProtocoll->currentText() + " protocoll");
+
+    QObject::connect(this->powerSupplyConnector.get(),
+                     SIGNAL(requestFinished(std::shared_ptr<SerialCommand>)),
+                     this,
+                     SLOT(deviceIdentified(std::shared_ptr<SerialCommand>)));
+    QObject::connect(this->powerSupplyConnector.get(),
+                     SIGNAL(errorOpen(QString)), this,
+                     SLOT(deviceOpenError(QString)));
+    this->powerSupplyConnector->startPowerSupplyBackgroundThread();
+    this->powerSupplyConnector->getIdentification();
+}
+
+void SettingsDialog::deviceIdentified(std::shared_ptr<SerialCommand> command)
+{
+    if (static_cast<PowerSupplySCPI_constants::COMMANDS>(
+            command->getCommand()) ==
+        PowerSupplySCPI_constants::COMMANDS::GETIDN) {
+        QString idString = command->getValue().toString();
+        if (idString == "") {
+            QString statustext = "Connection successfull but Device send back "
+                                 "an empty identification String. Check the "
+                                 "chosen protocoll and port.";
+            ui->plainTextEditDeviceTest->appendPlainText(statustext);
+        } else {
+            QString statustext = "Connection successfull";
+            ui->plainTextEditDeviceTest->appendPlainText(statustext);
+            statustext = "Device identified as " + idString;
+            ui->plainTextEditDeviceTest->appendPlainText(statustext);
+            ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        }
+    }
+}
+
+void SettingsDialog::deviceOpenError(QString errorString)
+{
+    QString statustext = "Failed to open device.\nError message: " + errorString;
+    ui->plainTextEditDeviceTest->appendPlainText(statustext);
+    ui->plainTextEditDeviceTest->appendPlainText(
+        "Ensure your device is powered on and you have chosen the right "
+        "communications "
+        "protocoll as well as the correct device port.");
+}
+
+void SettingsDialog::accept()
+{
+    this->powerSupplyConnector.reset(nullptr);
+    this->done(1);
+}
+
+void SettingsDialog::reject()
+{
+    this->powerSupplyConnector.reset(nullptr);
+    this->done(0);
 }

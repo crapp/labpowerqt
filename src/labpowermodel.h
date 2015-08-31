@@ -17,11 +17,49 @@
 #ifndef LABPOWERMODEL_H
 #define LABPOWERMODEL_H
 
+#include <QObject>
 
-class LabPowerModel
+#include <memory>
+#include <map>
+
+#include "powersupplystatus.h"
+
+namespace LabPowerModel_constants
 {
+enum CHANNEL { CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4 };
+}
+
+class LabPowerModel : public QObject
+{
+
+    Q_OBJECT
+
 public:
     LabPowerModel();
+
+    bool getDeviceConnected();
+    void setDeviceConnected(bool connected);
+
+    bool getDeviceLocked();
+    bool getDeviceMute();
+
+signals:
+
+    void statusUpdate();
+    void deviceConnectionStatus(bool connected);
+
+public slots:
+
+    void updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status);
+
+private:
+
+    std::shared_ptr<PowerSupplyStatus> status;
+
+    bool deviceConnected;
+
+
+
 };
 
 #endif // LABPOWERMODEL_H

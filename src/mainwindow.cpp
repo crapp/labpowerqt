@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setupMenuBarActions();
     this->setupAnimations();
+    this->setupValuesDialog();
 
     this->ui->frame_2->setMaximumHeight(0);
 
@@ -49,22 +50,17 @@ MainWindow::MainWindow(QWidget *parent)
     qRegisterMetaType<std::shared_ptr<SerialCommand>>();
     qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
 
-    // create controller
-    this->controller =
-        std::unique_ptr<LabPowerController>(new LabPowerController());
+    // create model and controller
+    this->applicationModel = std::make_shared<LabPowerModel>();
+    this->controller = std::unique_ptr<LabPowerController>(
+        new LabPowerController(this->applicationModel));
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::dataUpdated()
-{
+void MainWindow::dataUpdated() {}
 
-}
-
-void MainWindow::disableControls(bool status)
-{
-
-}
+void MainWindow::disableControls(bool status) {}
 
 void MainWindow::setupMenuBarActions()
 {
@@ -98,6 +94,40 @@ void MainWindow::setupAnimations()
     this->hideVoltCurrentSpinner->setEndValue(0);
 }
 
+void MainWindow::setupValuesDialog()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    if (settings.contains(setcon::DEVICE_PORT)) {
+        this->valuesDialog =
+            std::unique_ptr<FloatingValuesDialog>(new FloatingValuesDialog(
+                nullptr, Qt::Dialog | Qt::FramelessWindowHint));
+
+        this->valuesDialog->updateDeviceSpecs(
+            settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
+            settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble(),
+            settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toUInt(),
+            settings.value(setcon::DEVICE_CURRENT_MIN).toDouble(),
+            settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
+            settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
+            settings.value(setcon::DEVICE_CHANNELS).toUInt());
+
+        QObject::connect(
+            this->valuesDialog.get(),
+            SIGNAL(doubleValueAccepted(const double &, const int &)), this,
+            SLOT(valuesDialogDoubleResult(const double &, const int &)));
+
+        QObject::connect(ui->labelCH1SetVoltage,
+                         SIGNAL(doubleClick(const QPoint &, const double &)),
+                         this, SLOT(setVoltage(const QPoint &, const double &)));
+        QObject::connect(ui->labelCH1SetCurrent,
+                         SIGNAL(doubleClick(const QPoint &, const double &)),
+                         this, SLOT(setCurrent(const QPoint &, const double &)));
+    } else {
+        this->valuesDialog = nullptr;
+    }
+}
+
 void MainWindow::fileBugReport()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/crapp/labpowerqt"));
@@ -113,13 +143,29 @@ void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
 
 void MainWindow::showSettings()
 {
-    // release the serial port.
-    // TODO: Maybe instead of releasing get the actual scpi object to the
-    // settings.
-    this->controller->freeSerialPort();
+    // release the serial port
+    this->controller->disconnectDevice();
     SettingsDialog sd;
     sd.exec();
-    this->controller->setupPowerSupplyConnector();
+
+    this->controller->connectDevice();
+
+    // Udate the values for the valuesDialog floating widget
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    this->valuesDialog->updateDeviceSpecs(
+        settings.value(setcon::DEVICE_VOLTAGE_MIN).toUInt(),
+        settings.value(setcon::DEVICE_VOLTAGE_MAX).toUInt(),
+        settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toUInt(),
+        settings.value(setcon::DEVICE_CURRENT_MIN).toUInt(),
+        settings.value(setcon::DEVICE_CURRENT_MAX).toUInt(),
+        settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
+        settings.value(setcon::DEVICE_CHANNELS).toUInt());
+}
+
+void MainWindow::valuesDialogDoubleResult(const double &val, const int &w)
+{
+    qDebug() << Q_FUNC_INFO << "Received " << val << " " << w << " from Dialog";
 }
 
 void MainWindow::showHideVoltCurrentSpinners()
@@ -129,12 +175,27 @@ void MainWindow::showHideVoltCurrentSpinners()
     } else {
         this->hideVoltCurrentSpinner->start();
     }
-    this->controller->getStatus();
+    this->controller->getIdentification();
 }
 
-void MainWindow::setVoltage()
+void MainWindow::setVoltage(const QPoint &pos, const double &value)
 {
-    //this->controller->setVoltage(voltage);
+    // map widget cursor position to global position (top left)
+    QPoint globalPos = ui->labelCH1SetVoltage->mapToGlobal(pos);
+    this->valuesDialog->move(globalPos.x(), globalPos.y());
+    this->valuesDialog->setWidget(FloatingValuesDialog::INPUTWIDGETS::VOLTAGE);
+    this->valuesDialog->setWidgetValue(value);
+    this->valuesDialog->exec();
+    // this->controller->setVoltage(voltage);
+}
+
+void MainWindow::setCurrent(const QPoint &pos, const double &value)
+{
+    QPoint globalPos = ui->labelCH1SetCurrent->mapToGlobal(pos);
+    this->valuesDialog->move(globalPos.x(), globalPos.y());
+    this->valuesDialog->setWidget(FloatingValuesDialog::INPUTWIDGETS::CURRENT);
+    this->valuesDialog->setWidgetValue(value);
+    this->valuesDialog->exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

@@ -16,5 +16,6 @@
         <file>lock-open_orange.png</file>
         <file>plug_in_orange.png</file>
         <file>plug_out_orange.png</file>
+        <file>dialog_accept.png</file>
     </qresource>
 </RCC>

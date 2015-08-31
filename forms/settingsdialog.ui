@@ -66,10 +66,11 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">QListView::item {
+         <string notr="true">/*
+QListView::item {
 	border: 0;
 	padding-left: 2px;
-}</string>
+}*/</string>
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
@@ -115,9 +116,9 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-127</y>
                <width>455</width>
-               <height>517</height>
+               <height>497</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -158,59 +159,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="0">
-                  <widget class="QSpinBox" name="spinBoxDeviceVoltageMin">
-                   <property name="toolTip">
-                    <string>Minimum Voltage</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true">V</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QSpinBox" name="spinBoxdeviceVoltageMax">
-                   <property name="toolTip">
-                    <string>Maximum Voltage</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true">V</string>
-                   </property>
-                   <property name="value">
-                    <number>30</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <widget class="QSpinBox" name="spinBoxDeviceCurrentMin">
-                   <property name="toolTip">
-                    <string>Minimum Current</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true">A</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QSpinBox" name="spinBoxDeviceCurrentMax">
-                   <property name="toolTip">
-                    <string>Maximum Current</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true">A</string>
-                   </property>
-                   <property name="value">
-                    <number>5</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0" colspan="2">
-                  <widget class="QLabel" name="label_3">
-                   <property name="text">
-                    <string>Output Current Range:</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="2" column="2">
                   <widget class="QLabel" name="label_2">
                    <property name="text">
@@ -225,22 +173,22 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string>1mV</string>
+                     <string notr="true">1mV</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>10mV</string>
+                     <string notr="true">10mV</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>100mV</string>
+                     <string notr="true">100mV</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>1V</string>
+                     <string notr="true">1V</string>
                     </property>
                    </item>
                   </widget>
@@ -252,22 +200,22 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string>1mA</string>
+                     <string notr="true">1mA</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>10mA</string>
+                     <string notr="true">10mA</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>100mA</string>
+                     <string notr="true">100mA</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>1A</string>
+                     <string notr="true">1A</string>
                     </property>
                    </item>
                   </widget>
@@ -281,7 +229,7 @@
                     <number>1</number>
                    </property>
                    <property name="maximum">
-                    <number>4</number>
+                    <number>2</number>
                    </property>
                   </widget>
                  </item>
@@ -289,6 +237,80 @@
                   <widget class="QLabel" name="label_5">
                    <property name="text">
                     <string>Number of channels:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0" colspan="2">
+                  <widget class="QLabel" name="label_3">
+                   <property name="text">
+                    <string>Output Current Range:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxdeviceVoltageMax">
+                   <property name="toolTip">
+                    <string>Maximum Voltage</string>
+                   </property>
+                   <property name="suffix">
+                    <string notr="true"> V</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>31.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceCurrentMax">
+                   <property name="toolTip">
+                    <string>Maximum Current</string>
+                   </property>
+                   <property name="suffix">
+                    <string notr="true"> A</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <double>20.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>5.100000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceVoltageMin">
+                   <property name="toolTip">
+                    <string>Minimum Voltage</string>
+                   </property>
+                   <property name="suffix">
+                    <string notr="true"> V</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceCurrentMin">
+                   <property name="toolTip">
+                    <string>Minimum Current</string>
+                   </property>
+                   <property name="suffix">
+                    <string notr="true"> A</string>
+                   </property>
+                   <property name="decimals">
+                    <number>1</number>
                    </property>
                   </widget>
                  </item>
@@ -301,6 +323,30 @@
                  <string>Communication</string>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_4">
+                 <item row="5" column="0" colspan="2">
+                  <widget class="QPlainTextEdit" name="plainTextEditDeviceTest">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>100</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgb(47, 47, 47);
+/*color: rgb(101, 220, 80);*/
+color: #7BCF06;</string>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                   <property name="plainText">
+                    <string notr="true"/>
+                   </property>
+                   <property name="placeholderText">
+                    <string notr="true">Test output</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="label_4">
                    <property name="text">
@@ -330,44 +376,6 @@
                     </size>
                    </property>
                   </spacer>
-                 </item>
-                 <item row="5" column="0" colspan="2">
-                  <widget class="QTextBrowser" name="textBrowser">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>120</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>DejaVu Sans Mono</family>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">color: rgb(92, 184, 70);
-background-color: rgb(72, 72, 72);</string>
-                   </property>
-                   <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAsNeeded</enum>
-                   </property>
-                   <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
-                   </property>
-                   <property name="html">
-                    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans Mono'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Test connection &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                  </widget>
                  </item>
                 </layout>
                </widget>

@@ -29,7 +29,11 @@
 #include <QDebug>
 #include <QSettings>
 
+#include <memory>
+
 #include "settingsdefinitions.h"
+#include "serialcommand.h"
+#include "koradscpi.h"
 
 namespace Ui
 {
@@ -47,12 +51,21 @@ public:
 private:
     Ui::SettingsDialog *ui;
 
+    std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
+
     void setupSettingsList();
 
 private slots:
     void settingChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
     void buttonBoxClicked(QAbstractButton *button);
+    void testClicked();
+
+    void deviceIdentified(std::shared_ptr<SerialCommand> command);
+    void deviceOpenError(QString errorString);
+
+    void accept();
+    void reject();
 };
 
 #endif // SETTINGSDIALOG_H

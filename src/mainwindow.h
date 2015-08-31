@@ -33,9 +33,11 @@
 #include "config.h"
 #include "settingsdefinitions.h"
 #include "labpowercontroller.h"
+#include "labpowermodel.h"
 
 #include "aboutme.h"
 #include "settingsdialog.h"
+#include "floatingvaluesdialog.h"
 
 namespace Ui
 {
@@ -61,6 +63,9 @@ private:
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
 
     std::unique_ptr<LabPowerController> controller;
+    std::shared_ptr<LabPowerModel> applicationModel;
+
+    std::unique_ptr<FloatingValuesDialog> valuesDialog;
 
     /**
      * @brief setupMenuBarActions
@@ -70,15 +75,21 @@ private:
     void setupMenuBarActions();
     void setupAnimations();
 
+    void setupValuesDialog();
+
 private slots:
     void fileBugReport();
     void showAbout();
     void showAboutQt();
     void showSettings();
 
+    void valuesDialogDoubleResult(const double &val,
+                                  const int &w);
+
     void showHideVoltCurrentSpinners();
 
-    void setVoltage();
+    void setVoltage(const QPoint &pos, const double &value);
+    void setCurrent(const QPoint &pos, const double &value);
 
     // QWidget interface
 protected:

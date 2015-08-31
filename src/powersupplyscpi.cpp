@@ -2,8 +2,9 @@
 
 namespace powcon = PowerSupplySCPI_constants;
 
-PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QObject *parent)
-    : serialPortName(serialPortName), QObject(parent)
+PowerSupplySCPI::PowerSupplySCPI(const QString &serialPortName,
+                                 const int &noOfChannels, QObject *parent)
+    : serialPortName(serialPortName), noOfChannels(noOfChannels), QObject(parent)
 {
     this->serialPort = nullptr;
 }
@@ -14,10 +15,13 @@ PowerSupplySCPI::~PowerSupplySCPI()
     this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETDUMMY));
     this->backgroundWorkerThread.join();
 
+    if (this->serialPort->isOpen()) {
+        this->serialPort->close();
+    }
     delete serialPort;
 }
 
-void PowerSupplySCPI::startBackgroundThread()
+void PowerSupplySCPI::startPowerSupplyBackgroundThread()
 {
     this->backgroundWorkerThreadRun = true;
     backgroundWorkerThread = std::thread(&PowerSupplySCPI::threadFunc, this);
@@ -44,10 +48,6 @@ void PowerSupplySCPI::threadFunc()
     while (this->backgroundWorkerThreadRun) {
         this->readWriteData(this->serQueue.pop());
     }
-
-    if (this->serialPort->isOpen()) {
-        this->serialPort->close();
-    }
 }
 
 void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
@@ -55,6 +55,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     std::lock_guard<std::mutex> lock(this->serialPortGuard);
     std::shared_ptr<PowerSupplyStatus> status = nullptr;
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
+
+    if (!this->serialPort->isOpen())
+        return;
 
     if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
         return;
@@ -103,9 +106,19 @@ PowerSupplySCPI::prepareStatusCommands()
 {
     std::vector<std::shared_ptr<SerialCommand>> comVec;
     for (const auto &c : this->statusCommands) {
-        std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-            static_cast<int>(c), 1, QVariant(), true);
-        comVec.push_back(com);
+        if (c == powcon::COMMANDS::GETACTUALVOLTAGE ||
+            c == powcon::COMMANDS::GETACTUALCURRENT ||
+            c == powcon::COMMANDS::GETVOLTAGE || powcon::COMMANDS::GETCURRENT) {
+            for (int i = 1; i <= this->noOfChannels; i++) {
+                std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
+                    static_cast<int>(c), i, QVariant(), true);
+                comVec.push_back(com);
+            }
+        } else {
+            std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
+                static_cast<int>(c), 1, QVariant(), true);
+            comVec.push_back(com);
+        }
     }
     return comVec;
 }

@@ -2,13 +2,14 @@
 
 namespace setcon = settings_constants;
 
-LabPowerController::LabPowerController()
+LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
+    : applicationModel(appModel)
 {
     this->powerSupplyConnector = nullptr;
-    this->setupPowerSupplyConnector();
+    // this->connectDevice();
 }
 
-void LabPowerController::setupPowerSupplyConnector()
+void LabPowerController::connectDevice()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
@@ -17,13 +18,18 @@ void LabPowerController::setupPowerSupplyConnector()
         if (!this->powerSupplyConnector ||
             this->powerSupplyConnector->getserialPortName() != portName) {
 
-
             this->powerSupplyConnector =
-                std::unique_ptr<KoradSCPI>(new KoradSCPI(portName));
+                std::unique_ptr<KoradSCPI>(new KoradSCPI(
+                    portName, settings.value(setcon::DEVICE_CHANNELS).toInt()));
 
             QObject::connect(this->powerSupplyConnector.get(),
-                             SIGNAL(errorOpen(const QString&)),
-                             SLOT(deviceError(const QString&)));
+                             SIGNAL(errorOpen(const QString &)),
+                             SLOT(deviceError(const QString &)));
+            QObject::connect(this->powerSupplyConnector.get(),
+                             SIGNAL(errorReadWrite(const QString &)),
+                             this,
+                             SLOT(deviceReadWriteError(const QString &)));
+
             QObject::connect(
                 this->powerSupplyConnector.get(),
                 SIGNAL(requestFinished(std::shared_ptr<SerialCommand>)), this,
@@ -33,7 +39,15 @@ void LabPowerController::setupPowerSupplyConnector()
                 SIGNAL(statusReady(std::shared_ptr<PowerSupplyStatus>)), this,
                 SLOT(receiveStatus(std::shared_ptr<PowerSupplyStatus>)));
 
-            this->powerSupplyConnector->startBackgroundThread();
+            QObject::connect(
+                this->powerSupplyConnector.get(),
+                SIGNAL(statusReady(std::shared_ptr<PowerSupplyStatus>)),
+                this->applicationModel.get(),
+                SLOT(updatePowerSupplyStatus(
+                    std::shared_ptr<PowerSupplyStatus>)));
+
+            this->applicationModel->setDeviceConnected(true);
+            this->powerSupplyConnector->startPowerSupplyBackgroundThread();
         }
     } else {
         // TODO: Notify model that no valid power supply is connected.
@@ -41,27 +55,34 @@ void LabPowerController::setupPowerSupplyConnector()
     settings.endGroup();
 }
 
-void LabPowerController::freeSerialPort()
+void LabPowerController::disconnectDevice()
 {
     if (this->powerSupplyConnector) {
-        this->powerSupplyConnector.release();
-        this->powerSupplyConnector = nullptr;
+        this->powerSupplyConnector.reset(nullptr);
+        this->applicationModel->setDeviceConnected(false);
     }
 }
 
 void LabPowerController::deviceError(const QString &errorString)
 {
     qDebug() << Q_FUNC_INFO << "Could not open device: " << errorString;
+    this->applicationModel->setDeviceConnected(false);
 }
 
 void LabPowerController::deviceReadWriteError(const QString &errorString)
 {
-    qDebug() << Q_FUNC_INFO << "Could not open Read/write to device: " << errorString;
+    qDebug() << Q_FUNC_INFO
+             << "Could not open Read/write to device: " << errorString;
 }
 
-void LabPowerController::setVoltage(const double &value)
+void LabPowerController::setVoltage(const int &channel, const double &value)
 {
-    this->powerSupplyConnector->setVoltage(1, value);
+    this->powerSupplyConnector->setVoltage(channel, value);
+}
+
+void LabPowerController::setCurrent(const int &channel, const double &value)
+{
+    this->powerSupplyConnector->setCurrent(channel, value);
 }
 
 void LabPowerController::getIdentification()

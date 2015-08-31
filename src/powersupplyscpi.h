@@ -50,10 +50,10 @@ class PowerSupplySCPI : public QObject
 {
     Q_OBJECT
 public:
-    PowerSupplySCPI(QString serialPortName, QObject *parent = 0);
+    PowerSupplySCPI(const QString &serialPortName, const int &noOfChannels, QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
-    void startBackgroundThread();
+    void startPowerSupplyBackgroundThread();
 
     /**
      * @brief getserialPortName
@@ -80,12 +80,12 @@ signals:
      * @brief errorReadWrite Signal emitted when we could not read or write the device node
      * @param errorString
      */
-    void errorReadWrite(QString errorString);
+    void errorReadWrite(const QString &errorString);
     /**
      * @brief errorOpen Signal that indicates that the device port could not be opened
      * @param errorString String from QIODevice
      */
-    void errorOpen(QString errorString);
+    void errorOpen(const QString &errorString);
 
 public slots:
 
@@ -104,6 +104,7 @@ protected:
     SerialQueue serQueue;
 
     QString serialPortName;
+    int noOfChannels;
     // TODO: Change this raw pointer to a smart pointer
     QSerialPort *serialPort;
     std::mutex serialPortGuard;

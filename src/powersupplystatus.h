@@ -51,6 +51,8 @@ public:
     bool getOvp() { return this->ovp; }
     void setOcp(bool ocp) { this->ocp = ocp; }
     bool getOcp() { return this->ocp; }
+    void setOtp(bool otp) { this->otp = otp; }
+    bool getOtp() { return this->otp; }
 
     void setActualCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
@@ -127,6 +129,7 @@ private:
     bool output;
     bool ovp;
     bool ocp;
+    bool otp;
 
     /**
      * @brief actual_current Map holds actual current for all channels

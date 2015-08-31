@@ -20,8 +20,8 @@ namespace powcon = PowerSupplySCPI_constants;
 namespace korcon = KoradSCPI_constants;
 namespace statuscon = PowerSupplyStatus_constants;
 
-KoradSCPI::KoradSCPI(const QString serialPortName)
-    : PowerSupplySCPI(serialPortName)
+KoradSCPI::KoradSCPI(const QString &serialPortName, const int &noOfChannels)
+    : PowerSupplySCPI(serialPortName, noOfChannels)
 {
     this->BAUDRATE = QSerialPort::BaudRate::Baud9600;
     this->FLOWCONTROL = QSerialPort::FlowControl::NoFlowControl;

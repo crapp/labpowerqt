@@ -21,6 +21,7 @@ ClickableLabel::ClickableLabel(QWidget *parent, Qt::WindowFlags f)
     : QLabel(parent, f)
 {
     this->setAttribute(Qt::WA_Hover, true);
+    this->clickable = true;
 }
 
 ClickableLabel::ClickableLabel(const QString &text, QWidget *parent,
@@ -28,21 +29,31 @@ ClickableLabel::ClickableLabel(const QString &text, QWidget *parent,
     : QLabel(text, parent, f)
 {
     this->setAttribute(Qt::WA_Hover, true);
+    this->clickable = true;
 }
+
+void ClickableLabel::setClickable(bool status) { this->clickable = status; }
+
+bool ClickableLabel::getClickable() { return this->clickable; }
 
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    emit this->doubleClick(event->pos());
+    if (this->clickable)
+        emit this->doubleClick(event->pos(), this->text().toDouble());
 }
 
 void ClickableLabel::enterEvent(QEvent *event)
 {
-    if(this->originalStylesheet == "")
-        this->originalStylesheet = this->styleSheet();
-    this->setStyleSheet("background-color: rgb(82, 82, 82);");
+    if (this->clickable) {
+        if (this->originalStylesheet == "")
+            this->originalStylesheet = this->styleSheet();
+        this->setStyleSheet("background-color: rgb(82, 82, 82);");
+    }
 }
 
 void ClickableLabel::leaveEvent(QEvent *event)
 {
-    this->setStyleSheet(this->originalStylesheet);
+    if (this->clickable) {
+        this->setStyleSheet(this->originalStylesheet);
+    }
 }

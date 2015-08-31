@@ -59,7 +59,7 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port could not be opened
      */
-    KoradSCPI(const QString serialPortName);
+    KoradSCPI(const QString &serialPortName, const int &noOfChannels);
     ~KoradSCPI();
 
     // LabPowerSupply Interface

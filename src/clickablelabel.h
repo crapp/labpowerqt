@@ -20,6 +20,7 @@
 
 #include <QLabel>
 #include <QMouseEvent>
+#include <QString>
 
 /**
  * @brief The ClickableLabel class provides a QLabel that registers double click events and notifies a listener
@@ -33,14 +34,18 @@ public:
     ClickableLabel(const QString &text, QWidget *parent = 0,
                    Qt::WindowFlags f = 0);
 
+    void setClickable(bool status);
+    bool getClickable();
+
 signals:
-    void doubleClick(const QPoint &pos);
+    void doubleClick(const QPoint &pos, const double &value);
 
 public slots:
 
 private:
 
     QString originalStylesheet;
+    bool clickable;
 
     void mouseDoubleClickEvent(QMouseEvent *event);
 
