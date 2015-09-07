@@ -210,6 +210,12 @@ color: #7BCF06;</string>
               <property name="bottomMargin">
                <number>0</number>
               </property>
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>0</number>
+              </property>
               <item row="0" column="0" colspan="2">
                <widget class="QFrame" name="frameDisplayHeader">
                 <property name="styleSheet">
@@ -223,7 +229,7 @@ color: #7BCF06;</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_5">
                  <property name="bottomMargin">
-                  <number>0</number>
+                  <number>9</number>
                  </property>
                  <item>
                   <widget class="QLabel" name="labelDisplayDeviceName">
@@ -332,81 +338,127 @@ color: #7BCF06;</string>
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
-                  <widget class="QLabel" name="labelOCP">
-                   <property name="styleSheet">
-                    <string notr="true"/>
+                  <widget class="QFrame" name="frameFooterOCP">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
                    </property>
-                   <property name="text">
-                    <string>OCP:</string>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
                    </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_13">
+                    <item>
+                     <widget class="QLabel" name="labelOCP">
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>OCP:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="ClickableLabel" name="labelOCPStatus">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>Off</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
-                  <widget class="ClickableLabel" name="labelOCPStatus">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
+                  <widget class="QFrame" name="frameFooterOVP">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
                    </property>
-                   <property name="styleSheet">
-                    <string notr="true">border-right: 1px solid #7BCF06;
-padding-right: 5px;</string>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
                    </property>
-                   <property name="text">
-                    <string>Off</string>
-                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_14">
+                    <item>
+                     <widget class="QLabel" name="labelOVP">
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>OVP:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="ClickableLabel" name="labelOVPStatus">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>Off</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="labelOVP">
-                   <property name="styleSheet">
-                    <string notr="true"/>
+                  <widget class="QFrame" name="frameFooterTracking">
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
                    </property>
-                   <property name="text">
-                    <string>OVP:</string>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="ClickableLabel" name="labelOVPStatus">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">border-right: 1px solid #7BCF06;
-padding-right: 5px;</string>
-                   </property>
-                   <property name="text">
-                    <string>Off</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="labelTracking">
-                   <property name="text">
-                    <string>Tracking:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="ClickableLabel" name="labelTrackingMode">
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Off</string>
-                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_15">
+                    <item>
+                     <widget class="QLabel" name="labelTracking">
+                      <property name="text">
+                       <string>Tracking:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="ClickableLabel" name="labelTrackingMode">
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Off</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
@@ -510,9 +562,6 @@ padding-right: 5px;</string>
                        <number>1</number>
                       </property>
                       <layout class="QGridLayout" name="gridLayout_3">
-                       <property name="bottomMargin">
-                        <number>9</number>
-                       </property>
                        <item row="0" column="0">
                         <widget class="QLabel" name="labelCH1Name">
                          <property name="text">
@@ -794,7 +843,7 @@ padding-right: 5px;</string>
                            <widget class="QFrame" name="frameCH1Mode">
                             <property name="minimumSize">
                              <size>
-                              <width>90</width>
+                              <width>0</width>
                               <height>0</height>
                              </size>
                             </property>
@@ -811,7 +860,7 @@ padding-right: 5px;</string>
                             </property>
                             <layout class="QHBoxLayout" name="horizontalLayout_9">
                              <item>
-                              <widget class="QLabel" name="labelCH1ModeOutput">
+                              <widget class="QLabel" name="labelCH1Mode">
                                <property name="text">
                                 <string notr="true">Mode</string>
                                </property>
@@ -821,7 +870,7 @@ padding-right: 5px;</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLabel" name="labelCH1ModeCV">
+                              <widget class="QLabel" name="labelCH1ModeStatus">
                                <property name="text">
                                 <string>CV</string>
                                </property>

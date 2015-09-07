@@ -22,6 +22,8 @@
 #include <QMouseEvent>
 #include <QString>
 
+#include "global.h"
+
 /**
  * @brief The ClickableLabel class provides a QLabel that registers double click events and notifies a listener
  */
@@ -30,22 +32,36 @@ class ClickableLabel : public QLabel
     Q_OBJECT
 
 public:
+    enum INPUTWIDGETS { VOLTAGE, CURRENT, TRACKING };
+
     ClickableLabel(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ClickableLabel(const QString &text, QWidget *parent = 0,
                    Qt::WindowFlags f = 0);
 
     void setClickable(bool status);
     bool getClickable();
+    void setNoReturnValue(bool status);
+    bool getNoReturnValue();
+
+    void setChannel(const global_constants::CHANNEL &chan);
+    global_constants::CHANNEL getChannel();
+    void setInputwidget(const INPUTWIDGETS &w);
+    INPUTWIDGETS getInputWidget();
 
 signals:
-    void doubleClick(const QPoint &pos, const double &value);
+    void doubleClick(const QPoint &pos, const double &value, const int &iWidget,
+                     const int &channel);
+    void doubleClickNoValue();
 
 public slots:
 
 private:
+    global_constants::CHANNEL channel;
+    INPUTWIDGETS iWidget;
 
     QString originalStylesheet;
     bool clickable;
+    bool noReturnValue;
 
     void mouseDoubleClickEvent(QMouseEvent *event);
 

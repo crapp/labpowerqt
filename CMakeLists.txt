@@ -6,6 +6,9 @@ set (labpowerqt_VERSION_MAJOR 0)
 set (labpowerqt_VERSION_MINOR 1)
 set (labpowerqt_VERSION_PATCH 0)
 
+option (SANITIZER OFF)
+option (QT_NO_DEBUG_OUTPUT "Enable Qt debug ouput support" OFF)
+
 add_subdirectory(forms)
 add_subdirectory(external/qcustomplot)
 add_subdirectory(src)

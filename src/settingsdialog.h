@@ -52,6 +52,7 @@ private:
     Ui::SettingsDialog *ui;
 
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
+    bool deviceConnected;
 
     void setupSettingsList();
 

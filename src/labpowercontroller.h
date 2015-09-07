@@ -8,7 +8,10 @@
 #include <QString>
 #include <QByteArray>
 #include <QSettings>
+#include <QTimer>
+#include <QMessageBox>
 
+#include "global.h"
 #include "settingsdefinitions.h"
 #include "koradscpi.h"
 #include "serialcommand.h"
@@ -20,6 +23,7 @@ class LabPowerController : public QObject
     Q_OBJECT
 public:
     LabPowerController(std::shared_ptr<LabPowerModel> appModel);
+    ~LabPowerController();
 
 signals:
 
@@ -29,9 +33,12 @@ public slots:
 
     // Implement the Power Supply Interface
     void deviceError(const QString &errorString);
+    void deviceConnected();
     void deviceReadWriteError(const QString &errorString);
     void setVoltage(const int &channel, const double &value);
     void setCurrent(const int &channel, const double &value);
+    void setOutput(const int &channel, const bool &status);
+    void setTrackingMode(const int &mode);
     void getIdentification();
     void getStatus();
     /**
@@ -49,7 +56,7 @@ private:
     std::unique_ptr<KoradSCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;
 
-    std::thread backgroundStatusCollector;
+    std::unique_ptr<QTimer> powerSupplyStatusUpdater;
 };
 
 #endif // LABPOWERCONTROLLER_H

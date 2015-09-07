@@ -3,10 +3,15 @@
 namespace powcon = PowerSupplySCPI_constants;
 
 PowerSupplySCPI::PowerSupplySCPI(const QString &serialPortName,
-                                 const int &noOfChannels, QObject *parent)
-    : serialPortName(serialPortName), noOfChannels(noOfChannels), QObject(parent)
+                                 const int &noOfChannels,
+                                 const int &voltageAccuracy,
+                                 const int &currentAccuracy, QObject *parent)
+    : serialPortName(serialPortName), noOfChannels(noOfChannels),
+      voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
+      QObject(parent)
 {
     this->serialPort = nullptr;
+    this->canCalculateWattage = false;
 }
 
 PowerSupplySCPI::~PowerSupplySCPI()
@@ -38,11 +43,13 @@ void PowerSupplySCPI::threadFunc()
             return;
         }
 
-        this->serialPort->setBaudRate(this->BAUDRATE);
-        this->serialPort->setFlowControl(this->FLOWCONTROL);
-        this->serialPort->setDataBits(this->DATABITS);
-        this->serialPort->setParity(this->PARITY);
-        this->serialPort->setStopBits(this->STOPBITS);
+        this->serialPort->setBaudRate(this->port_baudraute);
+        this->serialPort->setFlowControl(this->port_flowControl);
+        this->serialPort->setDataBits(this->port_databits);
+        this->serialPort->setParity(this->port_parity);
+        this->serialPort->setStopBits(this->port_stopbits);
+
+        emit deviceOpen();
     }
 
     while (this->backgroundWorkerThreadRun) {
@@ -52,6 +59,12 @@ void PowerSupplySCPI::threadFunc()
 
 void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 {
+    // FIXME: There is a race condition if the destructor of a derived class is
+    // called because we use several pure virtual methods here.
+    // Solutions: 1. Provide basic implementations in base class :(
+    // 2. Wait in derived destructor until serialPortGuard is available. This
+    // sounds good but every derived class needs to do this. Not convenient.
+
     std::lock_guard<std::mutex> lock(this->serialPortGuard);
     std::shared_ptr<PowerSupplyStatus> status = nullptr;
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
@@ -62,10 +75,15 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
         return;
     }
+
+    std::chrono::high_resolution_clock::time_point tStart =
+        std::chrono::high_resolution_clock::now();
+
     if (com->getCommand() == powcon::GETSTATUS) {
         commands = this->prepareStatusCommands();
         status = std::make_shared<PowerSupplyStatus>();
     }
+
     for (auto &c : commands) {
         QByteArray commandByte = this->prepareCommand(c);
         this->serialPort->write(commandByte);
@@ -96,7 +114,18 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
             // TODO emit an error
         }
     }
+
+    std::chrono::high_resolution_clock::time_point tEnd =
+        std::chrono::high_resolution_clock::now();
+    int duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                       tEnd - tStart).count();
+    qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
+             << "ms";
+
     if (status != nullptr) {
+        // calculate wattage
+        if (this->canCalculateWattage)
+            this->calculateWattage(status);
         emit this->statusReady(status);
     }
 }
@@ -110,8 +139,9 @@ PowerSupplySCPI::prepareStatusCommands()
             c == powcon::COMMANDS::GETACTUALCURRENT ||
             c == powcon::COMMANDS::GETVOLTAGE || powcon::COMMANDS::GETCURRENT) {
             for (int i = 1; i <= this->noOfChannels; i++) {
-                std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-                    static_cast<int>(c), i, QVariant(), true);
+                std::shared_ptr<SerialCommand> com =
+                    std::make_shared<SerialCommand>(static_cast<int>(c), i,
+                                                    QVariant(), true);
                 comVec.push_back(com);
             }
         } else {

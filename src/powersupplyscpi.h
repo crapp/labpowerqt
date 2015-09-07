@@ -5,6 +5,7 @@
 #include <mutex>
 #include <memory>
 #include <vector>
+#include <chrono>
 #include <exception>
 
 #include <QObject>
@@ -42,6 +43,8 @@ enum COMMANDS {
     GETOCP,
     SETOVP,
     GETOVP,
+    SETOTP,
+    GETOTP,
     SETDUMMY = 100 /**< A dummy command intended for internal use. */
 };
 }
@@ -50,7 +53,9 @@ class PowerSupplySCPI : public QObject
 {
     Q_OBJECT
 public:
-    PowerSupplySCPI(const QString &serialPortName, const int &noOfChannels, QObject *parent = 0);
+    PowerSupplySCPI(const QString &serialPortName, const int &noOfChannels,
+                    const int &voltageAccuracy, const int &currentAccuracy,
+                    QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
@@ -62,13 +67,17 @@ public:
     QString getserialPortName();
     virtual void getIdentification() = 0;
     virtual void getStatus() = 0;
+    virtual void changeChannel(const int &channel) = 0;
     virtual void setVoltage(const int &channel, const double &value) = 0;
     virtual void setCurrent(const int &channel, const double &value) = 0;
     virtual void setOCP(bool status) = 0;
     virtual void setOVP(bool status) = 0;
+    // TODO Not sure if this actually supported by any device.
+    virtual void setOTP(bool status) = 0;
     virtual void setLocked(bool status) = 0;
     virtual void setBeep(bool status) = 0;
-    virtual void setOutput(bool status) = 0;
+    virtual void setTracking(const global_constants::TRACKING &trMode) = 0;
+    virtual void setOutput(const int &channel, bool status) = 0;
 
 signals:
 
@@ -86,17 +95,14 @@ signals:
      * @param errorString String from QIODevice
      */
     void errorOpen(const QString &errorString);
+    /**
+     * @brief deviceOpen Connection to device successfully established
+     */
+    void deviceOpen();
 
 public slots:
 
 protected:
-    QSerialPort::BaudRate BAUDRATE = QSerialPort::BaudRate::Baud9600;
-    QSerialPort::FlowControl FLOWCONTROL =
-        QSerialPort::FlowControl::NoFlowControl;
-    QSerialPort::DataBits DATABITS = QSerialPort::DataBits::Data8;
-    QSerialPort::Parity PARITY = QSerialPort::Parity::NoParity;
-    QSerialPort::StopBits STOPBITS = QSerialPort::StopBits::OneStop;
-
     /**
      * @brief serQueue This Queue holds all commands we want to send to the
      * device
@@ -104,7 +110,22 @@ protected:
     SerialQueue serQueue;
 
     QString serialPortName;
+    QSerialPort::BaudRate port_baudraute = QSerialPort::BaudRate::Baud9600;
+    QSerialPort::FlowControl port_flowControl =
+        QSerialPort::FlowControl::NoFlowControl;
+    QSerialPort::DataBits port_databits = QSerialPort::DataBits::Data8;
+    QSerialPort::Parity port_parity = QSerialPort::Parity::NoParity;
+    QSerialPort::StopBits port_stopbits = QSerialPort::StopBits::OneStop;
+
     int noOfChannels;
+    int voltageAccuracy;
+    int currentAccuracy;
+
+    /**
+     * @brief canCalculateWattage Devices that can measure actual current but not power can calculate power usage.
+     */
+    bool canCalculateWattage;
+
     // TODO: Change this raw pointer to a smart pointer
     QSerialPort *serialPort;
     std::mutex serialPortGuard;
@@ -124,8 +145,16 @@ protected:
     prepareCommand(const std::shared_ptr<SerialCommand> &com) = 0;
     virtual std::vector<std::shared_ptr<SerialCommand>> prepareStatusCommands();
     virtual void
-    processStatusCommands(std::shared_ptr<PowerSupplyStatus> &status,
+    processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
                           const std::shared_ptr<SerialCommand> &com) = 0;
+    virtual void
+    calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status) = 0;
+
+protected slots:
+    /**
+     * @brief deviceInitialization Use this slot in derived classes to connect it with the deviceOpen signal
+     */
+    virtual void deviceInitialization() = 0;
 };
 
 #endif // POWERSUPPLYSCPI_H

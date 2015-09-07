@@ -17,33 +17,36 @@ class FloatingValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum INPUTWIDGETS { VOLTAGE, CURRENT, TRACKING };
-
     FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
 signals:
 
-    void doubleValueAccepted(const double &val, const int &w);
+    void doubleValueAccepted(const double &val, const int &sourceWidget,
+                             const int &sourceChannel);
 
 public slots:
 
-    void setWidget(const FloatingValuesDialog::INPUTWIDGETS &w);
-    void setWidgetValue(const double &value);
-    void setWidgetValue(const int &trackingMode);
+    void setSourceWidget(const int &sourcew);
+    void setSourceChannel(const int &channel);
+    void setInputWidget(const int &w);
+    void setInputWidgetValue(const double &value);
+    void setInputWidgetValue(const int &trackingMode);
     void updateDeviceSpecs(const double &voltageMin, const double &voltageMax,
-                           const uint &voltagePrecision, const double &currentMin,
-                           const double &currentMax, const uint &currentPrecision,
+                           const uint &voltagePrecision,
+                           const double &currentMin, const double &currentMax,
+                           const uint &currentPrecision,
                            const uint &noOfChannels);
 
 private:
-    int channel;
-
     QGridLayout *mainLayout;
     QStackedWidget *stackedContainer;
     QToolButton *acceptButton;
 
     QDoubleSpinBox *voltageSpinBox;
     QDoubleSpinBox *currentSpinBox;
+
+    int sourceWidget;
+    int sourceChannel;
 
     void createUI();
 

@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QString>
 
+#include "global.h"
 #include "powersupplyscpi.h"
 
 namespace KoradSCPI_constants
@@ -48,6 +49,14 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
 };
 }
 
+/**
+ * @brief The KoradSCPI class Is implementing the SCPI Interface for Korad Power Supplies.
+ *
+ * Other devices like the Velleman 3005P should work with this implementation as
+ * well. It is imortant to know, That the Firmware in these Devices is missing
+ * some features which means there are some limitations regarding the
+ * controllability of such devices with this SCPI implementation.
+ */
 class KoradSCPI : public PowerSupplySCPI
 {
 
@@ -59,27 +68,35 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port could not be opened
      */
-    KoradSCPI(const QString &serialPortName, const int &noOfChannels);
+    KoradSCPI(const QString &serialPortName, const int &noOfChannels,
+              const int &voltageAccuracy, const int &currentAccuracy);
     ~KoradSCPI();
 
     // LabPowerSupply Interface
     void getIdentification();
     void getStatus();
+    void changeChannel(const int &channel);
     void setVoltage(const int &channel, const double &value);
     void setCurrent(const int &channel, const double &value);
     void setOCP(bool status);
     void setOVP(bool status);
+    void setOTP(bool status);
     void setLocked(bool status);
     void setBeep(bool status);
-    void setOutput(bool status);
+    void setTracking(const global_constants::TRACKING &trMode);
+    void setOutput(const int &channel, bool status);
 
 signals:
 
 private:
     // LabPowerSupply Interface
     QByteArray prepareCommand(const std::shared_ptr<SerialCommand> &com);
-    void processStatusCommands(std::shared_ptr<PowerSupplyStatus> &status,
+    void processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
                                const std::shared_ptr<SerialCommand> &com);
+    void calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status);
+
+private slots:
+    void deviceInitialization();
 };
 
 #endif // KORADSCPI_H

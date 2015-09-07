@@ -4,34 +4,38 @@ FloatingValuesDialog::FloatingValuesDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
 {
     // set to sane default value;
-    this->channel = 1;
+    this->sourceWidget = 1;
+    this->sourceChannel = 1;
     this->createUI();
 }
 
-void FloatingValuesDialog::setWidget(const FloatingValuesDialog::INPUTWIDGETS &w)
+void FloatingValuesDialog::setSourceWidget(const int &sourcew)
 {
-    switch (w) {
-    case INPUTWIDGETS::VOLTAGE:
-        this->stackedContainer->setCurrentIndex(0);
-        break;
-    case INPUTWIDGETS::CURRENT:
-        this->stackedContainer->setCurrentIndex(1);
-        break;
-    default:
-        break;
-    }
+    this->sourceWidget = sourcew;
+}
+
+void FloatingValuesDialog::setSourceChannel(const int &channel)
+{
+    this->sourceChannel = channel;
+}
+
+void FloatingValuesDialog::setInputWidget(const int &w)
+{
+    this->stackedContainer->setCurrentIndex(w);
+
     // make sure the dialog is as small as possible
     this->resize(1, 1);
 }
 
-void FloatingValuesDialog::setWidgetValue(const double &value)
+void FloatingValuesDialog::setInputWidgetValue(const double &value)
 {
+    // WARNING: This is highly dependend of our gui structure
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
-void FloatingValuesDialog::setWidgetValue(const int &trackingMode) {}
+void FloatingValuesDialog::setInputWidgetValue(const int &trackingMode) {}
 
 void FloatingValuesDialog::updateDeviceSpecs(const double &voltageMin,
                                              const double &voltageMax,
@@ -98,20 +102,11 @@ void FloatingValuesDialog::createUI()
 void FloatingValuesDialog::accept()
 {
     qDebug() << Q_FUNC_INFO << "Dialog was accepted";
-    INPUTWIDGETS currMode =
-        static_cast<INPUTWIDGETS>(this->stackedContainer->currentIndex());
-    switch (currMode) {
-    case INPUTWIDGETS::VOLTAGE:
-        emit this->doubleValueAccepted(this->voltageSpinBox->value(),
-                                       static_cast<int>(INPUTWIDGETS::VOLTAGE));
-        break;
-    case INPUTWIDGETS::CURRENT:
-        emit this->doubleValueAccepted(this->currentSpinBox->value(),
-                                       static_cast<int>(INPUTWIDGETS::VOLTAGE));
-        break;
-    default:
-        break;
-    }
+    QFrame *cont =
+        dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
+    double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
+    emit this->doubleValueAccepted(value, this->sourceWidget,
+                                   this->sourceChannel);
     this->done(1);
 }
 

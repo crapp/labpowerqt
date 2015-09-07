@@ -47,6 +47,8 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         qDebug() << "Desc " << port.description();
         qDebug() << "Manu: " << port.manufacturer();
     }
+
+    this->deviceConnected = false;
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
@@ -61,12 +63,43 @@ void SettingsDialog::setupSettingsList()
 void SettingsDialog::settingChanged(QListWidgetItem *current,
                                     QListWidgetItem *previous)
 {
+    QSettings settings;
     switch (ui->listWidgetSettings->row(current)) {
     case 0:
         ui->stackedWidget->setCurrentIndex(0);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
         break;
     case 1:
         ui->stackedWidget->setCurrentIndex(1);
+        settings.beginGroup(setcon::DEVICE_GROUP);
+        if (settings.contains(setcon::DEVICE_PORT)) {
+            ui->comboBoxDeviceProtocoll->setCurrentIndex(
+                settings.value(setcon::DEVICE_PROTOCOL).toInt());
+
+            int indexPort = ui->comboBoxDeviceComPort->findText(
+                settings.value(setcon::DEVICE_PROTOCOL).toString());
+            if (indexPort != -1) {
+                ui->comboBoxDeviceComPort->setCurrentIndex(indexPort);
+            }
+
+            ui->spinBoxDeviceChannels->setValue(
+                settings.value(setcon::DEVICE_CHANNELS).toInt());
+
+            ui->doubleSpinBoxDeviceVoltageMin->setValue(
+                settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble());
+            ui->doubleSpinBoxdeviceVoltageMax->setValue(
+                settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble());
+            ui->comboBoxDeviceVoltageAccu->setCurrentIndex(
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt());
+
+            ui->doubleSpinBoxDeviceCurrentMin->setValue(
+                settings.value(setcon::DEVICE_CURRENT_MIN).toDouble());
+            ui->doubleSpinBoxDeviceCurrentMax->setValue(
+                settings.value(setcon::DEVICE_CURRENT_MAX).toDouble());
+            ui->comboBoxDeviceCurrentAccu->setCurrentIndex(
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt());
+        }
+
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         break;
     default:
@@ -84,39 +117,25 @@ void SettingsDialog::buttonBoxClicked(QAbstractButton *button)
             settings.setValue(setcon::DEVICE_PORT,
                               ui->comboBoxDeviceComPort->currentText());
             settings.setValue(setcon::DEVICE_PROTOCOL,
-                              ui->comboBoxDeviceProtocoll->currentText());
+                              ui->comboBoxDeviceProtocoll->currentIndex());
             // TODO: Add a text widget to specify a device Name
             // settings.setValue(setcon::DEVICE_NAME, "Foo");
-            //DeviceCurrentMax
+            // DeviceCurrentMax
             settings.setValue(setcon::DEVICE_CHANNELS,
                               ui->spinBoxDeviceChannels->value());
             settings.setValue(setcon::DEVICE_CURRENT_MIN,
                               ui->doubleSpinBoxDeviceCurrentMin->value());
             settings.setValue(setcon::DEVICE_CURRENT_MAX,
                               ui->doubleSpinBoxDeviceCurrentMax->value());
-            if (ui->comboBoxDeviceCurrentAccu->currentText() == "1mA") {
-                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 3);
-            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "10mA") {
-                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 2);
-            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "100mA") {
-                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 1);
-            } else if (ui->comboBoxDeviceCurrentAccu->currentText() == "1A") {
-                settings.setValue(setcon::DEVICE_CURRENT_ACCURACY, 0);
-            }
+            settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
+                              ui->comboBoxDeviceCurrentAccu->currentIndex());
 
             settings.setValue(setcon::DEVICE_VOLTAGE_MIN,
                               ui->doubleSpinBoxDeviceVoltageMin->value());
             settings.setValue(setcon::DEVICE_VOLTAGE_MAX,
                               ui->doubleSpinBoxdeviceVoltageMax->value());
-            if (ui->comboBoxDeviceVoltageAccu->currentText() == "1mV") {
-                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 3);
-            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "10mV") {
-                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 2);
-            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "100mV") {
-                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 1);
-            } else if (ui->comboBoxDeviceVoltageAccu->currentText() == "1V") {
-                settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, 0);
-            }
+            settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY,
+                              ui->comboBoxDeviceVoltageAccu->currentIndex());
         }
         break;
     default:
@@ -135,7 +154,9 @@ void SettingsDialog::testClicked()
     if (ui->comboBoxDeviceProtocoll->currentText() == "Korad SCPI V2") {
         this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(
             new KoradSCPI(ui->comboBoxDeviceComPort->currentText(),
-                          ui->spinBoxDeviceChannels->value()));
+                          ui->spinBoxDeviceChannels->value(),
+                          ui->comboBoxDeviceVoltageAccu->currentIndex(),
+                          ui->comboBoxDeviceCurrentAccu->currentIndex()));
     }
 
     ui->plainTextEditDeviceTest->appendPlainText(

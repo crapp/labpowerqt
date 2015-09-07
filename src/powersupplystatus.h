@@ -21,12 +21,13 @@
 #include <utility>
 #include <memory>
 
+#include "global.h"
+
 namespace PowerSupplyStatus_constants
 {
-enum MODE { CONSTANT_CURRENT, CONSTANT_VOLTAGE };
-enum TRACKING { INDEPENDENT, SERIES, PARALELL };
-typedef std::pair<int, MODE> CHANNELMODE;
+typedef std::pair<int, global_constants::MODE> CHANNELMODE;
 typedef std::pair<int, double> CHANNELVALUE;
+typedef std::pair<int, bool> CHANNELOUTPUT;
 }
 
 struct PowerSupplyStatus {
@@ -36,17 +37,15 @@ public:
     {
         this->beeper = false;
         this->locked = false;
-        this->output = false;
         this->ovp = false;
         this->ocp = false;
+        this->otp = false;
     };
 
     void setBeeper(bool beep) { this->beeper = beep; }
     bool getBeeper() { return this->beeper; }
     void setLocked(bool locked) { this->locked = locked; }
-    bool getLocked() { return this->output; }
-    void setOutput(bool output) { this->output = output; }
-    bool getOuput() { return this->output; }
+    bool getLocked() { return this->locked; }
     void setOvp(bool ovp) { this->ovp = ovp; }
     bool getOvp() { return this->ovp; }
     void setOcp(bool ocp) { this->ocp = ocp; }
@@ -56,7 +55,7 @@ public:
 
     void setActualCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
-        this->actual_current.insert(value);
+        this->actualCurrent.insert(value);
     }
     /**
      * @brief getActualCurrent Get value for channel
@@ -66,12 +65,12 @@ public:
      */
     const double &getActualCurrent(const int &channel)
     {
-        return this->actual_current.at(channel);
+        return this->actualCurrent.at(channel);
     }
     void
     setAdjustedCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
-        this->adjusted_current.insert(value);
+        this->adjustedCurrent.insert(value);
     }
     /**
      * @brief getAdjustedCurrent
@@ -81,12 +80,12 @@ public:
      */
     const double &getAdjustedCurrent(const int &channel)
     {
-        return this->adjusted_current.at(channel);
+        return this->adjustedCurrent.at(channel);
     }
 
     void setActualVoltage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
-        this->actual_voltage.insert(value);
+        this->actualVoltage.insert(value);
     }
     /**
      * @brief getActualVoltage
@@ -96,12 +95,13 @@ public:
      */
     const double &getActualVoltage(const int &channel)
     {
-        return this->actual_voltage.at(channel);
+        return this->actualVoltage.at(channel);
     }
+
     void
     setAdjustedVoltage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
-        this->adjusted_voltage.insert(value);
+        this->adjustedVoltage.insert(value);
     }
     /**
      * @brief getAdjustedVoltage Get value for channel
@@ -111,22 +111,40 @@ public:
      */
     const double &getAdjustedVoltage(const int &channel)
     {
-        return this->adjusted_voltage.at(channel);
+        return this->adjustedVoltage.at(channel);
+    }
+
+    void setWattage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    {
+        this->wattage.insert(value);
+    }
+    const double &getWattage(const int &channel)
+    {
+        return this->wattage.at(channel);
     }
 
     void setChannelMode(const PowerSupplyStatus_constants::CHANNELMODE &mode)
     {
-        this->channel_mode.insert(mode);
+        this->channelMode.insert(mode);
     }
-    const PowerSupplyStatus_constants::MODE &getChannelMode(const int &channel)
+    const global_constants::MODE &getChannelMode(const int &channel)
     {
-        return this->channel_mode.at(channel);
+        return this->channelMode.at(channel);
+    }
+
+    void
+    setChannelOutput(const PowerSupplyStatus_constants::CHANNELOUTPUT &output)
+    {
+        this->channelOutput.insert(output);
+    }
+    bool getChannelOutput(const int &channel)
+    {
+        return this->channelOutput.at(channel);
     }
 
 private:
     bool beeper;
     bool locked;
-    bool output;
     bool ovp;
     bool ocp;
     bool otp;
@@ -134,15 +152,19 @@ private:
     /**
      * @brief actual_current Map holds actual current for all channels
      */
-    std::map<int, double> actual_current;
-    std::map<int, double> adjusted_current;
+    std::map<int, double> actualCurrent;
+    std::map<int, double> adjustedCurrent;
     /**
      * @brief actual_voltage Map holds actual voltage for all channels
      */
-    std::map<int, double> actual_voltage;
-    std::map<int, double> adjusted_voltage;
+    std::map<int, double> actualVoltage;
+    std::map<int, double> adjustedVoltage;
 
-    std::map<int, PowerSupplyStatus_constants::MODE> channel_mode;
+    std::map<int, double> wattage;
+
+    std::map<int, global_constants::MODE> channelMode;
+
+    std::map<int, bool> channelOutput;
 };
 
 // Register our metatype. Needed to send this kind of object wrapped in a std

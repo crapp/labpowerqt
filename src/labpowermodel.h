@@ -18,16 +18,14 @@
 #define LABPOWERMODEL_H
 
 #include <QObject>
+#include <QDebug>
+#include <QString>
 
 #include <memory>
 #include <map>
 
+#include "global.h"
 #include "powersupplystatus.h"
-
-namespace LabPowerModel_constants
-{
-enum CHANNEL { CHANNEL1, CHANNEL2, CHANNEL3, CHANNEL4 };
-}
 
 class LabPowerModel : public QObject
 {
@@ -40,13 +38,26 @@ public:
     bool getDeviceConnected();
     void setDeviceConnected(bool connected);
 
+    QString getDeviceIdentification();
+    void setDeviceIdentification(const QString &id);
+
     bool getDeviceLocked();
     bool getDeviceMute();
+
+    bool getOutput(const global_constants::CHANNEL &c);
+    global_constants::MODE getChannelMode(const global_constants::CHANNEL &c);
+
+    double getVoltage(const global_constants::CHANNEL &c);
+    double getActualVoltage(const global_constants::CHANNEL &c);
+    double getCurrent(const global_constants::CHANNEL &c);
+    double getActualCurrent(const global_constants::CHANNEL &c);
+    double getWattage(const global_constants::CHANNEL &c);
 
 signals:
 
     void statusUpdate();
     void deviceConnectionStatus(bool connected);
+    void deviceID();
 
 public slots:
 
@@ -57,6 +68,7 @@ private:
     std::shared_ptr<PowerSupplyStatus> status;
 
     bool deviceConnected;
+    QString deviceIdentification;
 
 
 

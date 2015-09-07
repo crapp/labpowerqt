@@ -5,6 +5,13 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 
+#add_definitions(-DQT_NO_DEBUG_OUTPUT)
+
+if (${SANITIZER})
+    message(WARNING "Using address sanitizer compiler option!")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+endif()
+
 
 # Compiler-specific C++11 activation.
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
@@ -61,6 +68,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/global.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h

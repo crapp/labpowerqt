@@ -22,24 +22,74 @@ ClickableLabel::ClickableLabel(QWidget *parent, Qt::WindowFlags f)
 {
     this->setAttribute(Qt::WA_Hover, true);
     this->clickable = true;
+    this->setCursor(Qt::PointingHandCursor);
+    this->noReturnValue = false;
+    this->channel = global_constants::CHANNEL::CHANNEL1;
+    this->iWidget = INPUTWIDGETS::VOLTAGE;
 }
 
 ClickableLabel::ClickableLabel(const QString &text, QWidget *parent,
                                Qt::WindowFlags f)
     : QLabel(text, parent, f)
 {
+    // TODO: initialization of this variables and settings has to be centralized
     this->setAttribute(Qt::WA_Hover, true);
     this->clickable = true;
+    this->setCursor(Qt::PointingHandCursor);
+    this->noReturnValue = false;
+    this->channel = global_constants::CHANNEL::CHANNEL1;
+    this->iWidget = INPUTWIDGETS::VOLTAGE;
 }
 
-void ClickableLabel::setClickable(bool status) { this->clickable = status; }
+void ClickableLabel::setClickable(bool status) {
+    this->clickable = status;
+    if (status) {
+        this->setCursor(Qt::PointingHandCursor);
+    } else {
+        this->setCursor(Qt::ForbiddenCursor);
+    }
+}
 
 bool ClickableLabel::getClickable() { return this->clickable; }
 
+void ClickableLabel::setNoReturnValue(bool status)
+{
+    this->noReturnValue = status;
+}
+
+bool ClickableLabel::getNoReturnValue() { return this->noReturnValue; }
+
+void ClickableLabel::setChannel(const global_constants::CHANNEL &chan)
+{
+    this->channel = chan;
+}
+
+global_constants::CHANNEL ClickableLabel::getChannel()
+{
+    return this->channel;
+}
+
+void ClickableLabel::setInputwidget(const ClickableLabel::INPUTWIDGETS &w)
+{
+    this->iWidget = w;
+}
+
+ClickableLabel::INPUTWIDGETS ClickableLabel::getInputWidget()
+{
+    return this->iWidget;
+}
+
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if (this->clickable)
-        emit this->doubleClick(event->pos(), this->text().toDouble());
+    if (this->clickable) {
+        if (this->noReturnValue) {
+            emit this->doubleClickNoValue();
+        } else {
+            emit this->doubleClick(event->pos(), this->text().toDouble(),
+                                   static_cast<int>(this->iWidget),
+                                   static_cast<int>(this->channel));
+        }
+    }
 }
 
 void ClickableLabel::enterEvent(QEvent *event)

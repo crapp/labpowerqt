@@ -17,12 +17,26 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+namespace globcon = global_constants;
 namespace setcon = settings_constants;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    qRegisterMetaType<std::shared_ptr<SerialCommand>>();
+    qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
+
+    this->setVoltageLabels = {ui->labelCH1SetVoltage, ui->labelCH2SetVoltage};
+    this->setCurrentLabels = {ui->labelCH1SetCurrent, ui->labelCH2SetCurrent};
+    this->actualVoltageLabels = {ui->labelCH1CurrVoltage,
+                                 ui->labelCH2CurrVoltage};
+    this->actualCurrentLabels = {ui->labelCH1CurrCurrent,
+                                 ui->labelCH2CurrCurrent};
+    this->wattageLabels = {ui->labelCH1Wattage, ui->labelCH2Wattage};
+    this->outputLabels = {ui->labelCH1OutputStatus, ui->labelCH2OutputStatus};
+    this->channelModeLabels = {ui->labelCH1ModeStatus, ui->labelCH2ModeStatus};
 
     QString titleString;
     QTextStream titleStream(&titleString, QIODevice::WriteOnly);
@@ -37,28 +51,100 @@ MainWindow::MainWindow(QWidget *parent)
     this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());
     settings.endGroup();
 
-    this->setupMenuBarActions();
-    this->setupAnimations();
-    this->setupValuesDialog();
-
     this->ui->frame_2->setMaximumHeight(0);
 
-    // Connect signal slots
-    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
-                     SLOT(showHideVoltCurrentSpinners()));
+    this->ui->labelCH1SetVoltage->setChannel(globcon::CHANNEL1);
+    this->ui->labelCH1SetVoltage->setInputwidget(
+        ClickableLabel::INPUTWIDGETS::VOLTAGE);
+    this->ui->labelCH1SetCurrent->setChannel(globcon::CHANNEL1);
+    this->ui->labelCH1SetCurrent->setInputwidget(ClickableLabel::CURRENT);
+    this->ui->labelCH1OutputStatus->setNoReturnValue(true);
 
-    qRegisterMetaType<std::shared_ptr<SerialCommand>>();
-    qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
+    this->ui->labelCH2SetVoltage->setChannel(globcon::CHANNEL2);
+    this->ui->labelCH2SetVoltage->setInputwidget(
+        ClickableLabel::INPUTWIDGETS::VOLTAGE);
+    this->ui->labelCH2SetCurrent->setChannel(globcon::CHANNEL2);
+    this->ui->labelCH2SetCurrent->setInputwidget(
+        ClickableLabel::INPUTWIDGETS::CURRENT);
+    this->ui->labelCH2OutputStatus->setNoReturnValue(true);
+
+    this->ui->labelDisplayHeaderPlug->setNoReturnValue(true);
+    this->ui->labelDisplayHeaderMute->setNoReturnValue(true);
+    this->ui->labelDisplayHeaderLock->setNoReturnValue(true);
 
     // create model and controller
     this->applicationModel = std::make_shared<LabPowerModel>();
     this->controller = std::unique_ptr<LabPowerController>(
         new LabPowerController(this->applicationModel));
+
+    this->setupMenuBarActions();
+    this->setupAnimations();
+    this->setupModelConnections();
+    this->setupValuesDialog();
+    this->setupControlConnections();
+
+    // Connect signal slots
+    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
+                     SLOT(showHideVoltCurrentSpinners()));
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::dataUpdated() {}
+void MainWindow::dataUpdated()
+{
+    // this->ui->labelCH1SetVoltage->setText(this->applicationModel->get)
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    if (settings.contains(setcon::DEVICE_PORT)) {
+        for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
+             i++) {
+            this->setVoltageLabels.at(i - 1)->setText(QString::number(
+                this->applicationModel->getVoltage(
+                    static_cast<globcon::CHANNEL>(i)),
+                'f', settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
+            this->actualVoltageLabels.at(i - 1)->setText(QString::number(
+                this->applicationModel->getActualVoltage(
+                    static_cast<globcon::CHANNEL>(i)),
+                'f', settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
+            this->setCurrentLabels.at(i - 1)->setText(QString::number(
+                this->applicationModel->getCurrent(
+                    static_cast<globcon::CHANNEL>(i)),
+                'f', settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
+            this->actualCurrentLabels.at(i - 1)->setText(QString::number(
+                this->applicationModel->getActualCurrent(
+                    static_cast<globcon::CHANNEL>(i)),
+                'f', settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
+            this->wattageLabels.at(i - 1)
+                ->setText(QString::number(this->applicationModel->getWattage(
+                                              static_cast<globcon::CHANNEL>(i)),
+                                          'f', 3));
+            this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
+                ? this->outputLabels.at(i - 1)->setText("On")
+                : this->outputLabels.at(i - 1)->setText("Off");
+            this->applicationModel->getChannelMode(static_cast<globcon::CHANNEL>(
+                i)) == globcon::MODE::CONSTANT_CURRENT
+                ? this->channelModeLabels.at(i - 1)->setText("CC")
+                : this->channelModeLabels.at(i - 1)->setText("CV");
+        }
+    }
+}
+
+void MainWindow::deviceConnectionUpdated(bool connected)
+{
+    if (connected) {
+        this->ui->labelDisplayHeaderPlug->setPixmap(
+            QPixmap(":/icons/plug_in_orange.png"));
+    } else {
+        this->ui->labelDisplayHeaderPlug->setPixmap(
+            QPixmap(":/icons/plug_out_orange.png"));
+    }
+}
+
+void MainWindow::deviceIDUpdated()
+{
+    this->ui->labelDisplayDeviceName->setText(
+        this->applicationModel->getDeviceIdentification());
+}
 
 void MainWindow::disableControls(bool status) {}
 
@@ -94,6 +180,17 @@ void MainWindow::setupAnimations()
     this->hideVoltCurrentSpinner->setEndValue(0);
 }
 
+void MainWindow::setupModelConnections()
+{
+    QObject::connect(this->applicationModel.get(),
+                     SIGNAL(deviceConnectionStatus(bool)), this,
+                     SLOT(deviceConnectionUpdated(bool)));
+    QObject::connect(this->applicationModel.get(), SIGNAL(deviceID()), this,
+                     SLOT(deviceIDUpdated()));
+    QObject::connect(this->applicationModel.get(), SIGNAL(statusUpdate()), this,
+                     SLOT(dataUpdated()));
+}
+
 void MainWindow::setupValuesDialog()
 {
     QSettings settings;
@@ -112,19 +209,78 @@ void MainWindow::setupValuesDialog()
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
 
-        QObject::connect(
-            this->valuesDialog.get(),
-            SIGNAL(doubleValueAccepted(const double &, const int &)), this,
-            SLOT(valuesDialogDoubleResult(const double &, const int &)));
-
-        QObject::connect(ui->labelCH1SetVoltage,
-                         SIGNAL(doubleClick(const QPoint &, const double &)),
-                         this, SLOT(setVoltage(const QPoint &, const double &)));
-        QObject::connect(ui->labelCH1SetCurrent,
-                         SIGNAL(doubleClick(const QPoint &, const double &)),
-                         this, SLOT(setCurrent(const QPoint &, const double &)));
     } else {
         this->valuesDialog = nullptr;
+    }
+}
+
+void MainWindow::setupControlConnections()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    if (settings.contains(setcon::DEVICE_PORT)) {
+
+        QObject::connect(this->valuesDialog.get(),
+                         SIGNAL(doubleValueAccepted(const double &, const int &,
+                                                    const int &)),
+                         this, SLOT(valuesDialogDoubleResult(
+                                   const double &, const int &, const int &)));
+
+        QObject::connect(ui->labelCH1SetVoltage,
+                         SIGNAL(doubleClick(const QPoint &, const double &,
+                                            const int &, const int &)),
+                         this,
+                         SLOT(setVoltageCurrent(const QPoint &, const double &,
+                                                const int &, const int &)));
+        QObject::connect(ui->labelCH1SetCurrent,
+                         SIGNAL(doubleClick(const QPoint &, const double &,
+                                            const int &, const int &)),
+                         this,
+                         SLOT(setVoltageCurrent(const QPoint &, const double &,
+                                                const int &, const int &)));
+
+        // Setup a signal mapper that will map all simpel on off controls to an
+        // integer based on the CONTROLS enum.
+        this->boolDeviceControls =
+            std::unique_ptr<QSignalMapper>(new QSignalMapper());
+        QObject::connect(this->boolDeviceControls.get(), SIGNAL(mapped(int)),
+                         this, SLOT(deviceControl(int)));
+
+        // header controls
+        this->boolDeviceControls->setMapping(
+            ui->labelDisplayHeaderPlug,
+            static_cast<int>(MainWindow::CONTROL::CONNECT));
+        QObject::connect(ui->labelDisplayHeaderPlug,
+                         SIGNAL(doubleClickNoValue()),
+                         this->boolDeviceControls.get(), SLOT(map()));
+        this->boolDeviceControls->setMapping(
+            ui->labelDisplayHeaderMute,
+            static_cast<int>(MainWindow::CONTROL::SOUND));
+        QObject::connect(ui->labelDisplayHeaderMute,
+                         SIGNAL(doubleClickNoValue()),
+                         this->boolDeviceControls.get(), SLOT(map()));
+        this->boolDeviceControls->setMapping(
+            ui->labelDisplayHeaderLock,
+            static_cast<int>(MainWindow::CONTROL::LOCK));
+        QObject::connect(ui->labelDisplayHeaderLock,
+                         SIGNAL(doubleClickNoValue()),
+                         this->boolDeviceControls.get(), SLOT(map()));
+
+        // footer controls
+
+        // channel output
+        this->channelOutputControls =
+            std::unique_ptr<QSignalMapper>(new QSignalMapper());
+        QObject::connect(this->channelOutputControls.get(), SIGNAL(mapped(int)),
+                         this, SLOT(channelOutputControl(int)));
+
+        for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
+             i++) {
+            QLabel *label = this->outputLabels.at(i - 1);
+            this->channelOutputControls->setMapping(label, i);
+            QObject::connect(label, SIGNAL(doubleClickNoValue()),
+                             this->channelOutputControls.get(), SLOT(map()));
+        }
     }
 }
 
@@ -144,28 +300,83 @@ void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
 void MainWindow::showSettings()
 {
     // release the serial port
-    this->controller->disconnectDevice();
+    // this->controller->disconnectDevice();
     SettingsDialog sd;
     sd.exec();
-
-    this->controller->connectDevice();
 
     // Udate the values for the valuesDialog floating widget
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
-    this->valuesDialog->updateDeviceSpecs(
-        settings.value(setcon::DEVICE_VOLTAGE_MIN).toUInt(),
-        settings.value(setcon::DEVICE_VOLTAGE_MAX).toUInt(),
-        settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toUInt(),
-        settings.value(setcon::DEVICE_CURRENT_MIN).toUInt(),
-        settings.value(setcon::DEVICE_CURRENT_MAX).toUInt(),
-        settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
-        settings.value(setcon::DEVICE_CHANNELS).toUInt());
+    if (settings.contains(setcon::DEVICE_PORT)) {
+        this->valuesDialog->updateDeviceSpecs(
+            settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
+            settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble(),
+            settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toUInt(),
+            settings.value(setcon::DEVICE_CURRENT_MIN).toDouble(),
+            settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
+            settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
+            settings.value(setcon::DEVICE_CHANNELS).toUInt());
+    }
 }
 
-void MainWindow::valuesDialogDoubleResult(const double &val, const int &w)
+void MainWindow::valuesDialogDoubleResult(const double &val,
+                                          const int &sourceWidget,
+                                          const int &sourceChannel)
 {
-    qDebug() << Q_FUNC_INFO << "Received " << val << " " << w << " from Dialog";
+    switch (static_cast<ClickableLabel::INPUTWIDGETS>(sourceWidget)) {
+    case ClickableLabel::INPUTWIDGETS::VOLTAGE:
+        this->controller->setVoltage(sourceChannel, val);
+        break;
+    case ClickableLabel::INPUTWIDGETS::CURRENT:
+        this->controller->setCurrent(sourceChannel, val);
+        break;
+    case ClickableLabel::INPUTWIDGETS::TRACKING:
+        // TODO: Implement tracking Mode
+        // this->controller->setTrackingMode(0);
+        break;
+    default:
+        break;
+    }
+
+    qDebug() << Q_FUNC_INFO << "Received " << val << " Source: " << sourceWidget
+             << " "
+             << "Channel: " << sourceChannel;
+}
+
+void MainWindow::setVoltageCurrent(const QPoint &pos, const double &value,
+                                   const int &iWidget, const int &channel)
+{
+    // map widget cursor position to global position (top left)
+    QPoint globalPos = ui->labelCH1SetVoltage->mapToGlobal(pos);
+    this->valuesDialog->move(globalPos.x(), globalPos.y());
+    this->valuesDialog->setInputWidget(iWidget);
+    this->valuesDialog->setSourceChannel(channel);
+    // TODO: Why is this sourceWidget needed?
+    this->valuesDialog->setSourceWidget(iWidget);
+    this->valuesDialog->setInputWidgetValue(value);
+    this->valuesDialog->exec();
+}
+
+void MainWindow::deviceControl(int control)
+{
+    switch (static_cast<MainWindow::CONTROL>(control)) {
+    case CONTROL::CONNECT:
+        if (this->applicationModel->getDeviceConnected()) {
+            this->controller->disconnectDevice();
+        } else {
+            this->controller->connectDevice();
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::channelOutputControl(int control)
+{
+    this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(control))
+        ? this->controller->setOutput(control - 1, false)
+        : this->controller->setOutput(control - 1, true);
 }
 
 void MainWindow::showHideVoltCurrentSpinners()
@@ -176,26 +387,6 @@ void MainWindow::showHideVoltCurrentSpinners()
         this->hideVoltCurrentSpinner->start();
     }
     this->controller->getIdentification();
-}
-
-void MainWindow::setVoltage(const QPoint &pos, const double &value)
-{
-    // map widget cursor position to global position (top left)
-    QPoint globalPos = ui->labelCH1SetVoltage->mapToGlobal(pos);
-    this->valuesDialog->move(globalPos.x(), globalPos.y());
-    this->valuesDialog->setWidget(FloatingValuesDialog::INPUTWIDGETS::VOLTAGE);
-    this->valuesDialog->setWidgetValue(value);
-    this->valuesDialog->exec();
-    // this->controller->setVoltage(voltage);
-}
-
-void MainWindow::setCurrent(const QPoint &pos, const double &value)
-{
-    QPoint globalPos = ui->labelCH1SetCurrent->mapToGlobal(pos);
-    this->valuesDialog->move(globalPos.x(), globalPos.y());
-    this->valuesDialog->setWidget(FloatingValuesDialog::INPUTWIDGETS::CURRENT);
-    this->valuesDialog->setWidgetValue(value);
-    this->valuesDialog->exec();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

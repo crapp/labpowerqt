@@ -25,13 +25,16 @@
 #include <QUrl>
 #include <QDesktopServices>
 #include <QPropertyAnimation>
+#include <QSignalMapper>
 
 #include <QMessageBox>
 
 #include <memory>
+#include <vector>
 
 #include "config.h"
 #include "settingsdefinitions.h"
+#include "global.h"
 #include "labpowercontroller.h"
 #include "labpowermodel.h"
 
@@ -54,13 +57,31 @@ public:
 
 public slots:
     void dataUpdated();
+    void deviceConnectionUpdated(bool connected);
+    void deviceIDUpdated();
     void disableControls(bool status);
 
 private:
+    enum CONTROL { CONNECT = 0, SOUND, LOCK, OCP, OVP, OTP };
+
     Ui::MainWindow *ui;
+
+    std::vector<QLabel *> setVoltageLabels;
+    std::vector<QLabel *> actualVoltageLabels;
+    std::vector<QLabel *> setCurrentLabels;
+    std::vector<QLabel *> actualCurrentLabels;
+    std::vector<QLabel *> wattageLabels;
+    std::vector<QLabel *> outputLabels;
+    std::vector<QLabel *> channelModeLabels;
 
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
+
+    /**
+     * @brief boolDeviceControls Map an integer value to all "on/off" switches for the device ui.
+     */
+    std::unique_ptr<QSignalMapper> boolDeviceControls;
+    std::unique_ptr<QSignalMapper> channelOutputControls;
 
     std::unique_ptr<LabPowerController> controller;
     std::shared_ptr<LabPowerModel> applicationModel;
@@ -75,7 +96,9 @@ private:
     void setupMenuBarActions();
     void setupAnimations();
 
+    void setupModelConnections();
     void setupValuesDialog();
+    void setupControlConnections();
 
 private slots:
     void fileBugReport();
@@ -83,13 +106,14 @@ private slots:
     void showAboutQt();
     void showSettings();
 
-    void valuesDialogDoubleResult(const double &val,
-                                  const int &w);
+    void valuesDialogDoubleResult(const double &val, const int &sourceWidget,
+                                  const int &sourceChannel);
+    void setVoltageCurrent(const QPoint &pos, const double &value,
+                           const int &iWidget, const int &channel);
+    void deviceControl(int control);
+    void channelOutputControl(int control);
 
     void showHideVoltCurrentSpinners();
-
-    void setVoltage(const QPoint &pos, const double &value);
-    void setCurrent(const QPoint &pos, const double &value);
 
     // QWidget interface
 protected:
