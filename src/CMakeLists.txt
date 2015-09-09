@@ -72,6 +72,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplystatus.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
@@ -89,6 +90,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp

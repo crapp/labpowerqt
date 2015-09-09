@@ -367,6 +367,18 @@ void MainWindow::deviceControl(int control)
             this->controller->connectDevice();
         }
         break;
+    case CONTROL::SOUND:
+        if (this->applicationModel->getDeviceMute()) {
+            this->controller->setAudio(false);
+        } else {
+            this->controller->setAudio(true);
+        }
+    case CONTROL::LOCK:
+        if (this->applicationModel->getDeviceLocked()) {
+            this->controller->setLock(false);
+        } else {
+            this->controller->setLock(true);
+        }
     default:
         break;
     }

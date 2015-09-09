@@ -132,6 +132,16 @@ void LabPowerController::setOutput(const int &channel, const bool &status)
     this->powerSupplyConnector->setOutput(channel, status);
 }
 
+void LabPowerController::setAudio(const bool &status)
+{
+    this->powerSupplyConnector->setBeep(status);
+}
+
+void LabPowerController::setLock(const bool &status)
+{
+    this->powerSupplyConnector->setLocked(status);
+}
+
 void LabPowerController::setTrackingMode(const int &mode)
 {
     if (this->powerSupplyConnector)

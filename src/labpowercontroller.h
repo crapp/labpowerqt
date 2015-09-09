@@ -38,6 +38,8 @@ public slots:
     void setVoltage(const int &channel, const double &value);
     void setCurrent(const int &channel, const double &value);
     void setOutput(const int &channel, const bool &status);
+    void setAudio(const bool &status);
+    void setLock(const bool &status);
     void setTrackingMode(const int &mode);
     void getIdentification();
     void getStatus();
