@@ -123,6 +123,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
              << "ms";
 
     if (status != nullptr) {
+        status->setTime(std::chrono::system_clock::now());
         // calculate wattage
         if (this->canCalculateWattage)
             this->calculateWattage(status);

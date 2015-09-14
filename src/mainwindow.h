@@ -41,6 +41,7 @@
 #include "aboutme.h"
 #include "settingsdialog.h"
 #include "floatingvaluesdialog.h"
+#include "plottingarea.h"
 
 namespace Ui
 {
@@ -76,6 +77,8 @@ private:
 
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
+
+    PlottingArea *plotArea;
 
     /**
      * @brief boolDeviceControls Map an integer value to all "on/off" switches for the device ui.

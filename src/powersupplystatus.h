@@ -20,6 +20,7 @@
 #include <map>
 #include <utility>
 #include <memory>
+#include <chrono>
 
 #include "global.h"
 
@@ -40,6 +41,7 @@ public:
         this->ovp = false;
         this->ocp = false;
         this->otp = false;
+        this->time = std::chrono::system_clock::now();
     };
 
     void setBeeper(bool beep) { this->beeper = beep; }
@@ -52,6 +54,14 @@ public:
     bool getOcp() { return this->ocp; }
     void setOtp(bool otp) { this->otp = otp; }
     bool getOtp() { return this->otp; }
+    void setTime(const std::chrono::system_clock::time_point &t)
+    {
+        this->time = t;
+    }
+    std::chrono::system_clock::time_point getTime()
+    {
+        return this->time;
+    }
 
     void setActualCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
     {
@@ -148,6 +158,8 @@ private:
     bool ovp;
     bool ocp;
     bool otp;
+
+    std::chrono::system_clock::time_point time;
 
     /**
      * @brief actual_current Map holds actual current for all channels

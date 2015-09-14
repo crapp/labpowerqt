@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <map>
+#include <chrono>
 
 #include "global.h"
 #include "powersupplystatus.h"
@@ -46,6 +47,8 @@ public:
 
     bool getOutput(const global_constants::CHANNEL &c);
     global_constants::MODE getChannelMode(const global_constants::CHANNEL &c);
+
+    std::chrono::system_clock::time_point getTime();
 
     double getVoltage(const global_constants::CHANNEL &c);
     double getActualVoltage(const global_constants::CHANNEL &c);

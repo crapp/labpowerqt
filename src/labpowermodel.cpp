@@ -60,7 +60,12 @@ global_constants::MODE
 LabPowerModel::getChannelMode(const global_constants::CHANNEL &c)
 {
     return static_cast<global_constants::MODE>(
-        this->status->getChannelMode(static_cast<int>(c)));
+                this->status->getChannelMode(static_cast<int>(c)));
+}
+
+std::chrono::system_clock::time_point LabPowerModel::getTime()
+{
+    return this->status->getTime();
 }
 
 double LabPowerModel::getVoltage(const global_constants::CHANNEL &c)

@@ -19,9 +19,14 @@
 #define PLOTTINGAREA_H
 
 #include <QWidget>
+#include <QColor>
+
+#include <vector>
+#include <chrono>
 
 #include "qcustomplot.h"
 #include "global.h"
+#include "settingsdefinitions.h"
 
 class PlottingArea : public QWidget
 {
@@ -32,6 +37,43 @@ public:
 signals:
 
 public slots:
+
+    void addData(const int &channel, const double &data,
+                 const std::chrono::system_clock::time_point &t,
+                 const global_constants::DATATYPE &type);
+
+private:
+    const std::vector<QColor> voltageGraphColors = {
+        QColor(Qt::GlobalColor::red), QColor(Qt::GlobalColor::red)};
+    const std::vector<QColor> currentGraphColors = {
+        QColor(Qt::GlobalColor::blue), QColor(Qt::GlobalColor::blue)};
+
+    std::vector<QCPAxis *> yAxisContainer;
+    std::vector<QGroupBox *> channelBoxes;
+
+    /**
+     * @brief plot The plot widget
+     */
+    QCustomPlot *plot;
+    QCPAxis *currentAxis;
+
+    QFrame *graphControllFrame;
+
+    QCheckBox *cbGeneralAutoscroll;
+
+    bool firstStart;
+    bool autoScroll;
+    std::chrono::system_clock::time_point startPoint;
+    std::chrono::system_clock::time_point currentDataPointKey;
+
+    void setupUI();
+    void setupGraph();
+
+private slots:
+
+    void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
+
+    void generalCBCheckState(int state);
 };
 
 #endif // PLOTTINGAREA_H

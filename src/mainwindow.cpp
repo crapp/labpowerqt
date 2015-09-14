@@ -51,8 +51,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());
     settings.endGroup();
 
-    this->ui->frame_2->setMaximumHeight(0);
-
     this->ui->labelCH1SetVoltage->setChannel(globcon::CHANNEL1);
     this->ui->labelCH1SetVoltage->setInputwidget(
         ClickableLabel::INPUTWIDGETS::VOLTAGE);
@@ -72,6 +70,11 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->labelDisplayHeaderMute->setNoReturnValue(true);
     this->ui->labelDisplayHeaderLock->setNoReturnValue(true);
 
+    this->plotArea = new PlottingArea();
+    QHBoxLayout *graphLayout = new QHBoxLayout();
+    ui->frameGraph->setLayout(graphLayout);
+    graphLayout->addWidget(this->plotArea);
+
     // create model and controller
     this->applicationModel = std::make_shared<LabPowerModel>();
     this->controller = std::unique_ptr<LabPowerController>(
@@ -82,10 +85,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->setupModelConnections();
     this->setupValuesDialog();
     this->setupControlConnections();
-
-    // Connect signal slots
-    QObject::connect(ui->pushButton_2, SIGNAL(clicked()), this,
-                     SLOT(showHideVoltCurrentSpinners()));
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -98,26 +97,38 @@ void MainWindow::dataUpdated()
     if (settings.contains(setcon::DEVICE_PORT)) {
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
+            double voltage = this->applicationModel->getVoltage(
+                static_cast<globcon::CHANNEL>(i));
+            double actualVoltage = this->applicationModel->getActualVoltage(
+                static_cast<globcon::CHANNEL>(i));
+            double current = this->applicationModel->getCurrent(
+                static_cast<globcon::CHANNEL>(i));
+            double actualCurrent = this->applicationModel->getActualCurrent(
+                static_cast<globcon::CHANNEL>(i));
+            double wattage = this->applicationModel->getWattage(
+                static_cast<globcon::CHANNEL>(i));
+
+            this->plotArea->addData(i, actualVoltage,
+                                    this->applicationModel->getTime(),
+                                    globcon::DATATYPE::VOLTAGE);
+            this->plotArea->addData(i, actualCurrent,
+                                    this->applicationModel->getTime(),
+                                    globcon::DATATYPE::CURRENT);
+
             this->setVoltageLabels.at(i - 1)->setText(QString::number(
-                this->applicationModel->getVoltage(
-                    static_cast<globcon::CHANNEL>(i)),
-                'f', settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
+                voltage, 'f',
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
             this->actualVoltageLabels.at(i - 1)->setText(QString::number(
-                this->applicationModel->getActualVoltage(
-                    static_cast<globcon::CHANNEL>(i)),
-                'f', settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
+                actualVoltage, 'f',
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()));
             this->setCurrentLabels.at(i - 1)->setText(QString::number(
-                this->applicationModel->getCurrent(
-                    static_cast<globcon::CHANNEL>(i)),
-                'f', settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
+                current, 'f',
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
             this->actualCurrentLabels.at(i - 1)->setText(QString::number(
-                this->applicationModel->getActualCurrent(
-                    static_cast<globcon::CHANNEL>(i)),
-                'f', settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
+                actualCurrent, 'f',
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
             this->wattageLabels.at(i - 1)
-                ->setText(QString::number(this->applicationModel->getWattage(
-                                              static_cast<globcon::CHANNEL>(i)),
-                                          'f', 3));
+                ->setText(QString::number(wattage, 'f', 3));
             this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
                 ? this->outputLabels.at(i - 1)->setText("On")
                 : this->outputLabels.at(i - 1)->setText("Off");
@@ -166,18 +177,18 @@ void MainWindow::setupMenuBarActions()
 
 void MainWindow::setupAnimations()
 {
-    this->showVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
-        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
-    this->showVoltCurrentSpinner->setDuration(500);
-    this->showVoltCurrentSpinner->setStartValue(0);
-    this->showVoltCurrentSpinner->setEndValue(ui->frame_2->height());
+    //    this->showVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
+    //        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
+    //    this->showVoltCurrentSpinner->setDuration(500);
+    //    this->showVoltCurrentSpinner->setStartValue(0);
+    //    this->showVoltCurrentSpinner->setEndValue(ui->frame_2->height());
 
-    this->hideVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
-        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
-    this->hideVoltCurrentSpinner->setDuration(500);
-    this->hideVoltCurrentSpinner->setStartValue(
-        this->showVoltCurrentSpinner->endValue());
-    this->hideVoltCurrentSpinner->setEndValue(0);
+    //    this->hideVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
+    //        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
+    //    this->hideVoltCurrentSpinner->setDuration(500);
+    //    this->hideVoltCurrentSpinner->setStartValue(
+    //        this->showVoltCurrentSpinner->endValue());
+    //    this->hideVoltCurrentSpinner->setEndValue(0);
 }
 
 void MainWindow::setupModelConnections()
@@ -393,12 +404,12 @@ void MainWindow::channelOutputControl(int control)
 
 void MainWindow::showHideVoltCurrentSpinners()
 {
-    if (ui->frame_2->maximumHeight() == 0) {
-        this->showVoltCurrentSpinner->start();
-    } else {
-        this->hideVoltCurrentSpinner->start();
-    }
-    this->controller->getIdentification();
+    //    if (ui->frame_2->maximumHeight() == 0) {
+    //        this->showVoltCurrentSpinner->start();
+    //    } else {
+    //        this->hideVoltCurrentSpinner->start();
+    //    }
+    //    this->controller->getIdentification();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
