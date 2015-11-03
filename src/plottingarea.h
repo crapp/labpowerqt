@@ -20,11 +20,14 @@
 
 #include <QWidget>
 #include <QColor>
+#include <QScrollArea>
 
 #include <vector>
 #include <chrono>
+#include <map>
 
 #include "qcustomplot.h"
+#include "qAccordion/qaccordion.h"
 #include "global.h"
 #include "settingsdefinitions.h"
 
@@ -47,19 +50,38 @@ private:
         QColor(Qt::GlobalColor::red), QColor(Qt::GlobalColor::red)};
     const std::vector<QColor> currentGraphColors = {
         QColor(Qt::GlobalColor::blue), QColor(Qt::GlobalColor::blue)};
+    const std::vector<QColor> wattageGraphColors = {
+        QColor(Qt::GlobalColor::green), QColor(Qt::GlobalColor::green)};
+
+    const std::map<global_constants::DATATYPE, QString> datatypeStrings = {
+        {global_constants::DATATYPE::VOLTAGE, "Set Voltage"},
+        {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage"},
+        {global_constants::DATATYPE::CURRENT, "Set Current"},
+        {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current"},
+        {global_constants::DATATYPE::WATTAGE, "Wattage"}
+    };
+
+    const std::map<global_constants::DATATYPE, QString> graphNames = {
+        {global_constants::DATATYPE::VOLTAGE, "Voltage CH%1"},
+        {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage CH%1"},
+        {global_constants::DATATYPE::CURRENT, "Current CH%1"},
+        {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current CH%1"},
+        {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}
+    };
 
     std::vector<QCPAxis *> yAxisContainer;
-    std::vector<QGroupBox *> channelBoxes;
 
     /**
      * @brief plot The plot widget
      */
     QCustomPlot *plot;
     QCPAxis *currentAxis;
+    QCPAxis *wattageAxis;
 
-    QFrame *graphControllFrame;
+    QScrollArea *graphControlScroll;
+    QAccordion *graphAccordion;
 
-    QCheckBox *cbGeneralAutoscroll;
+    QCheckBox *cbGeneralAutoscrl;
 
     bool firstStart;
     bool autoScroll;

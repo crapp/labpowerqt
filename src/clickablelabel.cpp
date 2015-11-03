@@ -17,28 +17,19 @@
 
 #include "clickablelabel.h"
 
+namespace globcon = global_constants;
+
 ClickableLabel::ClickableLabel(QWidget *parent, Qt::WindowFlags f)
     : QLabel(parent, f)
 {
-    this->setAttribute(Qt::WA_Hover, true);
-    this->clickable = true;
-    this->setCursor(Qt::PointingHandCursor);
-    this->noReturnValue = false;
-    this->channel = global_constants::CHANNEL::CHANNEL1;
-    this->iWidget = INPUTWIDGETS::VOLTAGE;
+    this->initLabel();
 }
 
 ClickableLabel::ClickableLabel(const QString &text, QWidget *parent,
                                Qt::WindowFlags f)
     : QLabel(text, parent, f)
 {
-    // TODO: initialization of this variables and settings has to be centralized
-    this->setAttribute(Qt::WA_Hover, true);
-    this->clickable = true;
-    this->setCursor(Qt::PointingHandCursor);
-    this->noReturnValue = false;
-    this->channel = global_constants::CHANNEL::CHANNEL1;
-    this->iWidget = INPUTWIDGETS::VOLTAGE;
+    this->initLabel();
 }
 
 void ClickableLabel::setClickable(bool status) {
@@ -77,6 +68,17 @@ void ClickableLabel::setInputwidget(const ClickableLabel::INPUTWIDGETS &w)
 ClickableLabel::INPUTWIDGETS ClickableLabel::getInputWidget()
 {
     return this->iWidget;
+}
+
+void ClickableLabel::initLabel()
+{
+    this->setAttribute(Qt::WA_Hover, true);
+    this->clickable = false;
+    this->setCursor(Qt::ForbiddenCursor);
+    this->noReturnValue = false;
+    this->channel = global_constants::CHANNEL::CHANNEL1;
+    this->iWidget = INPUTWIDGETS::VOLTAGE;
+    this->setStyleSheet(QString("color: ") + globcon::ORANGECOLOR + ";");
 }
 
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)

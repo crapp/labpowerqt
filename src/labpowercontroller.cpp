@@ -105,7 +105,7 @@ void LabPowerController::deviceConnected()
     QObject::connect(this->powerSupplyStatusUpdater.get(), SIGNAL(timeout()),
                      this, SLOT(getStatus()));
     // TODO: Make the interval configurable. Determine a sane minimum.
-    this->powerSupplyStatusUpdater->setInterval(5000);
+    this->powerSupplyStatusUpdater->setInterval(1000);
     this->powerSupplyStatusUpdater->start();
 }
 

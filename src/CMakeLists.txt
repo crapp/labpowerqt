@@ -54,6 +54,7 @@ include_directories(
     ${PROJECT_BINARY_DIR}
     ${QWT_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/external/qcustomplot
+    ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
 
 # configure a header file to pass some of the CMake settings
@@ -66,6 +67,7 @@ configure_file (
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/global.h
@@ -84,6 +86,7 @@ set(HEADER
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.cpp
@@ -96,9 +99,9 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
 )
 
-set(RESOURCE ${PROJECT_SOURCE_DIR}/icons/icons.qrc)
+set(ICON_RESOURCE ${PROJECT_SOURCE_DIR}/icons/icons.qrc)
 # add resource files so they can be compiled into the binary
-qt5_add_resources(RESOURCE_ADDED ${RESOURCE})
+qt5_add_resources(ICON_RESOURCE_ADDED ${ICON_RESOURCE})
 
 add_executable(labpowerqt
     ${HEADER}
@@ -106,7 +109,7 @@ add_executable(labpowerqt
     ${${CMAKE_PROJECT_NAME}_FORMS}
     ${CUSTOMPLOT_HEADER}
     ${CUSTOMPLOT_SOURCE}
-    ${RESOURCE_ADDED}
+    ${ICON_RESOURCE_ADDED}
 )
 
 target_link_libraries(labpowerqt
@@ -116,6 +119,7 @@ Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
 ${QWT_LIBRARY}
-${CMAKE_THREAD_LIBS_INIT})
+${CMAKE_THREAD_LIBS_INIT}
+qAccordion)
 
 

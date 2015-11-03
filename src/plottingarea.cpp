@@ -18,6 +18,7 @@
 #include "plottingarea.h"
 
 namespace setcon = settings_constants;
+namespace globcon = global_constants;
 
 PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
 {
@@ -36,13 +37,13 @@ void PlottingArea::addData(const int &channel, const double &data,
 {
     /*
      * We actually can calculate the index of our graph using a simple formula
-     * (a-1)*3 + b
+     * (a - 1) * 5 + b
      */
-    int index = (channel - 1) * 3 + static_cast<int>(type);
+    int index = (channel - 1) * 5 + static_cast<int>(type);
     auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                     t.time_since_epoch()).count();
+                     t.time_since_epoch())
+                     .count();
     double key = msecs / 1000.0;
-    QDateTime qtT = QDateTime::fromMSecsSinceEpoch(msecs);
 
     this->currentDataPointKey = t;
 
@@ -69,23 +70,23 @@ void PlottingArea::setupUI()
                               QSizePolicy::Policy::Expanding);
     mainLayout->addWidget(plot, 0, 0);
 
-    this->graphControllFrame = new QFrame();
-    this->graphControllFrame->setFrameShape(QFrame::NoFrame);
-    mainLayout->addWidget(graphControllFrame, 1, 0);
-    QGridLayout *graphControllFrameLayout = new QGridLayout();
-    this->graphControllFrame->setLayout(graphControllFrameLayout);
+    this->graphAccordion = new QAccordion();
+    this->graphControlScroll = new QScrollArea();
+    this->graphControlScroll->setWidget(this->graphAccordion);
+    mainLayout->addWidget(graphControlScroll, 1, 0);
 
-    QGroupBox *generalBox = new QGroupBox;
-    generalBox->setLayout(new QGridLayout());
-    generalBox->setTitle("General");
-    graphControllFrameLayout->addWidget(generalBox, 0, 0);
+    int generalPaneIdx = this->graphAccordion->addContentPane("General");
 
-    this->cbGeneralAutoscroll = new QCheckBox();
-    this->cbGeneralAutoscroll->setText("Auto Scroll");
-    this->cbGeneralAutoscroll->setChecked(true);
-    generalBox->layout()->addWidget(this->cbGeneralAutoscroll);
+    QFrame *generalFrame =
+        this->graphAccordion->getContentPane(generalPaneIdx)->getContentFrame();
+    generalFrame->setLayout(new QGridLayout());
 
-    QObject::connect(this->cbGeneralAutoscroll, SIGNAL(stateChanged(int)), this,
+    this->cbGeneralAutoscrl = new QCheckBox();
+    this->cbGeneralAutoscrl->setText("Auto Scroll");
+    this->cbGeneralAutoscrl->setChecked(true);
+    generalFrame->layout()->addWidget(this->cbGeneralAutoscrl);
+
+    QObject::connect(this->cbGeneralAutoscrl, SIGNAL(stateChanged(int)), this,
                      SLOT(generalCBCheckState(int)));
 }
 
@@ -106,6 +107,9 @@ void PlottingArea::setupGraph()
         this->currentAxis =
             this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
         this->yAxisContainer.push_back(this->currentAxis);
+        this->wattageAxis =
+            this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
+        this->yAxisContainer.push_back(this->wattageAxis);
         yAxisContainer.at(0)->setLabel("Voltage V");
         yAxisContainer.at(0)->setRangeLower(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() - 1);
@@ -116,16 +120,26 @@ void PlottingArea::setupGraph()
             settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() - 1);
         yAxisContainer.at(1)->setRangeUpper(
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() + 1);
+        yAxisContainer.at(2)->setLabel("Wattage W");
+        yAxisContainer.at(2)->setRangeLower(
+            settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() *
+                settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() -
+            1);
+        yAxisContainer.at(2)->setRangeUpper(
+            settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble() *
+                settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() +
+            1);
 
         this->plot->xAxis->setLabel("Time");
         this->plot->xAxis->setTickLabelType(QCPAxis::LabelType::ltDateTime);
         this->plot->xAxis->setDateTimeFormat("HH:mm:ss");
-        this->plot->xAxis->setAutoTickStep(false);
-        this->plot->xAxis->setTickStep(30);
+        // this->plot->xAxis->setAutoTickStep(false);
+        // this->plot->xAxis->setTickStep(30);
         this->plot->xAxis->setTickLabelRotation(45);
         this->plot->axisRect()->setupFullAxesBox(true);
         auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                         this->startPoint.time_since_epoch()).count();
+                         this->startPoint.time_since_epoch())
+                         .count();
         this->plot->xAxis->setRange(msecs / 1000.0, 300, Qt::AlignRight);
 
         QObject::connect(
@@ -137,38 +151,70 @@ void PlottingArea::setupGraph()
 
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-            QGroupBox *chanBox = new QGroupBox();
-            chanBox->setLayout(new QHBoxLayout());
-            chanBox->setTitle("Channel " + QString::number(i));
-            chanBox->setSizePolicy(QSizePolicy::Policy::Preferred,
-                                   QSizePolicy::Policy::Fixed);
-            this->channelBoxes.push_back(chanBox);
-            this->graphControllFrame->layout()->addWidget(chanBox);
-            for (int j = 0; j < 2; j++) {
-                if (j >= 1) {
+            ContentPane *pane = new ContentPane("Channel " + QString::number(i));
+            QFrame *cf = pane->getContentFrame();
+            cf->setLayout(new QHBoxLayout());
+
+            for (int j = 0; j < 5; j++) {
+                globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
+
+                QPen graphPen;
+
+                if (dt == globcon::DATATYPE::CURRENT ||
+                    dt == globcon::DATATYPE::ACTUALCURRENT) {
                     this->plot->addGraph(this->plot->xAxis,
-                                         this->yAxisContainer.at(j));
+                                         this->yAxisContainer.at(1));
+                    graphPen.setColor(this->currentGraphColors.at(i - 1));
+                } else if (dt == globcon::DATATYPE::WATTAGE) {
+                    this->plot->addGraph(this->plot->xAxis,
+                                         this->yAxisContainer.at(2));
+                    graphPen.setColor(this->wattageGraphColors.at(i - 1));
                 } else {
                     this->plot->addGraph();
+                    graphPen.setColor(this->voltageGraphColors.at(i - 1));
                 }
 
-                this->plot->graph(graphIndex)
-                    ->setLineStyle(QCPGraph::LineStyle::lsLine);
-                this->plot->graph(graphIndex)
-                    ->setPen(QPen(voltageGraphColors.at(j)));
+                // init a QPen for our graph with a color.
+                graphPen.setWidthF(2);
 
                 QCheckBox *cb = new QCheckBox();
-                cb->setText("Irgendwas");
-                cb->setCheckState(Qt::CheckState::Checked);
-                chanBox->layout()->addWidget(cb);
+                cb->setText(this->datatypeStrings.at(dt));
 
-                //                QObject::connect(cb, SIGNAL(stateChanged(int)),
-                //                                 this->plot->graph(graphIndex),
-                //                                 SLOT());
+                // only some graphs are visible
+                if (dt == globcon::DATATYPE::ACTUALVOLTAGE ||
+                    dt == globcon::DATATYPE::ACTUALCURRENT ||
+                    dt == globcon::DATATYPE::WATTAGE) {
+                    cb->setCheckState(Qt::CheckState::Checked);
+                    this->plot->graph(graphIndex)
+                        ->setLineStyle(QCPGraph::LineStyle::lsLine);
+                } else {
+                    // these ones are invisible and only dotted.
+                    cb->setCheckState(Qt::CheckState::Unchecked);
+                    this->plot->graph(graphIndex)->setVisible(false);
+                    graphPen.setStyle(Qt::PenStyle::DotLine);
+                }
+
+                this->plot->graph(graphIndex)->setPen(graphPen);
+                // set graph name
+                this->plot->graph(graphIndex)
+                    ->setName(this->graphNames.at(dt).arg(QString::number(i)));
+
+                cf->layout()->addWidget(cb);
+
+                // connect checkbox with a lambda
+                QCPGraph *currentGraph = this->plot->graph(graphIndex);
+                QObject::connect(cb, &QCheckBox::toggled,
+                                 [currentGraph](bool checked) {
+                                     if (checked) {
+                                         currentGraph->setVisible(true);
+                                     } else {
+                                         currentGraph->setVisible(false);
+                                     }
+                                 });
 
                 graphIndex++;
             }
-            dynamic_cast<QHBoxLayout *>(chanBox->layout())->addStretch();
+            dynamic_cast<QHBoxLayout *>(cf->layout())->addStretch();
         }
     }
 }
@@ -208,7 +254,7 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
 
     if (this->autoScroll && tpNewUpperSecs < currentDataPointKeySecs) {
         // this->autoScroll = false;
-        this->cbGeneralAutoscroll->setCheckState(Qt::CheckState::Unchecked);
+        this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Unchecked);
     }
 
     // if (newRange.upper > this->currentDataPointKey)

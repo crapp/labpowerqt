@@ -63,6 +63,8 @@ private:
     bool clickable;
     bool noReturnValue;
 
+    void initLabel();
+
     void mouseDoubleClickEvent(QMouseEvent *event);
 
     void enterEvent(QEvent *event);

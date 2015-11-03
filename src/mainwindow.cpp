@@ -70,11 +70,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->labelDisplayHeaderMute->setNoReturnValue(true);
     this->ui->labelDisplayHeaderLock->setNoReturnValue(true);
 
-    this->plotArea = new PlottingArea();
-    QHBoxLayout *graphLayout = new QHBoxLayout();
-    ui->frameGraph->setLayout(graphLayout);
-    graphLayout->addWidget(this->plotArea);
-
     // create model and controller
     this->applicationModel = std::make_shared<LabPowerModel>();
     this->controller = std::unique_ptr<LabPowerController>(
@@ -108,12 +103,21 @@ void MainWindow::dataUpdated()
             double wattage = this->applicationModel->getWattage(
                 static_cast<globcon::CHANNEL>(i));
 
-            this->plotArea->addData(i, actualVoltage,
-                                    this->applicationModel->getTime(),
-                                    globcon::DATATYPE::VOLTAGE);
-            this->plotArea->addData(i, actualCurrent,
-                                    this->applicationModel->getTime(),
-                                    globcon::DATATYPE::CURRENT);
+            this->ui->widgetGraph->addData(i, voltage,
+                                           this->applicationModel->getTime(),
+                                           globcon::DATATYPE::VOLTAGE);
+            this->ui->widgetGraph->addData(i, actualVoltage,
+                                           this->applicationModel->getTime(),
+                                           globcon::DATATYPE::ACTUALVOLTAGE);
+            this->ui->widgetGraph->addData(i, current,
+                                           this->applicationModel->getTime(),
+                                           globcon::DATATYPE::CURRENT);
+            this->ui->widgetGraph->addData(i, actualCurrent,
+                                           this->applicationModel->getTime(),
+                                           globcon::DATATYPE::ACTUALCURRENT);
+            this->ui->widgetGraph->addData(i, wattage,
+                                           this->applicationModel->getTime(),
+                                           globcon::DATATYPE::WATTAGE);
 
             this->setVoltageLabels.at(i - 1)->setText(QString::number(
                 voltage, 'f',
