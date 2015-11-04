@@ -21,7 +21,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
     endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
@@ -111,6 +111,9 @@ add_executable(labpowerqt
     ${CUSTOMPLOT_SOURCE}
     ${ICON_RESOURCE_ADDED}
 )
+# define our c++ standard and make sure cmake fails if the requirement is not met.
+#set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
+#set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
 target_link_libraries(labpowerqt
 Qt5::Widgets

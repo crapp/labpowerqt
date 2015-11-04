@@ -20,23 +20,30 @@
 FloatingValuesDialog::FloatingValuesDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
 {
-    // set to sane default value;
+    // set to sane default values;
     this->sourceWidget = 1;
     this->sourceChannel = 1;
+    this->data = nullptr;
     this->createUI();
 }
 
-void FloatingValuesDialog::setSourceWidget(const int &sourcew)
+void FloatingValuesDialog::setValuesDialogData(
+    std::shared_ptr<FloatingValuesDialogData> data)
+{
+    this->data = data;
+}
+
+void FloatingValuesDialog::setSourceWidget(int sourcew)
 {
     this->sourceWidget = sourcew;
 }
 
-void FloatingValuesDialog::setSourceChannel(const int &channel)
+void FloatingValuesDialog::setSourceChannel(int channel)
 {
     this->sourceChannel = channel;
 }
 
-void FloatingValuesDialog::setInputWidget(const int &w)
+void FloatingValuesDialog::setInputWidget(int w)
 {
     this->stackedContainer->setCurrentIndex(w);
 
@@ -44,7 +51,7 @@ void FloatingValuesDialog::setInputWidget(const int &w)
     this->resize(1, 1);
 }
 
-void FloatingValuesDialog::setInputWidgetValue(const double &value)
+void FloatingValuesDialog::setInputWidgetValue(double value)
 {
     // WARNING: This is highly dependend of our gui structure
     QFrame *cont =
@@ -52,15 +59,12 @@ void FloatingValuesDialog::setInputWidgetValue(const double &value)
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
-void FloatingValuesDialog::setInputWidgetValue(const int &trackingMode) {}
+void FloatingValuesDialog::setInputWidgetValue(int trackingMode) {}
 
-void FloatingValuesDialog::updateDeviceSpecs(const double &voltageMin,
-                                             const double &voltageMax,
-                                             const uint &voltagePrecision,
-                                             const double &currentMin,
-                                             const double &currentMax,
-                                             const uint &currentPrecision,
-                                             const uint &noOfChannels)
+void FloatingValuesDialog::updateDeviceSpecs(
+    double voltageMin, double voltageMax, uint voltagePrecision,
+    double currentMin, double currentMax, uint currentPrecision,
+    uint noOfChannels)
 {
     voltageSpinBox->setMinimum(voltageMin);
     voltageSpinBox->setMaximum(voltageMax);
@@ -122,6 +126,7 @@ void FloatingValuesDialog::accept()
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
+
     emit this->doubleValueAccepted(value, this->sourceWidget,
                                    this->sourceChannel);
     this->done(1);

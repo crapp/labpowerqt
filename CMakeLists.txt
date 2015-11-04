@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.11) #2.8.11 provides an easy way to build with qt5
+cmake_minimum_required(VERSION 2.8.12) #2.8.12 provides an easy way to build with qt5
 project(labpowerqt)
 
 #The version number

@@ -28,31 +28,43 @@
 
 #include <QDebug>
 
+#include <memory>
+
+struct FloatingValuesDialogData {
+    FloatingValuesDialogData(){};
+
+    double voltage;
+    double current;
+};
+
 class FloatingValuesDialog : public QDialog
 {
 
     Q_OBJECT
 
 public:
-    FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    enum dataType { VOLTAGE, CURRENT };
+
+    FloatingValuesDialog(
+                         QWidget *parent = 0, Qt::WindowFlags f = 0);
+
+    void setValuesDialogData(std::shared_ptr<FloatingValuesDialogData> data);
 
 signals:
 
-    void doubleValueAccepted(const double &val, const int &sourceWidget,
-                             const int &sourceChannel);
+    void doubleValueAccepted(double val, int sourceWidget, int sourceChannel);
 
 public slots:
 
-    void setSourceWidget(const int &sourcew);
-    void setSourceChannel(const int &channel);
-    void setInputWidget(const int &w);
-    void setInputWidgetValue(const double &value);
-    void setInputWidgetValue(const int &trackingMode);
-    void updateDeviceSpecs(const double &voltageMin, const double &voltageMax,
-                           const uint &voltagePrecision,
-                           const double &currentMin, const double &currentMax,
-                           const uint &currentPrecision,
-                           const uint &noOfChannels);
+    void setSourceWidget(int sourcew);
+    void setSourceChannel(int channel);
+    void setInputWidget(int w);
+    void setInputWidgetValue(double value);
+    void setInputWidgetValue(int trackingMode);
+    void updateDeviceSpecs(double voltageMin, double voltageMax,
+                           uint voltagePrecision, double currentMin,
+                           double currentMax, uint currentPrecision,
+                           uint noOfChannels);
 
 private:
     QGridLayout *mainLayout;
@@ -64,6 +76,8 @@ private:
 
     int sourceWidget;
     int sourceChannel;
+
+    std::shared_ptr<FloatingValuesDialogData> data;
 
     void createUI();
 

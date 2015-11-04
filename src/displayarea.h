@@ -28,17 +28,37 @@
 #include <QStyleOption>
 #include <QSettings>
 
+#include <memory>
 #include <vector>
 
 #include "global.h"
 #include "settingsdefinitions.h"
 #include "clickablelabel.h"
+#include "floatingvaluesdialog.h"
+
+struct ChannelWidgets {
+public:
+    ChannelWidgets(){};
+
+    QLabel *voltageActual;
+    QLabel *currentActual;
+    QLabel *wattageActual;
+
+    ClickableLabel *voltageSet;
+    ClickableLabel *currentSet;
+    QLabel *modeActual;
+    ClickableLabel *outputSet;
+};
 
 class DisplayArea : public QWidget
 {
     Q_OBJECT
 public:
     explicit DisplayArea(QWidget *parent = 0);
+
+    void
+    setValuesDialog(std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
+                    std::shared_ptr<FloatingValuesDialog> valuesDialog);
 
 signals:
 
@@ -54,9 +74,9 @@ private:
     ClickableLabel *labelLock;
 
     std::vector<ClickableLabel *> headerControls;
-
     QFrame *frameChannels;
-
+    std::vector<QFrame *>
+        channelFramesVec; /**< Keep track of our channel frames */
     QFrame *frameFooter;
     ClickableLabel *labelOVPSet;
     ClickableLabel *labelOCPSet;
@@ -65,14 +85,18 @@ private:
 
     std::vector<ClickableLabel *> footerControls;
 
+    std::vector<std::unique_ptr<ChannelWidgets>> chanwVector;
+
+    std::shared_ptr<FloatingValuesDialogData> valuesDialogData;
+    std::shared_ptr<FloatingValuesDialog> valuesDialog;
+
     void setupUI();
-    void setupChannels();
 
     /**
      * @brief paintEvent Reimplement paintEvent to use stylesheets in derived Widgets
      * @param event
      */
-    void paintEvent(QPaintEvent * event);
+    void paintEvent(QPaintEvent *event);
 };
 
 #endif // DISPLAYAREA_H

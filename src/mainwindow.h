@@ -87,7 +87,8 @@ private:
     std::unique_ptr<LabPowerController> controller;
     std::shared_ptr<LabPowerModel> applicationModel;
 
-    std::unique_ptr<FloatingValuesDialog> valuesDialog;
+    std::shared_ptr<FloatingValuesDialogData> valuesDialogData;
+    std::shared_ptr<FloatingValuesDialog> valuesDialog;
 
     /**
      * @brief setupMenuBarActions
