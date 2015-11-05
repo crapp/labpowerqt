@@ -30,23 +30,32 @@
 
 #include <memory>
 
+/**
+ * @brief Struct to save the values user set with the FloatingValuesDialog
+ */
 struct FloatingValuesDialogData {
-    FloatingValuesDialogData(){};
+    FloatingValuesDialogData()
+    {
+        this->voltage = 0;
+        this->current = 0;
+        this->tracking = 0;
+    };
 
     double voltage;
     double current;
+    int tracking;
 };
 
+/**
+ * @brief A Dialog that is sfloating over the Display area to set V, A and tracking mode.
+ */
 class FloatingValuesDialog : public QDialog
 {
 
     Q_OBJECT
 
 public:
-    enum dataType { VOLTAGE, CURRENT };
-
-    FloatingValuesDialog(
-                         QWidget *parent = 0, Qt::WindowFlags f = 0);
+    FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
     void setValuesDialogData(std::shared_ptr<FloatingValuesDialogData> data);
 

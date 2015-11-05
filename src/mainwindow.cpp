@@ -212,9 +212,9 @@ void MainWindow::setupValuesDialog()
     settings.beginGroup(setcon::DEVICE_GROUP);
     if (settings.contains(setcon::DEVICE_PORT)) {
         this->valuesDialogData = std::make_shared<FloatingValuesDialogData>();
-        this->valuesDialog = std::make_shared<FloatingValuesDialog>(
-            this->valuesDialogData, nullptr,
+        this->valuesDialog = std::make_shared<FloatingValuesDialog>(nullptr,
             Qt::Dialog | Qt::FramelessWindowHint);
+        this->valuesDialog->setValuesDialogData(this->valuesDialogData);
 
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
