@@ -33,19 +33,21 @@ public:
         this->powerSupplyChannel = 1;
         this->value = QVariant();
         this->commandWithReply = false;
-    };
+    }
 
     SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
                   bool withReply = false)
         : command(command), powerSupplyChannel(channel), value(value),
-          commandWithReply(withReply){};
+          commandWithReply(withReply)
+    {
+    }
 
-    int getCommand() { return this->command; };
-    int getPowerSupplyChannel() { return this->powerSupplyChannel; };
+    int getCommand() { return this->command; }
+    int getPowerSupplyChannel() { return this->powerSupplyChannel; }
     QVariant getValue() { return this->value; }
     void setValue(const QVariant &value) { this->value = value; }
 
-    bool getCommandWithReply() { return this->commandWithReply; };
+    bool getCommandWithReply() { return this->commandWithReply; }
 
 private:
     int command;

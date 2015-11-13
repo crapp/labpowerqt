@@ -17,9 +17,9 @@
 #ifndef CONFIG_H_IN
 #define CONFIG_H_IN
 
-#define VERSION_MAJOR "@labpowerqt_VERSION_MAJOR@"
-#define VERSION_MINOR "@labpowerqt_VERSION_MINOR@"
-#define VERSION_PATCH "@labpowerqt_VERSION_PATCH@"
+#define LABPOWERQT_VERSION_MAJOR "@labpowerqt_VERSION_MAJOR@"
+#define LABPOWERQT_VERSION_MINOR "@labpowerqt_VERSION_MINOR@"
+#define LABPOWERQT_VERSION_PATCH "@labpowerqt_VERSION_PATCH@"
 
 #cmakedefine QT_NO_DEBUG_OUTPUT
 

@@ -32,7 +32,8 @@ ClickableLabel::ClickableLabel(const QString &text, QWidget *parent,
     this->initLabel();
 }
 
-void ClickableLabel::setClickable(bool status) {
+void ClickableLabel::setClickable(bool status)
+{
     this->clickable = status;
     if (status) {
         this->setCursor(Qt::PointingHandCursor);
@@ -50,35 +51,14 @@ void ClickableLabel::setNoReturnValue(bool status)
 
 bool ClickableLabel::getNoReturnValue() { return this->noReturnValue; }
 
-void ClickableLabel::setChannel(const global_constants::CHANNEL &chan)
-{
-    this->channel = chan;
-}
-
-global_constants::CHANNEL ClickableLabel::getChannel()
-{
-    return this->channel;
-}
-
-void ClickableLabel::setInputwidget(const ClickableLabel::INPUTWIDGETS &w)
-{
-    this->iWidget = w;
-}
-
-ClickableLabel::INPUTWIDGETS ClickableLabel::getInputWidget()
-{
-    return this->iWidget;
-}
-
 void ClickableLabel::initLabel()
 {
     this->setAttribute(Qt::WA_Hover, true);
     this->clickable = false;
     this->setCursor(Qt::ForbiddenCursor);
     this->noReturnValue = false;
-    this->channel = global_constants::CHANNEL::CHANNEL1;
-    this->iWidget = INPUTWIDGETS::VOLTAGE;
-    this->setStyleSheet(QString("color: ") + globcon::ORANGECOLOR + ";");
+    this->setStyleSheet(QString("ClickableLabel {color: ") +
+                        globcon::ORANGECOLOR + ";}");
 }
 
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
@@ -87,9 +67,7 @@ void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
         if (this->noReturnValue) {
             emit this->doubleClickNoValue();
         } else {
-            emit this->doubleClick(event->pos(), this->text().toDouble(),
-                                   static_cast<int>(this->iWidget),
-                                   static_cast<int>(this->channel));
+            emit this->doubleClick(event->pos(), this->text().toDouble());
         }
     }
 }
@@ -99,7 +77,9 @@ void ClickableLabel::enterEvent(QEvent *event)
     if (this->clickable) {
         if (this->originalStylesheet == "")
             this->originalStylesheet = this->styleSheet();
-        this->setStyleSheet("background-color: rgb(82, 82, 82);");
+        this->setStyleSheet(QString("ClickableLabel {color: ") +
+                            globcon::ORANGECOLOR +
+                            "; background-color: rgb(82, 82, 82);}");
     }
 }
 

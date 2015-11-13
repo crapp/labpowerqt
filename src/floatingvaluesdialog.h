@@ -30,6 +30,8 @@
 
 #include <memory>
 
+#include "global.h"
+
 /**
  * @brief Struct to save the values user set with the FloatingValuesDialog
  */
@@ -39,7 +41,7 @@ struct FloatingValuesDialogData {
         this->voltage = 0;
         this->current = 0;
         this->tracking = 0;
-    };
+    }
 
     double voltage;
     double current;
@@ -47,7 +49,7 @@ struct FloatingValuesDialogData {
 };
 
 /**
- * @brief A Dialog that is sfloating over the Display area to set V, A and tracking mode.
+ * @brief A Dialog that is floating over the Display area to set V, A and tracking mode.
  */
 class FloatingValuesDialog : public QDialog
 {
@@ -65,11 +67,9 @@ signals:
 
 public slots:
 
-    void setSourceWidget(int sourcew);
-    void setSourceChannel(int channel);
-    void setInputWidget(int w);
-    void setInputWidgetValue(double value);
-    void setInputWidgetValue(int trackingMode);
+    void setDatatype(global_constants::DATATYPE dt);
+    void setCurrentValue(double value);
+    void setCurrentValue(int trackingMode);
     void updateDeviceSpecs(double voltageMin, double voltageMax,
                            uint voltagePrecision, double currentMin,
                            double currentMax, uint currentPrecision,
@@ -83,7 +83,7 @@ private:
     QDoubleSpinBox *voltageSpinBox;
     QDoubleSpinBox *currentSpinBox;
 
-    int sourceWidget;
+    global_constants::DATATYPE dt;
     int sourceChannel;
 
     std::shared_ptr<FloatingValuesDialogData> data;

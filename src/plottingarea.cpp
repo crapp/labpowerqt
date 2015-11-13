@@ -35,6 +35,8 @@ void PlottingArea::addData(const int &channel, const double &data,
                            const std::chrono::system_clock::time_point &t,
                            const global_constants::DATATYPE &type)
 {
+    // FIXME: I think this method crashes when specifiying more channels than
+    // actually exist
     /*
      * We actually can calculate the index of our graph using a simple formula
      * (a - 1) * 5 + b
@@ -49,6 +51,7 @@ void PlottingArea::addData(const int &channel, const double &data,
 
     this->plot->graph(index)->addData(key, data);
 
+    // TODO: What is firstStart good for? Sounds like a nasty hack :(
     if (this->firstStart) {
         //        this->startPoint = t;
         this->firstStart = false;
@@ -69,11 +72,14 @@ void PlottingArea::setupUI()
     this->plot->setSizePolicy(QSizePolicy::Policy::Expanding,
                               QSizePolicy::Policy::Expanding);
     mainLayout->addWidget(plot, 0, 0);
+    // take as much space as possible
+    mainLayout->setRowStretch(0, 100);
 
     this->graphAccordion = new QAccordion();
     this->graphControlScroll = new QScrollArea();
-    this->graphControlScroll->setWidget(this->graphAccordion);
     mainLayout->addWidget(graphControlScroll, 1, 0);
+    this->graphControlScroll->setWidget(this->graphAccordion);
+    this->graphControlScroll->setWidgetResizable(true);
 
     int generalPaneIdx = this->graphAccordion->addContentPane("General");
 
@@ -154,6 +160,7 @@ void PlottingArea::setupGraph()
             ContentPane *pane = new ContentPane("Channel " + QString::number(i));
             QFrame *cf = pane->getContentFrame();
             cf->setLayout(new QHBoxLayout());
+            this->graphAccordion->addContentPane(pane);
 
             for (int j = 0; j < 5; j++) {
                 globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);

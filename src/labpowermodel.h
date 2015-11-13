@@ -40,21 +40,21 @@ public:
     void setDeviceConnected(bool connected);
 
     QString getDeviceIdentification();
-    void setDeviceIdentification(const QString &id);
+    void setDeviceIdentification(QString id);
 
     bool getDeviceLocked();
     bool getDeviceMute();
 
-    bool getOutput(const global_constants::CHANNEL &c);
-    global_constants::MODE getChannelMode(const global_constants::CHANNEL &c);
+    bool getOutput(global_constants::CHANNEL c);
+    global_constants::MODE getChannelMode(global_constants::CHANNEL c);
 
     std::chrono::system_clock::time_point getTime();
 
-    double getVoltage(const global_constants::CHANNEL &c);
-    double getActualVoltage(const global_constants::CHANNEL &c);
-    double getCurrent(const global_constants::CHANNEL &c);
-    double getActualCurrent(const global_constants::CHANNEL &c);
-    double getWattage(const global_constants::CHANNEL &c);
+    double getVoltage(global_constants::CHANNEL c);
+    double getActualVoltage(global_constants::CHANNEL c);
+    double getCurrent(global_constants::CHANNEL c);
+    double getActualCurrent(global_constants::CHANNEL c);
+    double getWattage(global_constants::CHANNEL c);
 
 signals:
 

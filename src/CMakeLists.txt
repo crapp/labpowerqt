@@ -21,7 +21,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
     endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+    elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    endif()
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
@@ -49,13 +53,17 @@ find_package(Qwt 6.1 REQUIRED)
 # generate ui_*.h files
 qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 
-# include this directories so all moc headers and wrapped ui files are found
 include_directories(
-    ${PROJECT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR} # config.h
     ${QWT_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/external/qcustomplot
     ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
+
+# include qAccordion build directory
+if (EXT_INCLUDE)
+    include_directories(${EXT_INCLUDE})
+endif(EXT_INCLUDE)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -124,5 +132,3 @@ Qt5::PrintSupport
 ${QWT_LIBRARY}
 ${CMAKE_THREAD_LIBS_INIT}
 qAccordion)
-
-

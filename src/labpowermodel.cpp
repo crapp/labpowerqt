@@ -36,7 +36,7 @@ QString LabPowerModel::getDeviceIdentification()
     return this->deviceIdentification;
 }
 
-void LabPowerModel::setDeviceIdentification(const QString &id)
+void LabPowerModel::setDeviceIdentification(QString id)
 {
     this->deviceIdentification = id;
     emit this->deviceID();
@@ -46,9 +46,11 @@ bool LabPowerModel::getDeviceLocked() { return this->status->getLocked(); }
 
 bool LabPowerModel::getDeviceMute() { return this->status->getBeeper(); }
 
-bool LabPowerModel::getOutput(const global_constants::CHANNEL &c)
+bool LabPowerModel::getOutput(global_constants::CHANNEL c)
 {
     try {
+        qDebug() << "Channel output state: "
+                 << this->status->getChannelOutput(static_cast<int>(c));
         return this->status->getChannelOutput(static_cast<int>(c));
     } catch (const std::out_of_range &ex) {
         qDebug() << Q_FUNC_INFO << ex.what();
@@ -56,11 +58,10 @@ bool LabPowerModel::getOutput(const global_constants::CHANNEL &c)
     return false;
 }
 
-global_constants::MODE
-LabPowerModel::getChannelMode(const global_constants::CHANNEL &c)
+global_constants::MODE LabPowerModel::getChannelMode(global_constants::CHANNEL c)
 {
     return static_cast<global_constants::MODE>(
-                this->status->getChannelMode(static_cast<int>(c)));
+        this->status->getChannelMode(static_cast<int>(c)));
 }
 
 std::chrono::system_clock::time_point LabPowerModel::getTime()
@@ -68,27 +69,27 @@ std::chrono::system_clock::time_point LabPowerModel::getTime()
     return this->status->getTime();
 }
 
-double LabPowerModel::getVoltage(const global_constants::CHANNEL &c)
+double LabPowerModel::getVoltage(global_constants::CHANNEL c)
 {
     return this->status->getAdjustedVoltage(static_cast<int>(c));
 }
 
-double LabPowerModel::getActualVoltage(const global_constants::CHANNEL &c)
+double LabPowerModel::getActualVoltage(global_constants::CHANNEL c)
 {
     return this->status->getActualVoltage(static_cast<int>(c));
 }
 
-double LabPowerModel::getCurrent(const global_constants::CHANNEL &c)
+double LabPowerModel::getCurrent(global_constants::CHANNEL c)
 {
     return this->status->getAdjustedCurrent(static_cast<int>(c));
 }
 
-double LabPowerModel::getActualCurrent(const global_constants::CHANNEL &c)
+double LabPowerModel::getActualCurrent(global_constants::CHANNEL c)
 {
     return this->status->getActualCurrent(static_cast<int>(c));
 }
 
-double LabPowerModel::getWattage(const global_constants::CHANNEL &c)
+double LabPowerModel::getWattage(global_constants::CHANNEL c)
 {
     return this->status->getWattage(static_cast<int>(c));
 }

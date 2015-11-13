@@ -35,6 +35,7 @@
 #include "settingsdefinitions.h"
 #include "clickablelabel.h"
 #include "floatingvaluesdialog.h"
+#include "labpowercontroller.h"
 
 struct ChannelWidgets {
 public:
@@ -60,7 +61,13 @@ public:
     setValuesDialog(std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
                     std::shared_ptr<FloatingValuesDialog> valuesDialog);
 
+    void dataUpdate(QVariant val, global_constants::DATATYPE dt, int channel);
+    void dataUpdate(QVariant val, global_constants::CONTROL ct, int channel);
+    void dataUpdate(global_constants::MODE md, int channel);
 signals:
+
+    void doubleValueChanged(double val, int dt, int channel);
+    void deviceControlValueChanged(int vt, int channel);
 
 public slots:
 
@@ -85,12 +92,15 @@ private:
 
     std::vector<ClickableLabel *> footerControls;
 
-    std::vector<std::unique_ptr<ChannelWidgets>> chanwVector;
+    std::vector<std::shared_ptr<ChannelWidgets>> chanwVector;
 
     std::shared_ptr<FloatingValuesDialogData> valuesDialogData;
     std::shared_ptr<FloatingValuesDialog> valuesDialog;
 
     void setupUI();
+    void controlValuesDialog(QPoint pos, QWidget *clickedWidget,
+                             global_constants::DATATYPE dt, double currentValue);
+    void controlStateEnabled(bool state);
 
     /**
      * @brief paintEvent Reimplement paintEvent to use stylesheets in derived Widgets

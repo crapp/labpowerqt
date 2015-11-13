@@ -22,21 +22,98 @@ namespace setcon = settings_constants;
 
 DisplayArea::DisplayArea(QWidget *parent) : QWidget(parent)
 {
+    this->valuesDialog = nullptr;
+    this->valuesDialogData = nullptr;
     this->setupUI();
     this->setupChannels();
 }
 
-void DisplayArea::setValuesDialog(std::shared_ptr<FloatingValuesDialogData> valuesDialogData, std::shared_ptr<FloatingValuesDialog> valuesDialog)
+void DisplayArea::setValuesDialog(
+    std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
+    std::shared_ptr<FloatingValuesDialog> valuesDialog)
 {
     this->valuesDialog = valuesDialog;
     this->valuesDialogData = valuesDialogData;
 }
 
+void DisplayArea::dataUpdate(QVariant val, global_constants::DATATYPE dt,
+                             int channel)
+{
+    switch (dt) {
+    case globcon::DATATYPE::VOLTAGE:
+        this->chanwVector.at(channel - 1)
+            ->voltageSet->setText(std::move(val.toString()));
+        break;
+    case globcon::DATATYPE::ACTUALVOLTAGE:
+        this->chanwVector.at(channel - 1)
+            ->voltageActual->setText(std::move(val.toString()));
+        break;
+    case globcon::DATATYPE::CURRENT:
+        this->chanwVector.at(channel - 1)
+            ->currentSet->setText(std::move(val.toString()));
+        break;
+    case globcon::DATATYPE::ACTUALCURRENT:
+        this->chanwVector.at(channel - 1)
+            ->currentActual->setText(std::move(val.toString()));
+        break;
+    case globcon::DATATYPE::WATTAGE:
+        this->chanwVector.at(channel - 1)
+            ->wattageActual->setText(std::move(val.toString()));
+        break;
+    default:
+        break;
+    }
+}
+
+void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
+                             int channel)
+{
+    switch (ct) {
+    case globcon::CONTROL::DEVICEID:
+        this->labelDeviceName->setText(val.toString());
+    case globcon::CONTROL::CONNECT:
+        if (val.toBool()) {
+            this->labelConnect->setPixmap(QPixmap(":/icons/plug_in_orange"));
+        } else {
+            this->labelConnect->setPixmap(QPixmap(":/icons/plug_out_orange"));
+        }
+        this->controlStateEnabled(val.toBool());
+        break;
+    case globcon::CONTROL::SOUND:
+        this->labelSound->setPixmap(QPixmap(val.toString()));
+    case globcon::CONTROL::LOCK:
+        this->labelSound->setPixmap(QPixmap(val.toString()));
+    case globcon::CONTROL::OUTPUT:
+        this->chanwVector.at(channel - 1)->outputSet->setText(val.toString());
+    default:
+        break;
+    }
+}
+
+void DisplayArea::dataUpdate(global_constants::MODE md, int channel)
+{
+    switch (md) {
+    case globcon::MODE::CONSTANT_VOLTAGE:
+        this->chanwVector.at(channel - 1)->modeActual->setText("CV");
+        break;
+    case globcon::MODE::CONSTANT_CURRENT:
+        this->chanwVector.at(channel - 1)->modeActual->setText("CC");
+        break;
+    default:
+        break;
+    }
+}
+
+// The following two functions are very big. Lost of code for dynamically build
+// guis.
 void DisplayArea::setupChannels()
 {
+    this->labelConnect->setClickable(false);
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     if (settings.contains(setcon::DEVICE_PORT)) {
+        // if there is a device we must enable the connect button.
+        this->labelConnect->setClickable(true);
         // TODO: One could make this more intelligent and only create / delete
         // channels that are (no longer) needed.
 
@@ -53,7 +130,8 @@ void DisplayArea::setupChannels()
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
 
-            std::unique_ptr<ChannelWidgets> chanw(new ChannelWidgets());
+            std::shared_ptr<ChannelWidgets> chanw =
+                std::make_shared<ChannelWidgets>();
 
             QFrame *channelFrameContainer = new QFrame();
             channelFrameContainer->setLayout(new QVBoxLayout());
@@ -144,6 +222,37 @@ void DisplayArea::setupChannels()
             chanw->currentSet = new ClickableLabel("0.000");
             chanw->voltageSet->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             chanw->currentSet->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+            // Now the lambdas for the set widgets
+            QObject::connect(
+                chanw->voltageSet, &ClickableLabel::doubleClick,
+                [this, chanw, i](QPoint pos, double value) {
+                    this->controlValuesDialog(
+                        std::move(pos), chanw->voltageSet,
+                        global_constants::DATATYPE::VOLTAGE, value);
+                    if (this->valuesDialog->exec()) {
+                        emit this->doubleValueChanged(
+                            this->valuesDialogData->voltage,
+                            static_cast<int>(
+                                global_constants::DATATYPE::VOLTAGE),
+                            i);
+                    }
+                });
+            QObject::connect(
+                chanw->currentSet, &ClickableLabel::doubleClick,
+                [this, chanw, i](QPoint pos, double value) {
+                    this->controlValuesDialog(
+                        std::move(pos), chanw->currentSet,
+                        global_constants::DATATYPE::CURRENT, value);
+                    if (this->valuesDialog->exec()) {
+                        emit this->doubleValueChanged(
+                            this->valuesDialogData->current,
+                            static_cast<int>(
+                                global_constants::DATATYPE::CURRENT),
+                            i);
+                    }
+                });
+
             QLabel *setLabel = new QLabel("Set");
             setLabel->setAlignment(Qt::AlignCenter);
             QLabel *voltageSetUnit = new QLabel("V");
@@ -187,6 +296,14 @@ void DisplayArea::setupChannels()
             outputContainer->setLayout(new QHBoxLayout());
             QLabel *outputLabel = new QLabel("Output");
             chanw->outputSet = new ClickableLabel("Off");
+            chanw->outputSet->setNoReturnValue(true);
+            QObject::connect(
+                chanw->outputSet, &ClickableLabel::doubleClickNoValue,
+                [this, chanw, i]() {
+                    emit this->deviceControlValueChanged(
+                        static_cast<int>(global_constants::CONTROL::OUTPUT), i);
+                });
+
             outputContainer->layout()->addWidget(outputLabel);
             outputContainer->layout()->addWidget(chanw->outputSet);
 
@@ -233,21 +350,33 @@ void DisplayArea::setupUI()
     this->labelConnect->setPixmap(QPixmap(":/icons/plug_out_orange.png"));
     this->labelConnect->setMinimumWidth(37);
     this->labelConnect->setToolTip("Disconnected");
+    this->labelConnect->setNoReturnValue(true);
+    this->labelConnect->setAlignment(Qt::AlignCenter);
     this->frameHeader->layout()->addWidget(this->labelConnect);
+    QObject::connect(this->labelConnect, &ClickableLabel::doubleClickNoValue,
+                     [this]() {
+                         emit this->deviceControlValueChanged(
+                             static_cast<int>(globcon::CONTROL::CONNECT), 0);
+                     });
 
     this->labelSound = new ClickableLabel();
     this->labelSound->setPixmap(QPixmap(":/icons/speaker_orange.png"));
     this->labelSound->setMinimumWidth(25);
     this->labelSound->setToolTip("Sound on");
+    this->labelSound->setNoReturnValue(true);
+    this->labelSound->setAlignment(Qt::AlignCenter);
     this->frameHeader->layout()->addWidget(this->labelSound);
 
-    this->labelConnect = new ClickableLabel();
-    this->labelConnect->setPixmap(QPixmap(":/icons/lock-open_orange.png"));
-    this->labelConnect->setMinimumSize(QSize(25, 16));
-    this->labelConnect->setToolTip("Device Controls unlocked");
-    this->frameHeader->layout()->addWidget(this->labelConnect);
+    this->labelLock = new ClickableLabel();
+    this->labelLock->setPixmap(QPixmap(":/icons/lock-open_orange.png"));
+    this->labelLock->setMinimumSize(QSize(25, 16));
+    this->labelLock->setToolTip("Device Controls unlocked");
+    this->labelLock->setNoReturnValue(true);
+    this->labelLock->setAlignment(Qt::AlignCenter);
+    this->frameHeader->layout()->addWidget(this->labelLock);
 
-    this->headerControls = {this->labelConnect, this->labelSound};
+    this->headerControls = {this->labelConnect, this->labelSound,
+                            this->labelLock};
 
     // init channels
     this->frameChannels = new QFrame();
@@ -271,6 +400,7 @@ void DisplayArea::setupUI()
     frameOVP->layout()->addWidget(new QLabel("OVP:"));
     this->labelOVPSet = new ClickableLabel();
     this->labelOVPSet->setText("Off");
+    this->labelOVPSet->setNoReturnValue(true);
     frameOVP->layout()->addWidget(this->labelOVPSet);
     this->frameFooter->layout()->addWidget(frameOVP);
 
@@ -279,6 +409,7 @@ void DisplayArea::setupUI()
     frameOCP->layout()->addWidget(new QLabel("OCP:"));
     this->labelOCPSet = new ClickableLabel();
     this->labelOCPSet->setText("Off");
+    this->labelOCPSet->setNoReturnValue(true);
     frameOCP->layout()->addWidget(this->labelOCPSet);
     this->frameFooter->layout()->addWidget(frameOCP);
 
@@ -287,6 +418,7 @@ void DisplayArea::setupUI()
     frameOTP->layout()->addWidget(new QLabel("OTP:"));
     this->labelOTPSet = new ClickableLabel();
     this->labelOTPSet->setText("Off");
+    this->labelOTPSet->setNoReturnValue(true);
     frameOTP->layout()->addWidget(this->labelOTPSet);
     this->frameFooter->layout()->addWidget(frameOTP);
 
@@ -299,6 +431,35 @@ void DisplayArea::setupUI()
     this->frameFooter->layout()->addWidget(frameTracking);
 
     dynamic_cast<QHBoxLayout *>(frameTracking->layout())->addStretch();
+}
+
+void DisplayArea::controlValuesDialog(QPoint pos, QWidget *clickedWidget,
+                                      global_constants::DATATYPE dt,
+                                      double currentValue)
+{
+
+    // map widget cursor position to global position (top left)
+    QPoint globalPos = clickedWidget->mapToGlobal(pos);
+    // move the dialog to the calculated position
+    this->valuesDialog->move(globalPos.x(), globalPos.y());
+    this->valuesDialog->setDatatype(dt);
+    // one must use this after setDataype. Maybe this is not so clever.
+    this->valuesDialog->setCurrentValue(currentValue);
+}
+
+void DisplayArea::controlStateEnabled(bool state)
+{
+    // TODO: It would be easier to disable the container frames.
+    this->labelLock->setClickable(state);
+    this->labelSound->setClickable(state);
+    this->labelOCPSet->setClickable(state);
+    this->labelOVPSet->setClickable(state);
+    this->labelOTPSet->setClickable(state);
+    for (auto chanw : this->chanwVector) {
+        chanw->outputSet->setClickable(state);
+        chanw->voltageSet->setClickable(state);
+        chanw->currentSet->setClickable(state);
+    }
 }
 
 void DisplayArea::paintEvent(QPaintEvent *event)

@@ -17,12 +17,12 @@
 
 #include "floatingvaluesdialog.h"
 
+namespace globcon = global_constants;
+
 FloatingValuesDialog::FloatingValuesDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f)
 {
     // set to sane default values;
-    this->sourceWidget = 1;
-    this->sourceChannel = 1;
     this->data = nullptr;
     this->createUI();
 }
@@ -33,25 +33,26 @@ void FloatingValuesDialog::setValuesDialogData(
     this->data = data;
 }
 
-void FloatingValuesDialog::setSourceWidget(int sourcew)
+void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
 {
-    this->sourceWidget = sourcew;
-}
-
-void FloatingValuesDialog::setSourceChannel(int channel)
-{
-    this->sourceChannel = channel;
-}
-
-void FloatingValuesDialog::setInputWidget(int w)
-{
-    this->stackedContainer->setCurrentIndex(w);
+    this->dt = dt;
+    // set the index of the stacked container.
+    switch (dt) {
+    case globcon::DATATYPE::VOLTAGE:
+        this->stackedContainer->setCurrentIndex(0);
+        break;
+    case globcon::DATATYPE::CURRENT:
+        this->stackedContainer->setCurrentIndex(1);
+        break;
+    default:
+        break;
+    }
 
     // make sure the dialog is as small as possible
     this->resize(1, 1);
 }
 
-void FloatingValuesDialog::setInputWidgetValue(double value)
+void FloatingValuesDialog::setCurrentValue(double value)
 {
     // WARNING: This is highly dependend of our gui structure
     QFrame *cont =
@@ -59,7 +60,7 @@ void FloatingValuesDialog::setInputWidgetValue(double value)
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
-void FloatingValuesDialog::setInputWidgetValue(int trackingMode) {}
+void FloatingValuesDialog::setCurrentValue(int trackingMode) {}
 
 void FloatingValuesDialog::updateDeviceSpecs(
     double voltageMin, double voltageMax, uint voltagePrecision,
@@ -120,15 +121,24 @@ void FloatingValuesDialog::createUI()
                      SLOT(accept()));
 }
 
+
 void FloatingValuesDialog::accept()
 {
     qDebug() << Q_FUNC_INFO << "Dialog was accepted";
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
+    switch (dt) {
+    case globcon::DATATYPE::VOLTAGE:
+        this->data->voltage = value;
+        break;
+    case globcon::DATATYPE::CURRENT:
+        this->data->current = value;
+        break;
+    default:
+        break;
+    }
 
-    emit this->doubleValueAccepted(value, this->sourceWidget,
-                                   this->sourceChannel);
     this->done(1);
 }
 
