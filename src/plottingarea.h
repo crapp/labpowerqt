@@ -21,6 +21,7 @@
 #include <QWidget>
 #include <QColor>
 #include <QScrollArea>
+#include <QColorDialog>
 
 #include <vector>
 #include <chrono>
@@ -44,39 +45,54 @@ public slots:
     void addData(const int &channel, const double &data,
                  const std::chrono::system_clock::time_point &t,
                  const global_constants::DATATYPE &type);
+    // TODO: trigger this slot when settings have been changed.
+    void setupGraph();
 
 private:
-    const std::vector<QColor> voltageGraphColors = {
-        QColor(Qt::GlobalColor::red), QColor(Qt::GlobalColor::red)};
-    const std::vector<QColor> currentGraphColors = {
-        QColor(Qt::GlobalColor::blue), QColor(Qt::GlobalColor::blue)};
-    const std::vector<QColor> wattageGraphColors = {
-        QColor(Qt::GlobalColor::green), QColor(Qt::GlobalColor::green)};
+    std::vector<QColor> voltageGraphColors = {
+        QColor(Qt::GlobalColor::red), QColor(Qt::GlobalColor::red).lighter()};
+    std::vector<QColor> currentGraphColors = {
+        QColor(Qt::GlobalColor::blue), QColor(Qt::GlobalColor::blue).lighter()};
+    std::vector<QColor> wattageGraphColors = {
+        QColor(Qt::GlobalColor::green),
+        QColor(Qt::GlobalColor::green).lighter()};
 
     const std::map<global_constants::DATATYPE, QString> datatypeStrings = {
         {global_constants::DATATYPE::VOLTAGE, "Set Voltage"},
         {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage"},
         {global_constants::DATATYPE::CURRENT, "Set Current"},
         {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current"},
-        {global_constants::DATATYPE::WATTAGE, "Wattage"}
-    };
+        {global_constants::DATATYPE::WATTAGE, "Wattage"}};
 
     const std::map<global_constants::DATATYPE, QString> graphNames = {
         {global_constants::DATATYPE::VOLTAGE, "Voltage CH%1"},
         {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage CH%1"},
         {global_constants::DATATYPE::CURRENT, "Current CH%1"},
         {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current CH%1"},
-        {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}
-    };
-
-    std::vector<QCPAxis *> yAxisContainer;
+        {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}};
 
     /**
      * @brief plot The plot widget
      */
     QCustomPlot *plot;
+    QCPAxis *voltageAxis;
     QCPAxis *currentAxis;
     QCPAxis *wattageAxis;
+
+    QToolBar *controlBar;
+    QAction *actionGeneral;
+    QAction *actionData;
+    QAction *actionAppearance;
+    QAction *lastAction; /**< last action that was triggered */
+    std::unique_ptr<QParallelAnimationGroup> animationGroupControl;
+
+    QStackedWidget *controlStack;
+    QWidget *controlGeneral;
+    QScrollArea *controlGeneralScroll;
+    QWidget *controlData;
+    QScrollArea *controlDataScroll;
+    QWidget *controlAppearance;
+    QScrollArea *controlAppearanceScroll;
 
     QScrollArea *graphControlScroll;
     QAccordion *graphAccordion;
@@ -88,13 +104,21 @@ private:
     std::chrono::system_clock::time_point startPoint;
     std::chrono::system_clock::time_point currentDataPointKey;
 
+    QCPRange lastRange;
+
     void setupUI();
-    void setupGraph();
+
+    void yAxisRange(const QCPRange &currentXRange);
 
 private slots:
 
+    // plot slots
+    void beforeReplotHandle();
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
+    void mouseMoveHandler(QMouseEvent *event);
 
+    // ui slots
+    void toolbarActionTriggered(QAction *action);
     void generalCBCheckState(int state);
 };
 
