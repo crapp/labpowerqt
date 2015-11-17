@@ -31,6 +31,7 @@
 #include "qAccordion/qaccordion.h"
 #include "global.h"
 #include "settingsdefinitions.h"
+#include "yaxishelper.h"
 
 class PlottingArea : public QWidget
 {
@@ -93,9 +94,6 @@ private:
     QScrollArea *controlDataScroll;
     QWidget *controlAppearance;
     QScrollArea *controlAppearanceScroll;
-
-    QScrollArea *graphControlScroll;
-    QAccordion *graphAccordion;
 
     QCheckBox *cbGeneralAutoscrl;
 

@@ -139,11 +139,6 @@ void PlottingArea::setupGraph()
 
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-            ContentPane *pane = new ContentPane("Channel " + QString::number(i));
-            QFrame *cf = pane->getContentFrame();
-            cf->setLayout(new QHBoxLayout());
-            this->graphAccordion->addContentPane(pane);
-
             QGroupBox *dataBox = new QGroupBox("Channel " + QString::number(i));
             dataBox->setLayout(new QHBoxLayout());
             this->controlData->layout()->addWidget(dataBox);
@@ -276,7 +271,6 @@ void PlottingArea::setupGraph()
 
                 graphIndex++;
             }
-            dynamic_cast<QHBoxLayout *>(cf->layout())->addStretch();
             dynamic_cast<QHBoxLayout *>(dataBox->layout())->addStretch();
         }
     }
@@ -353,44 +347,23 @@ void PlottingArea::setupUI()
     mainLayout->addWidget(this->plot, 2, 0);
     // take as much space as possible
     mainLayout->setRowStretch(2, 100);
-
-    this->graphAccordion = new QAccordion();
-    this->graphControlScroll = new QScrollArea();
-    mainLayout->addWidget(graphControlScroll, 3, 0);
-    this->graphControlScroll->setWidget(this->graphAccordion);
-    this->graphControlScroll->setWidgetResizable(true);
-    this->graphControlScroll->setMinimumHeight(80);
-    this->graphControlScroll->setFrameStyle(QFrame::Shape::NoFrame);
-    this->graphAccordion->setCollapsible(true);
-    this->graphAccordion->setMultiActive(true);
 }
 
 void PlottingArea::yAxisRange(const QCPRange &currentXRange)
 {
-    if (this->plot->graphCount() == 0)
-        return;
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    YAxisHelper yax;
+    YAxisBounds yaxb =
+        yax.getyAxisBounds(currentXRange, this->plot,
+                           settings.value(setcon::DEVICE_CHANNELS).toInt());
 
-    QCPDataMap *dataMap = this->plot->graph(0)->data();
-    std::vector<double> graphValues;
-    if (dataMap->size() > 1) {
-        // get the nearest key to lower
-        QCPDataMap::Iterator itbegin = dataMap->upperBound(currentXRange.lower);
-        if (itbegin == dataMap->end())
-            itbegin = dataMap->begin();
-        // get the nearest key to upper
-        QCPDataMap::Iterator itend = dataMap->lowerBound(currentXRange.upper);
-        if (itend == dataMap->end())
-            itend = dataMap->end() - 1;
-        for (; itbegin != itend; itbegin++) {
-            graphValues.push_back((*itbegin).value);
-        }
-        std::sort(graphValues.begin(), graphValues.end());
-    } else if (!dataMap->empty()) {
-        graphValues.push_back(dataMap->first().value);
-    }
-    if (graphValues.size() > 0)
-        this->voltageAxis->setRange(
-            QCPRange(graphValues.front() - 0.5, graphValues.back() + 0.5));
+    this->voltageAxis->setRange(
+        QCPRange(yaxb.voltageLower - 0.5, yaxb.voltageUpper + 0.5));
+    this->currentAxis->setRange(
+        QCPRange(yaxb.currentLower - 0.5, yaxb.currentUpper + 0.5));
+    this->wattageAxis->setRange(
+        QCPRange(yaxb.wattageLower - 0.5, yaxb.wattageUpper + 0.5));
 }
 
 void PlottingArea::beforeReplotHandle()
@@ -454,6 +427,8 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     if (deltaSecsUpperLower < std::chrono::duration<double>(60) ||
         deltaSecsUpperLower > std::chrono::duration<double>(3600)) {
         this->plot->xAxis->setRange(oldRange);
+        // TODO: Use the statusbar to inform user about minimum maximum zoom level.
+        // TODO: Make these values configurable.
         return;
     }
 

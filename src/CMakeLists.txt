@@ -89,6 +89,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.h
 )
 
 set(SOURCE
@@ -105,6 +106,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.cpp
 )
 
 set(ICON_RESOURCE ${PROJECT_SOURCE_DIR}/icons/icons.qrc)
