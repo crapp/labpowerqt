@@ -22,6 +22,9 @@
 #include <QQuickView>
 #include <QAbstractButton>
 #include <QDialogButtonBox>
+#include <QStandardPaths>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
@@ -29,6 +32,7 @@
 #include <QDebug>
 #include <QSettings>
 
+#include <iostream>
 #include <memory>
 
 #include "settingsdefinitions.h"
@@ -51,13 +55,17 @@ public:
 private:
     Ui::SettingsDialog *ui;
 
+    QListWidgetItem *lastItem;
+
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     bool deviceConnected;
 
     void setupSettingsList();
+    bool checkSettingsChanged(QListWidgetItem *lastItem);
+    void saveSettings(int currentRow);
 
 private slots:
-    void settingChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void settingCategoryChanged(int currentRow);
 
     void buttonBoxClicked(QAbstractButton *button);
     void testClicked();

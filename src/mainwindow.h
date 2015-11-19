@@ -97,8 +97,6 @@ private slots:
                                    int channel);
     void deviceControl(int control, int channel);
 
-    void showHideVoltCurrentSpinners();
-
     // QWidget interface
 protected:
     void closeEvent(QCloseEvent *event);

@@ -60,8 +60,6 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::DATATYPE dt,
         this->chanwVector.at(channel - 1)
             ->wattageActual->setText(std::move(val.toString()));
         break;
-    default:
-        break;
     }
 }
 
@@ -71,6 +69,7 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
     switch (ct) {
     case globcon::CONTROL::DEVICEID:
         this->labelDeviceName->setText(val.toString());
+        break;
     case globcon::CONTROL::CONNECT:
         if (val.toBool()) {
             this->labelConnect->setPixmap(QPixmap(":/icons/plug_in_orange"));
@@ -81,10 +80,13 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
         break;
     case globcon::CONTROL::SOUND:
         this->labelSound->setPixmap(QPixmap(val.toString()));
+        break;
     case globcon::CONTROL::LOCK:
         this->labelSound->setPixmap(QPixmap(val.toString()));
+        break;
     case globcon::CONTROL::OUTPUT:
         this->chanwVector.at(channel - 1)->outputSet->setText(val.toString());
+        break;
     default:
         break;
     }
@@ -385,6 +387,7 @@ void DisplayArea::setupUI()
     this->frameChannels->layout()->setContentsMargins(QMargins());
     dynamic_cast<QGridLayout *>(this->layout())
         ->addWidget(this->frameChannels, 1, 0);
+    this->frameChannels->setMinimumHeight(200);
 
     // init footer
     this->frameFooter = new QFrame();

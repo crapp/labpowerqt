@@ -29,15 +29,24 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->listWidgetSettings->setMinimumWidth(
         ui->listWidgetSettings->sizeHintForColumn(0));
 
-    QObject::connect(
-        ui->listWidgetSettings,
-        SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), this,
-        SLOT(settingChanged(QListWidgetItem *, QListWidgetItem *)));
+    QObject::connect(ui->listWidgetSettings, &QListWidget::currentRowChanged,
+                     this, &SettingsDialog::settingCategoryChanged);
 
     this->setupSettingsList();
 
     QObject::connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)), this,
                      SLOT(buttonBoxClicked(QAbstractButton *)));
+
+    QObject::connect(ui->pushButtonSqlitePath, &QPushButton::clicked, [this]() {
+        QFileInfo sqlDBFile(ui->lineEditSqlitePath->text());
+        QString sqlFile = QFileDialog::getSaveFileName(
+            this, "Choose SQLite Database file", sqlDBFile.absolutePath(),
+            "SQLite DB (*.sqlite)");
+        if (sqlFile != "") {
+            ui->lineEditSqlitePath->setText(sqlFile);
+        }
+    });
+
     QObject::connect(ui->pushButtonDeviceTestConnection, SIGNAL(clicked()), this,
                      SLOT(testClicked()));
 
@@ -57,19 +66,211 @@ void SettingsDialog::setupSettingsList()
 {
     ui->listWidgetSettings->addItem(tr("General"));
     ui->listWidgetSettings->addItem(tr("Device"));
+    ui->listWidgetSettings->addItem(tr("Plot"));
+    ui->listWidgetSettings->addItem(tr("Record"));
+    this->lastItem = ui->listWidgetSettings->item(0);
     ui->listWidgetSettings->setCurrentRow(0);
 }
 
-void SettingsDialog::settingChanged(QListWidgetItem *current,
-                                    QListWidgetItem *previous)
+bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
 {
     QSettings settings;
-    switch (ui->listWidgetSettings->row(current)) {
-    case 0:
-        ui->stackedWidget->setCurrentIndex(0);
-        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+    bool somethingChanged = false;
+    bool returnVal = false;
+
+    QMessageBox msgBox;
+    msgBox.setText("The settings have been modified.");
+    msgBox.setInformativeText("Do you want to save your changes?");
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
+                              QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Save);
+    switch (ui->listWidgetSettings->row(lastItem)) {
+    case 0: // general section
+        settings.beginGroup(setcon::GENERAL_GROUP);
+        if (settings.contains(setcon::GENERAL_DISC)) {
+            if (!ui->checkBoxGeneralAskExit->isChecked() ==
+                settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool()) {
+                somethingChanged = true;
+            }
+            if (!ui->checkBoxGeneralAskBeforeDis->isChecked() ==
+                settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool()) {
+                somethingChanged = true;
+            }
+        }
         break;
     case 1:
+        settings.beginGroup(setcon::DEVICE_GROUP);
+        if (settings.contains(setcon::DEVICE_PORT)) {
+            // FIXME: Really strange things happen here. Have to store the values
+            // from gui and config in local variables, otherwise the following
+            // checks all evaluate to false.
+            int protGui = ui->comboBoxDeviceProtocoll->currentIndex();
+            int protSet = settings.value(setcon::DEVICE_PROTOCOL).toInt();
+            if (protGui != protSet) {
+                somethingChanged = true;
+                break;
+            }
+            QString guiPort = ui->comboBoxDeviceComPort->currentText();
+            QString setPort = settings.value(setcon::DEVICE_PORT).toString();
+            if (guiPort != setPort) {
+                somethingChanged = true;
+                break;
+            }
+            int chanGui = ui->spinBoxDeviceChannels->value();
+            int chanSet = settings.value(setcon::DEVICE_CHANNELS).toInt();
+            if (chanGui != chanSet) {
+                somethingChanged = true;
+                break;
+            }
+            double voltMinGui = ui->doubleSpinBoxDeviceVoltageMin->value();
+            double voltMinSet =
+                settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble();
+            if (voltMinGui != voltMinSet) {
+                somethingChanged = true;
+                break;
+            }
+            double voltMaxGui = ui->doubleSpinBoxdeviceVoltageMax->value();
+            double voltMaxSet =
+                settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble();
+            if (voltMaxGui != voltMaxSet) {
+                somethingChanged = true;
+                break;
+            }
+            int voltAGui = ui->comboBoxDeviceVoltageAccu->currentIndex();
+            int voltASet =
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt();
+            if (voltAGui != voltASet) {
+                somethingChanged = true;
+                break;
+            }
+            double curMinGui = ui->doubleSpinBoxDeviceCurrentMin->value();
+            double curMinSet =
+                settings.value(setcon::DEVICE_CURRENT_MIN).toDouble();
+            if (curMinGui != curMinSet) {
+                somethingChanged = true;
+                break;
+            }
+            double curMaxGui = ui->doubleSpinBoxDeviceCurrentMax->value();
+            double curMaxSet =
+                settings.value(setcon::DEVICE_CURRENT_MAX).toDouble();
+            if (curMaxGui != curMaxSet) {
+                somethingChanged = true;
+                break;
+            }
+            int curAGui = ui->comboBoxDeviceCurrentAccu->currentIndex();
+            int curASet =
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt();
+            if (curAGui != curASet) {
+                somethingChanged = true;
+                break;
+            }
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        settings.beginGroup(setcon::RECORD_GROUP);
+        if (settings.contains(setcon::RECORD_SQLPATH)) {
+            if (ui->lineEditSqlitePath->text() !=
+                settings.value(setcon::RECORD_SQLPATH).toString()) {
+                somethingChanged = true;
+            }
+            if (ui->lineEditRecordTablePrefix->text() !=
+                settings.value(setcon::RECORD_TBLPRE).toString()) {
+                somethingChanged = true;
+            }
+        }
+        break;
+    }
+
+    if (somethingChanged) {
+        msgBox.exec();
+        if (msgBox.result() == QMessageBox::StandardButton::Save) {
+            this->saveSettings(ui->listWidgetSettings->row(lastItem));
+        }
+        if (msgBox.result() == QMessageBox::StandardButton::Cancel) {
+            returnVal = true;
+        }
+    }
+
+    return returnVal;
+}
+
+void SettingsDialog::saveSettings(int currentRow)
+{
+    QSettings settings;
+    if (currentRow == 0) {
+        settings.beginGroup(setcon::GENERAL_GROUP);
+        settings.setValue(setcon::GENERAL_EXIT,
+                          ui->checkBoxGeneralAskExit->isChecked());
+        settings.setValue(setcon::GENERAL_DISC,
+                          ui->checkBoxGeneralAskBeforeDis->isChecked());
+    }
+    if (currentRow == 1) {
+        settings.beginGroup(setcon::DEVICE_GROUP);
+        settings.setValue(setcon::DEVICE_PORT,
+                          ui->comboBoxDeviceComPort->currentText());
+        settings.setValue(setcon::DEVICE_PROTOCOL,
+                          ui->comboBoxDeviceProtocoll->currentIndex());
+        // TODO: Add a text widget to specify a device Name
+        // settings.setValue(setcon::DEVICE_NAME, "Foo");
+        // DeviceCurrentMax
+        settings.setValue(setcon::DEVICE_CHANNELS,
+                          ui->spinBoxDeviceChannels->value());
+        settings.setValue(setcon::DEVICE_CURRENT_MIN,
+                          ui->doubleSpinBoxDeviceCurrentMin->value());
+        settings.setValue(setcon::DEVICE_CURRENT_MAX,
+                          ui->doubleSpinBoxDeviceCurrentMax->value());
+        settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
+                          ui->comboBoxDeviceCurrentAccu->currentIndex());
+
+        settings.setValue(setcon::DEVICE_VOLTAGE_MIN,
+                          ui->doubleSpinBoxDeviceVoltageMin->value());
+        settings.setValue(setcon::DEVICE_VOLTAGE_MAX,
+                          ui->doubleSpinBoxdeviceVoltageMax->value());
+        settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY,
+                          ui->comboBoxDeviceVoltageAccu->currentIndex());
+    }
+    if (currentRow == 2) {
+    };
+    if (currentRow == 3) {
+        settings.beginGroup(setcon::RECORD_GROUP);
+        settings.setValue(setcon::RECORD_SQLPATH,
+                          ui->lineEditSqlitePath->text());
+        settings.setValue(setcon::RECORD_TBLPRE,
+                          ui->lineEditRecordTablePrefix->text());
+    }
+}
+
+void SettingsDialog::settingCategoryChanged(int currentRow)
+{
+    if (this->checkSettingsChanged(this->lastItem)) {
+        // disconnect signal or this slot gets called again.
+        QObject::disconnect(ui->listWidgetSettings,
+                            &QListWidget::currentRowChanged, this,
+                            &SettingsDialog::settingCategoryChanged);
+        ui->listWidgetSettings->setCurrentItem(this->lastItem,
+                                               QItemSelectionModel::Select);
+        ui->listWidgetSettings->currentItem()->setSelected(true);
+        QObject::connect(ui->listWidgetSettings, &QListWidget::currentRowChanged,
+                         this, &SettingsDialog::settingCategoryChanged);
+        return;
+    }
+
+    this->lastItem = ui->listWidgetSettings->currentItem();
+
+    QSettings settings;
+    switch (currentRow) {
+    case 0: // general section
+        ui->stackedWidget->setCurrentIndex(0);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        settings.beginGroup(setcon::GENERAL_GROUP);
+        ui->checkBoxGeneralAskExit->setChecked(
+            settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool());
+        ui->checkBoxGeneralAskBeforeDis->setChecked(
+            settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool());
+        break;
+    case 1: // device section
         ui->stackedWidget->setCurrentIndex(1);
         settings.beginGroup(setcon::DEVICE_GROUP);
         if (settings.contains(setcon::DEVICE_PORT)) {
@@ -102,6 +303,25 @@ void SettingsDialog::settingChanged(QListWidgetItem *current,
 
         ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
         break;
+    case 2: // graph section
+        ui->stackedWidget->setCurrentIndex(2);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        break;
+    case 3:
+        ui->stackedWidget->setCurrentIndex(3);
+        ui->buttonBox->button(QDialogButtonBox::Apply)->setEnabled(true);
+        {
+            settings.beginGroup(setcon::RECORD_GROUP);
+            QString defaultSqlFile =
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                QDir::separator() + "labpowerqt.sqlite";
+            ui->lineEditSqlitePath->setText(
+                settings.value(setcon::RECORD_SQLPATH, defaultSqlFile)
+                    .toString());
+            ui->lineEditRecordTablePrefix->setText(
+                settings.value(setcon::RECORD_TBLPRE).toString());
+            break;
+        }
     default:
         break;
     }
@@ -109,33 +329,13 @@ void SettingsDialog::settingChanged(QListWidgetItem *current,
 
 void SettingsDialog::buttonBoxClicked(QAbstractButton *button)
 {
-    QSettings settings;
     switch (ui->buttonBox->buttonRole(button)) {
     case QDialogButtonBox::ApplyRole:
-        if (ui->stackedWidget->currentIndex() == 1) {
-            settings.beginGroup(setcon::DEVICE_GROUP);
-            settings.setValue(setcon::DEVICE_PORT,
-                              ui->comboBoxDeviceComPort->currentText());
-            settings.setValue(setcon::DEVICE_PROTOCOL,
-                              ui->comboBoxDeviceProtocoll->currentIndex());
-            // TODO: Add a text widget to specify a device Name
-            // settings.setValue(setcon::DEVICE_NAME, "Foo");
-            // DeviceCurrentMax
-            settings.setValue(setcon::DEVICE_CHANNELS,
-                              ui->spinBoxDeviceChannels->value());
-            settings.setValue(setcon::DEVICE_CURRENT_MIN,
-                              ui->doubleSpinBoxDeviceCurrentMin->value());
-            settings.setValue(setcon::DEVICE_CURRENT_MAX,
-                              ui->doubleSpinBoxDeviceCurrentMax->value());
-            settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
-                              ui->comboBoxDeviceCurrentAccu->currentIndex());
-
-            settings.setValue(setcon::DEVICE_VOLTAGE_MIN,
-                              ui->doubleSpinBoxDeviceVoltageMin->value());
-            settings.setValue(setcon::DEVICE_VOLTAGE_MAX,
-                              ui->doubleSpinBoxdeviceVoltageMax->value());
-            settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY,
-                              ui->comboBoxDeviceVoltageAccu->currentIndex());
+        this->saveSettings(ui->stackedWidget->currentIndex());
+        break;
+    case QDialogButtonBox::AcceptRole:
+        for(int i = 0; i <=3 ;i++) {
+            this->saveSettings(i);
         }
         break;
     default:

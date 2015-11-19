@@ -133,7 +133,9 @@ void MainWindow::deviceConnectionUpdated(bool connected)
 {
     if (connected) {
         ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
+        this->statusBar()->showMessage("Connected");
     } else {
+        this->statusBar()->showMessage("Disconnected");
         ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
     }
 }
@@ -208,6 +210,7 @@ void MainWindow::setupValuesDialog()
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
+
     }
 }
 
@@ -221,6 +224,13 @@ void MainWindow::setupControlConnections()
         QObject::connect(ui->widgetDisplay,
                          &DisplayArea::deviceControlValueChanged, this,
                          &MainWindow::deviceControl);
+        if (this->applicationModel->getDeviceConnected()) {
+            this->statusBar()->showMessage("Connected");
+        } else {
+            this->statusBar()->showMessage("Disconnected");
+        }
+    } else {
+        this->statusBar()->showMessage("No Device configuration found");
     }
 }
 
@@ -239,14 +249,15 @@ void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
 
 void MainWindow::showSettings()
 {
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    int noChan = settings.value(setcon::DEVICE_CHANNELS, 0).toInt();
     // release the serial port
     // this->controller->disconnectDevice();
     SettingsDialog sd;
     sd.exec();
 
     // Udate the values for the valuesDialog floating widget
-    QSettings settings;
-    settings.beginGroup(setcon::DEVICE_GROUP);
     if (settings.contains(setcon::DEVICE_PORT)) {
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
@@ -256,7 +267,11 @@ void MainWindow::showSettings()
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
-        ui->widgetDisplay->setupChannels();
+        this->setupControlConnections();
+        if (noChan != settings.value(setcon::DEVICE_CHANNELS).toInt()) {
+            ui->widgetDisplay->setupChannels();
+            ui->widgetGraph->setupGraph();
+        }
     }
 }
 
@@ -313,19 +328,25 @@ void MainWindow::deviceControl(int control, int channel)
     }
 }
 
-void MainWindow::showHideVoltCurrentSpinners()
-{
-    //    if (ui->frame_2->maximumHeight() == 0) {
-    //        this->showVoltCurrentSpinner->start();
-    //    } else {
-    //        this->hideVoltCurrentSpinner->start();
-    //    }
-    //    this->controller->getIdentification();
-}
-
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
+    settings.beginGroup(setcon::GENERAL_GROUP);
+    if (settings.value(setcon::GENERAL_EXIT).toBool()) {
+        QMessageBox box;
+        // TODO: Can't set parent. Messagebox transparent after this :/??
+        //box.setParent(this);
+        box.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
+        box.setDefaultButton(QMessageBox::Cancel);
+        box.setIcon(QMessageBox::Icon::Question);
+        box.setText("Do you really want to quit labpowerqt?");
+        box.exec();
+        if (box.result() == QMessageBox::StandardButton::Cancel) {
+            event->ignore();
+            return;
+        }
+    }
+    settings.endGroup();
     settings.beginGroup(setcon::MAINWINDOW_GROUP);
     settings.setValue(setcon::MAINWINDOW_GEO, this->saveGeometry());
     settings.setValue(setcon::MAINWINDOW_STATE, this->saveState());

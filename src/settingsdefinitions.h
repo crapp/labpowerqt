@@ -23,6 +23,12 @@ const char *const MAINWINDOW_GROUP = "mainwindow";
 const char *const MAINWINDOW_STATE = "state";
 const char *const MAINWINDOW_GEO = "geometry";
 
+// settings dialog
+// general
+const char *const GENERAL_GROUP = "main";
+const char *const GENERAL_EXIT = "exit";
+const char *const GENERAL_DISC = "disconnect";
+// device
 const char *const DEVICE_GROUP = "device";
 const char *const DEVICE_PROTOCOL = "protocol";
 const char *const DEVICE_NAME = "name";
@@ -34,5 +40,10 @@ const char *const DEVICE_CURRENT_ACCURACY = "current_accuracy";
 const char *const DEVICE_VOLTAGE_MIN = "voltage_min";
 const char *const DEVICE_VOLTAGE_MAX = "voltage_max";
 const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
+// plot
+// record
+const char *const RECORD_GROUP = "record";
+const char *const RECORD_SQLPATH = "sqlpath";
+const char *const RECORD_TBLPRE = "tblprefix";
 }
 #endif // SETTINGSDEFINITIONS_H

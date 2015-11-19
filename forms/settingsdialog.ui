@@ -101,6 +101,38 @@ QListView::item {
             <property name="checkable">
              <bool>false</bool>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
+             <item>
+              <widget class="QCheckBox" name="checkBoxGeneralAskExit">
+               <property name="text">
+                <string>Ask before exit</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBoxGeneralAskBeforeDis">
+               <property name="text">
+                <string>Ask before disconnect</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -116,9 +148,9 @@ QListView::item {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-127</y>
-               <width>455</width>
-               <height>497</height>
+               <y>0</y>
+               <width>443</width>
+               <height>494</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -383,6 +415,119 @@ color: #7BCF06;</string>
              </layout>
             </widget>
            </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pagePlot"/>
+        <widget class="QWidget" name="pageRecord">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QGroupBox" name="groupBoxRecord">
+            <property name="title">
+             <string>Record</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QCheckBox" name="checkBoxRecordDefault">
+               <property name="toolTip">
+                <string>IF this option is checked data will be recorded by default</string>
+               </property>
+               <property name="text">
+                <string>Record data by default</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBoxRecordDatabase">
+            <property name="title">
+             <string>Database</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <widget class="QLineEdit" name="lineEditSqlitePath">
+                 <property name="toolTip">
+                  <string>Select a SQLite database file. The file will be created if it does not exist.</string>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>SQLite database file</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonSqlitePath">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select a SQLite database file. The file will be created if it does not exist.</string>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditRecordTablePrefix">
+               <property name="toolTip">
+                <string>Table prefix</string>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="placeholderText">
+                <string>Table prefix</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>

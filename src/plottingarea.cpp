@@ -274,6 +274,7 @@ void PlottingArea::setupGraph()
             dynamic_cast<QHBoxLayout *>(dataBox->layout())->addStretch();
         }
     }
+    this->plot->replot();
 }
 
 void PlottingArea::setupUI()
@@ -364,6 +365,9 @@ void PlottingArea::yAxisRange(const QCPRange &currentXRange)
         QCPRange(yaxb.currentLower - 0.5, yaxb.currentUpper + 0.5));
     this->wattageAxis->setRange(
         QCPRange(yaxb.wattageLower - 0.5, yaxb.wattageUpper + 0.5));
+
+    // replotting here causes some weird effects.
+    // this->plot->replot();
 }
 
 void PlottingArea::beforeReplotHandle()
@@ -374,7 +378,6 @@ void PlottingArea::beforeReplotHandle()
 void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
                                      const QCPRange &oldRange)
 {
-
     // first set y axis range
     this->yAxisRange(newRange);
 
