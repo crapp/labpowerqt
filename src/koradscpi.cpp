@@ -64,7 +64,7 @@ void KoradSCPI::getStatus()
                         QVariant(0), true);
 }
 
-void KoradSCPI::changeChannel(const int &channel) {}
+void KoradSCPI::changeChannel(ATTR_UNUSED const int &channel) {}
 
 void KoradSCPI::setVoltage(const int &channel, const double &value)
 {
@@ -100,9 +100,9 @@ void KoradSCPI::setOVP(bool status)
                         false);
 }
 
-void KoradSCPI::setOTP(bool status) {}
+void KoradSCPI::setOTP(ATTR_UNUSED bool status) {}
 
-void KoradSCPI::setLocked(bool status) {}
+void KoradSCPI::setLocked(ATTR_UNUSED bool status) {}
 
 void KoradSCPI::setBeep(bool status)
 {
@@ -114,12 +114,12 @@ void KoradSCPI::setBeep(bool status)
                         false);
 }
 
-void KoradSCPI::setTracking(const globcon::TRACKING &trMode)
+void KoradSCPI::setTracking(ATTR_UNUSED const globcon::TRACKING &trMode)
 {
     // TODO: Implement Tracking in Korad SCPI Class.
 }
 
-void KoradSCPI::setOutput(const int &channel, bool status)
+void KoradSCPI::setOutput(ATTR_UNUSED const int &channel, bool status)
 {
     QVariant val = 0;
     if (status) {

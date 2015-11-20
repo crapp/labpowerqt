@@ -27,6 +27,7 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
     this->startPoint = std::chrono::system_clock::now();
     this->currentDataPointKey = std::chrono::system_clock::now();
     this->lastAction = nullptr;
+    this->dataDisplayFrameHeight = -1;
 
     this->setupUI();
     this->setupGraph();
@@ -66,6 +67,7 @@ void PlottingArea::addData(const int &channel, const double &data,
     this->plot->replot();
 }
 
+// to be honest this method has mutated in an unmaintainable monster :(
 void PlottingArea::setupGraph()
 {
     if (this->plot->graphCount() > 0) {
@@ -127,8 +129,9 @@ void PlottingArea::setupGraph()
 
         QObject::connect(
             this->plot->xAxis,
-            SIGNAL(rangeChanged(const QCPRange &, const QCPRange &)), this,
-            SLOT(xAxisRangeChanged(const QCPRange &, const QCPRange &)));
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            this, &PlottingArea::xAxisRangeChanged);
         QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
                          &PlottingArea::beforeReplotHandle);
 
@@ -139,13 +142,30 @@ void PlottingArea::setupGraph()
 
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-            QGroupBox *dataBox = new QGroupBox("Channel " + QString::number(i));
-            dataBox->setLayout(new QHBoxLayout());
-            this->controlData->layout()->addWidget(dataBox);
+            // trhe box that controls the visibility of the graphs
+            QGroupBox *graphBox = new QGroupBox("Channel " + QString::number(i));
+            graphBox->setLayout(new QHBoxLayout());
+            this->controlData->layout()->addWidget(graphBox);
+            // the box that controls color, line thickness and style
             QGroupBox *appearanceBox =
                 new QGroupBox("Channel " + QString::number(i));
             appearanceBox->setLayout(new QVBoxLayout());
             this->controlAppearance->layout()->addWidget(appearanceBox);
+            QGroupBox *dataDisplayBox =
+                new QGroupBox("Channel " + QString::number(i));
+            dataDisplayBox->setLayout(new QHBoxLayout());
+            dataDisplayBox->layout()->setSpacing(20);
+            this->dataDisplayChannels->layout()->addWidget(dataDisplayBox);
+            std::map<globcon::DATATYPE, QLabel *> chanDisplayLabels;
+            QGridLayout *dataDisplayVoltageGrid = new QGridLayout();
+            QGridLayout *dataDisplayCurrentGrid = new QGridLayout();
+            QGridLayout *dataDisplayWattageGrid = new QGridLayout();
+            dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())
+                ->addLayout(dataDisplayVoltageGrid);
+            dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())
+                ->addLayout(dataDisplayCurrentGrid);
+            dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())
+                ->addLayout(dataDisplayWattageGrid);
 
             for (int j = 0; j < 5; j++) {
                 globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
@@ -155,6 +175,14 @@ void PlottingArea::setupGraph()
                 // set the width of the pen
                 graphPen.setWidth(2);
 
+                /*
+                 * For every graph we add:
+                 * A Switch to turn visibility on or off
+                 * A ComboBox to set LineStyle
+                 * A SpinBox to set the Line Thickness
+                 * A Button to choose the graph color
+                 * Two labels to display the data below the plot on mouseover
+                 */
                 QCheckBox *cbDataSwitch = new QCheckBox();
                 cbDataSwitch->setText(this->datatypeStrings.at(dt));
                 QLabel *labelGraphProps =
@@ -174,26 +202,66 @@ void PlottingArea::setupGraph()
                 graphColor->setIconSize(QSize(64, 16));
                 QPixmap pic(64, 16);
 
-                if (dt == globcon::DATATYPE::CURRENT ||
-                    dt == globcon::DATATYPE::ACTUALCURRENT) {
+                QLabel *dataDisplayLabel =
+                    new QLabel(this->datatypeStrings.at(dt));
+                QLabel *dataDisplayLabelValue = new QLabel("--");
+                chanDisplayLabels.insert({dt, dataDisplayLabelValue});
+                dataDisplayLabelValue->setMinimumWidth(40);
+                dataDisplayLabelValue->setAlignment(
+                    Qt::AlignmentFlag::AlignRight);
+
+                dataDisplayBox->layout()->addWidget(dataDisplayLabel);
+                dataDisplayBox->layout()->addWidget(dataDisplayLabelValue);
+
+                if (dt == globcon::DATATYPE::SETCURRENT ||
+                    dt == globcon::DATATYPE::CURRENT) {
                     this->plot->addGraph(this->plot->xAxis, this->currentAxis);
                     pic.fill(this->currentGraphColors.at(i - 1));
                     graphPen.setColor(this->currentGraphColors.at(i - 1));
+                    if (dt == globcon::DATATYPE::CURRENT) {
+                        dataDisplayCurrentGrid->addWidget(dataDisplayLabel, 0,
+                                                          0);
+                        dataDisplayCurrentGrid->addWidget(dataDisplayLabelValue,
+                                                          0, 1);
+                    }
+                    if (dt == globcon::DATATYPE::SETCURRENT) {
+                        dataDisplayCurrentGrid->addWidget(dataDisplayLabel, 1,
+                                                          0);
+                        dataDisplayCurrentGrid->addWidget(dataDisplayLabelValue,
+                                                          1, 1);
+                    }
                 } else if (dt == globcon::DATATYPE::WATTAGE) {
                     this->plot->addGraph(this->plot->xAxis, this->wattageAxis);
                     pic.fill(this->wattageGraphColors.at(i - 1));
                     graphPen.setColor(this->wattageGraphColors.at(i - 1));
+                    dataDisplayWattageGrid->addWidget(dataDisplayLabel, 0, 0);
+                    dataDisplayLabel->setAlignment(Qt::AlignmentFlag::AlignTop |
+                                                   Qt::AlignmentFlag::AlignLeft);
+                    dataDisplayWattageGrid->addWidget(dataDisplayLabelValue, 0,
+                                                      1);
                 } else {
                     this->plot->addGraph();
                     pic.fill(this->voltageGraphColors.at(i - 1));
                     graphPen.setColor(this->voltageGraphColors.at(i - 1));
+                    if (dt == globcon::DATATYPE::VOLTAGE) {
+                        dataDisplayVoltageGrid->addWidget(dataDisplayLabel, 0,
+                                                          0);
+                        dataDisplayVoltageGrid->addWidget(dataDisplayLabelValue,
+                                                          0, 1);
+                    }
+                    if (dt == globcon::DATATYPE::SETVOLTAGE) {
+                        dataDisplayVoltageGrid->addWidget(dataDisplayLabel, 1,
+                                                          0);
+                        dataDisplayVoltageGrid->addWidget(dataDisplayLabelValue,
+                                                          1, 1);
+                    }
                 }
 
                 graphColor->setIcon(pic);
 
                 // only some graphs are visible
-                if (dt == globcon::DATATYPE::ACTUALVOLTAGE ||
-                    dt == globcon::DATATYPE::ACTUALCURRENT ||
+                if (dt == globcon::DATATYPE::VOLTAGE ||
+                    dt == globcon::DATATYPE::CURRENT ||
                     dt == globcon::DATATYPE::WATTAGE) {
                     cbDataSwitch->setCheckState(Qt::CheckState::Checked);
                     graphLineStyle->setCurrentIndex(0);
@@ -211,7 +279,7 @@ void PlottingArea::setupGraph()
                 this->plot->graph(graphIndex)
                     ->setName(this->graphNames.at(dt).arg(QString::number(i)));
 
-                dataBox->layout()->addWidget(cbDataSwitch);
+                graphBox->layout()->addWidget(cbDataSwitch);
                 QHBoxLayout *appearanceElemLayout = new QHBoxLayout();
                 appearanceElemLayout->addWidget(labelGraphProps);
                 appearanceElemLayout->addWidget(graphLineStyle);
@@ -266,12 +334,16 @@ void PlottingArea::setupGraph()
                             QPixmap pic = graphColor->icon().pixmap(64, 16);
                             pic.fill(col);
                             graphColor->setIcon(pic);
+                            this->plot->replot();
                         }
                     });
 
                 graphIndex++;
             }
-            dynamic_cast<QHBoxLayout *>(dataBox->layout())->addStretch();
+            dynamic_cast<QHBoxLayout *>(graphBox->layout())->addStretch();
+            dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())->addStretch();
+            this->dataDisplayLabels.insert(
+                {static_cast<globcon::CHANNEL>(i), chanDisplayLabels});
         }
     }
     this->plot->replot();
@@ -300,13 +372,52 @@ void PlottingArea::setupUI()
     this->controlGeneral->setLayout(controlGeneralLay);
     this->cbGeneralAutoscrl = new QCheckBox();
     this->cbGeneralAutoscrl->setText("Auto Scroll");
+    this->cbGeneralAutoscrl->setToolTip(
+        "When this checkbox is activated the plot will be scrolled so the most "
+        "recent data is visible. Panning or zooming disables this option.");
     this->cbGeneralAutoscrl->setChecked(true);
     controlGeneralLay->addWidget(this->cbGeneralAutoscrl, 0, 0, Qt::AlignTop);
-    QObject::connect(this->cbGeneralAutoscrl, SIGNAL(stateChanged(int)), this,
-                     SLOT(generalCBCheckState(int)));
+    QObject::connect(this->cbGeneralAutoscrl, &QCheckBox::stateChanged, this,
+                     &PlottingArea::generalCBCheckState);
+    QCheckBox *dataDisplayArea = new QCheckBox("Show data under Plot");
+    dataDisplayArea->setToolTip("Activate this option to show the data at the "
+                                "mouse cursor position under the plot.");
+    dataDisplayArea->setChecked(true);
+    controlGeneralLay->addWidget(dataDisplayArea, 1, 0, Qt::AlignTop);
+    this->animationGroupDataDisplay =
+        std::unique_ptr<QParallelAnimationGroup>(new QParallelAnimationGroup());
+    QPropertyAnimation *maxHeightAniDisplay = new QPropertyAnimation();
+    maxHeightAniDisplay->setPropertyName("maximumHeight");
+    this->animationGroupDataDisplay->addAnimation(maxHeightAniDisplay);
+    QObject::connect(dataDisplayArea, &QCheckBox::stateChanged, [this](
+                                                                    int state) {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+            QVariant oldStartValue =
+                dynamic_cast<QPropertyAnimation *>(
+                    this->animationGroupDataDisplay->animationAt(0))
+                    ->startValue();
+            dynamic_cast<QPropertyAnimation *>(
+                this->animationGroupDataDisplay->animationAt(0))
+                ->setStartValue(0);
+            dynamic_cast<QPropertyAnimation *>(
+                this->animationGroupDataDisplay->animationAt(0))
+                ->setEndValue(oldStartValue);
+            this->animationGroupDataDisplay->start();
+        } else {
+            if (this->dataDisplayFrameHeight == -1) {
+                this->dataDisplayFrameHeight = this->dataDisplayFrame->height();
+            }
+            dynamic_cast<QPropertyAnimation *>(
+                this->animationGroupDataDisplay->animationAt(0))
+                ->setStartValue(this->dataDisplayFrameHeight);
+            dynamic_cast<QPropertyAnimation *>(
+                this->animationGroupDataDisplay->animationAt(0))
+                ->setEndValue(0);
+            this->animationGroupDataDisplay->start();
+        }
+    });
     this->controlGeneralScroll->setWidget(this->controlGeneral);
     this->controlGeneralScroll->setWidgetResizable(true);
-
     this->controlStack->addWidget(this->controlGeneralScroll);
 
     // control data widget. Allows to toggle graphs to display. Will be filled
@@ -348,6 +459,23 @@ void PlottingArea::setupUI()
     mainLayout->addWidget(this->plot, 2, 0);
     // take as much space as possible
     mainLayout->setRowStretch(2, 100);
+
+    this->dataDisplayFrame = new QFrame();
+    this->dataDisplayFrame->setLayout(new QVBoxLayout());
+    mainLayout->addWidget(this->dataDisplayFrame, 3, 0);
+    maxHeightAniDisplay->setTargetObject(this->dataDisplayFrame);
+    // Display DateTime
+    this->dataDisplayDT = new QLabel();
+    this->dataDisplayDT->setAlignment(Qt::AlignmentFlag::AlignCenter);
+    this->dataDisplayDT->setSizePolicy(QSizePolicy::Expanding,
+                                       QSizePolicy::Fixed);
+    QDateTime dateTime = QDateTime::currentDateTime();
+    this->dataDisplayDT->setText(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+    this->dataDisplayFrame->layout()->addWidget(this->dataDisplayDT);
+    // display mouseover data in a QFrame (maybe QWidget would be better??
+    this->dataDisplayChannels = new QFrame();
+    this->dataDisplayChannels->setLayout(new QVBoxLayout());
+    this->dataDisplayFrame->layout()->addWidget(this->dataDisplayChannels);
 }
 
 void PlottingArea::yAxisRange(const QCPRange &currentXRange)
@@ -430,17 +558,18 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     if (deltaSecsUpperLower < std::chrono::duration<double>(60) ||
         deltaSecsUpperLower > std::chrono::duration<double>(3600)) {
         this->plot->xAxis->setRange(oldRange);
-        // TODO: Use the statusbar to inform user about minimum maximum zoom level.
+        // TODO: Use the statusbar to inform user about minimum maximum zoom
+        // level.
         // TODO: Make these values configurable.
         return;
     }
 
     // check if we need to toggle autoScroll
     if (this->autoScroll && tpNewUpperSecs < currentDataPointKeySecs) {
-        // Stop autoscroll when panning to the left
+        // Stop autoscroll when panning to much to the left
         this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Unchecked);
     } else if (!this->autoScroll && tpNewUpperSecs == currentDataPointKeySecs) {
-        // Pan to the right edge starts autoscrolling
+        // Pan to the most recent x value starts autoscrolling
         this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Checked);
     }
 }
@@ -448,8 +577,56 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
 void PlottingArea::mouseMoveHandler(QMouseEvent *event)
 {
     // don't do anything if there are no graphs.
+    // TODO: I don't know but I think this check is nonsense.
     if (this->plot->graphCount() == 0)
         return;
+
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    if (settings.contains(setcon::DEVICE_CHANNELS)) {
+        // get the coordinate on the x axis from the event position
+        double x = this->plot->xAxis->pixelToCoord(event->pos().x());
+        // calculatge a datetime object fromthe x coordinate
+        QDateTime dateTime =
+            QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(x * 1000));
+        this->dataDisplayDT->setText(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+        for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
+             i++) {
+            for (int c = 0; c < 5; c++) {
+                // which datatype is this
+                globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(c);
+                // if the graph is visible get the data
+                if (this->plot->graph(c)->visible()) {
+                    QCPDataMap::Iterator setVit =
+                        this->plot->graph(c)->data()->upperBound(x);
+                    if (setVit != this->plot->graph(c)->data()->end()) {
+                        int accuracy = 3;
+                        if (dt == globcon::VOLTAGE ||
+                            dt == globcon::SETVOLTAGE) {
+                            accuracy =
+                                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY)
+                                    .toInt();
+                        }
+                        if (dt == globcon::CURRENT ||
+                            dt == globcon::SETCURRENT) {
+                            accuracy =
+                                settings.value(setcon::DEVICE_CURRENT_ACCURACY)
+                                    .toInt();
+                        }
+                        this->dataDisplayLabels.at(static_cast<globcon::CHANNEL>(
+                                                       i))
+                            .at(dt)
+                            ->setText(
+                                QString::number(setVit->value, 'f', accuracy));
+                    }
+                } else {
+                    this->dataDisplayLabels.at(static_cast<globcon::CHANNEL>(i))
+                        .at(dt)
+                        ->setText("--");
+                }
+            }
+        }
+    }
 }
 
 void PlottingArea::toolbarActionTriggered(QAction *action)

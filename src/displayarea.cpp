@@ -40,19 +40,19 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::DATATYPE dt,
                              int channel)
 {
     switch (dt) {
-    case globcon::DATATYPE::VOLTAGE:
+    case globcon::DATATYPE::SETVOLTAGE:
         this->chanwVector.at(channel - 1)
             ->voltageSet->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::ACTUALVOLTAGE:
+    case globcon::DATATYPE::VOLTAGE:
         this->chanwVector.at(channel - 1)
             ->voltageActual->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::CURRENT:
+    case globcon::DATATYPE::SETCURRENT:
         this->chanwVector.at(channel - 1)
             ->currentSet->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::ACTUALCURRENT:
+    case globcon::DATATYPE::CURRENT:
         this->chanwVector.at(channel - 1)
             ->currentActual->setText(std::move(val.toString()));
         break;
@@ -231,12 +231,12 @@ void DisplayArea::setupChannels()
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
                         std::move(pos), chanw->voltageSet,
-                        global_constants::DATATYPE::VOLTAGE, value);
+                        global_constants::DATATYPE::SETVOLTAGE, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
                             this->valuesDialogData->voltage,
                             static_cast<int>(
-                                global_constants::DATATYPE::VOLTAGE),
+                                global_constants::DATATYPE::SETVOLTAGE),
                             i);
                     }
                 });
@@ -245,12 +245,12 @@ void DisplayArea::setupChannels()
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
                         std::move(pos), chanw->currentSet,
-                        global_constants::DATATYPE::CURRENT, value);
+                        global_constants::DATATYPE::SETCURRENT, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
                             this->valuesDialogData->current,
                             static_cast<int>(
-                                global_constants::DATATYPE::CURRENT),
+                                global_constants::DATATYPE::SETCURRENT),
                             i);
                     }
                 });
@@ -465,7 +465,7 @@ void DisplayArea::controlStateEnabled(bool state)
     }
 }
 
-void DisplayArea::paintEvent(QPaintEvent *event)
+void DisplayArea::paintEvent(ATTR_UNUSED QPaintEvent *event)
 {
     QStyleOption o;
     o.initFrom(this);

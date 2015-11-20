@@ -22,10 +22,13 @@
 #include <QColor>
 #include <QScrollArea>
 #include <QColorDialog>
+#include <QDateTime>
+#include <QDebug>
 
 #include <vector>
 #include <chrono>
 #include <map>
+#include <iostream>
 
 #include "qcustomplot.h"
 #include "qAccordion/qaccordion.h"
@@ -59,17 +62,17 @@ private:
         QColor(Qt::GlobalColor::green).lighter()};
 
     const std::map<global_constants::DATATYPE, QString> datatypeStrings = {
-        {global_constants::DATATYPE::VOLTAGE, "Set Voltage"},
-        {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage"},
-        {global_constants::DATATYPE::CURRENT, "Set Current"},
-        {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current"},
+        {global_constants::DATATYPE::SETVOLTAGE, "Set Voltage"},
+        {global_constants::DATATYPE::VOLTAGE, "Voltage"},
+        {global_constants::DATATYPE::SETCURRENT, "Set Current"},
+        {global_constants::DATATYPE::CURRENT, "Current"},
         {global_constants::DATATYPE::WATTAGE, "Wattage"}};
 
     const std::map<global_constants::DATATYPE, QString> graphNames = {
+        {global_constants::DATATYPE::SETVOLTAGE, "Set Voltage CH%1"},
         {global_constants::DATATYPE::VOLTAGE, "Voltage CH%1"},
-        {global_constants::DATATYPE::ACTUALVOLTAGE, "Actual Voltage CH%1"},
+        {global_constants::DATATYPE::SETCURRENT, "Set Current CH%1"},
         {global_constants::DATATYPE::CURRENT, "Current CH%1"},
-        {global_constants::DATATYPE::ACTUALCURRENT, "Actual Current CH%1"},
         {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}};
 
     /**
@@ -94,6 +97,17 @@ private:
     QScrollArea *controlDataScroll;
     QWidget *controlAppearance;
     QScrollArea *controlAppearanceScroll;
+
+    std::unique_ptr<QParallelAnimationGroup> animationGroupDataDisplay;
+    int dataDisplayFrameHeight;
+    QFrame *dataDisplayFrame;
+    // channels
+    QFrame *dataDisplayChannels;
+    // datetime label
+    QLabel *dataDisplayDT;
+    // 2d map for the data display labels for each channel
+    std::map<global_constants::CHANNEL,
+             std::map<global_constants::DATATYPE, QLabel *>> dataDisplayLabels;
 
     QCheckBox *cbGeneralAutoscrl;
 

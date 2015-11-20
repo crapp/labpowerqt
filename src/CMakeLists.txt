@@ -85,6 +85,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplystatus.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/recordarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
@@ -104,6 +105,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/recordarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.cpp

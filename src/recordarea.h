@@ -14,47 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef YAXISHELPER_H
-#define YAXISHELPER_H
+#ifndef RECORDAREA_H
+#define RECORDAREA_H
 
-#include <QMap>
+#include <QWidget>
 
-#include <vector>
-#include <algorithm>
-
-#include "qcustomplot.h"
-
-#include "global.h"
-
-struct YAxisBounds {
-    double voltageUpper;
-    double voltageLower;
-    double currentUpper;
-    double currentLower;
-    double wattageUpper;
-    double wattageLower;
-
-    YAxisBounds()
-    {
-        voltageUpper = 0;
-        voltageLower = 0;
-        currentUpper = 0;
-        currentLower = 0;
-        wattageUpper = 0;
-        wattageLower = 0;
-    }
-};
-
-class YAxisHelper
+class RecordArea : public QWidget
 {
+    Q_OBJECT
 public:
-    YAxisHelper();
+    explicit RecordArea(QWidget *parent = 0);
 
-    YAxisBounds getyAxisBounds(const QCPRange &currentXRange, QCustomPlot *plot,
-                               int noChannels);
+signals:
 
-private:
-    std::pair<double, double> lowHighVectorValue(std::vector<double> values);
+public slots:
 };
 
-#endif // YAXISHELPER_H
+#endif // RECORDAREA_H

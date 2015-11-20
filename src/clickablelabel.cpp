@@ -72,7 +72,7 @@ void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-void ClickableLabel::enterEvent(QEvent *event)
+void ClickableLabel::enterEvent(ATTR_UNUSED QEvent *event)
 {
     if (this->clickable) {
         if (this->originalStylesheet == "")
@@ -83,7 +83,7 @@ void ClickableLabel::enterEvent(QEvent *event)
     }
 }
 
-void ClickableLabel::leaveEvent(QEvent *event)
+void ClickableLabel::leaveEvent(ATTR_UNUSED QEvent *event)
 {
     if (this->clickable) {
         this->setStyleSheet(this->originalStylesheet);

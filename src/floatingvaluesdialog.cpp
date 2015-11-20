@@ -38,10 +38,10 @@ void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
     this->dt = dt;
     // set the index of the stacked container.
     switch (dt) {
-    case globcon::DATATYPE::VOLTAGE:
+    case globcon::DATATYPE::SETVOLTAGE:
         this->stackedContainer->setCurrentIndex(0);
         break;
-    case globcon::DATATYPE::CURRENT:
+    case globcon::DATATYPE::SETCURRENT:
         this->stackedContainer->setCurrentIndex(1);
         break;
     default:
@@ -60,7 +60,7 @@ void FloatingValuesDialog::setCurrentValue(double value)
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
-void FloatingValuesDialog::setCurrentValue(int trackingMode) {}
+void FloatingValuesDialog::setCurrentValue(ATTR_UNUSED int trackingMode) {}
 
 void FloatingValuesDialog::updateDeviceSpecs(
     double voltageMin, double voltageMax, uint voltagePrecision,
@@ -130,10 +130,10 @@ void FloatingValuesDialog::accept()
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
     switch (dt) {
-    case globcon::DATATYPE::VOLTAGE:
+    case globcon::DATATYPE::SETVOLTAGE:
         this->data->voltage = value;
         break;
-    case globcon::DATATYPE::CURRENT:
+    case globcon::DATATYPE::SETCURRENT:
         this->data->current = value;
         break;
     default:

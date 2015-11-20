@@ -76,16 +76,16 @@ void MainWindow::dataUpdated()
 
             this->ui->widgetGraph->addData(i, voltage,
                                            this->applicationModel->getTime(),
-                                           globcon::DATATYPE::VOLTAGE);
+                                           globcon::DATATYPE::SETVOLTAGE);
             this->ui->widgetGraph->addData(i, actualVoltage,
                                            this->applicationModel->getTime(),
-                                           globcon::DATATYPE::ACTUALVOLTAGE);
+                                           globcon::DATATYPE::VOLTAGE);
             this->ui->widgetGraph->addData(i, current,
                                            this->applicationModel->getTime(),
-                                           globcon::DATATYPE::CURRENT);
+                                           globcon::DATATYPE::SETCURRENT);
             this->ui->widgetGraph->addData(i, actualCurrent,
                                            this->applicationModel->getTime(),
-                                           globcon::DATATYPE::ACTUALCURRENT);
+                                           globcon::DATATYPE::CURRENT);
             this->ui->widgetGraph->addData(i, wattage,
                                            this->applicationModel->getTime(),
                                            globcon::DATATYPE::WATTAGE);
@@ -94,23 +94,23 @@ void MainWindow::dataUpdated()
                 std::move(QVariant(QString::number(
                     voltage, 'f',
                     settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-                globcon::DATATYPE::VOLTAGE, i);
+                globcon::DATATYPE::SETVOLTAGE, i);
             ui->widgetDisplay->dataUpdate(
                 std::move(QVariant(QString::number(
                     actualVoltage, 'f',
                     settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-                globcon::DATATYPE::ACTUALVOLTAGE, i);
+                globcon::DATATYPE::VOLTAGE, i);
 
             ui->widgetDisplay->dataUpdate(
                 std::move(QVariant(QString::number(
                     current, 'f',
                     settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-                globcon::DATATYPE::CURRENT, i);
+                globcon::DATATYPE::SETCURRENT, i);
             ui->widgetDisplay->dataUpdate(
                 std::move(QVariant(QString::number(
                     actualCurrent, 'f',
                     settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-                globcon::DATATYPE::ACTUALCURRENT, i);
+                globcon::DATATYPE::CURRENT, i);
 
             ui->widgetDisplay->dataUpdate(
                 std::move(QVariant(QString::number(wattage, 'f', 3))),
@@ -278,10 +278,10 @@ void MainWindow::showSettings()
 void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 {
     switch (static_cast<globcon::DATATYPE>(dt)) {
-    case globcon::DATATYPE::VOLTAGE:
+    case globcon::DATATYPE::SETVOLTAGE:
         this->controller->setVoltage(channel, val);
         break;
-    case globcon::DATATYPE::CURRENT:
+    case globcon::DATATYPE::SETCURRENT:
         this->controller->setCurrent(channel, val);
         break;
     default:
