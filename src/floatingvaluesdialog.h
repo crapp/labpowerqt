@@ -29,6 +29,7 @@
 #include <QDebug>
 
 #include <memory>
+#include <cmath>
 
 #include "global.h"
 

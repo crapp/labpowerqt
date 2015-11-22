@@ -70,12 +70,12 @@ void FloatingValuesDialog::updateDeviceSpecs(
     voltageSpinBox->setMinimum(voltageMin);
     voltageSpinBox->setMaximum(voltageMax);
     voltageSpinBox->setDecimals(voltagePrecision);
-    voltageSpinBox->setSingleStep(1.0 / pow(10.0, voltagePrecision));
+    voltageSpinBox->setSingleStep(1.0 / std::pow(10.0, voltagePrecision));
 
     currentSpinBox->setMinimum(currentMin);
     currentSpinBox->setMaximum(currentMax);
     currentSpinBox->setDecimals(currentPrecision);
-    currentSpinBox->setSingleStep(1.0 / pow(10.0, currentPrecision));
+    currentSpinBox->setSingleStep(1.0 / std::pow(10.0, currentPrecision));
 }
 
 void FloatingValuesDialog::createUI()

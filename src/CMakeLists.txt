@@ -47,15 +47,15 @@ message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
 find_package(Qt5SerialPort REQUIRED)
 find_package(Qt5Quick REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
+find_package(Qt5Sql REQUIRED)
 
-find_package(Qwt 6.1 REQUIRED)
+#find_package(Qwt 6.1 REQUIRED)
 
 # generate ui_*.h files
 qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR} # config.h
-    ${QWT_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/external/qcustomplot
     ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
@@ -75,6 +75,7 @@ configure_file (
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/dbconnector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.h
@@ -96,6 +97,7 @@ set(HEADER
 set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dbconnector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.cpp
@@ -133,6 +135,6 @@ Qt5::SerialPort
 Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
-${QWT_LIBRARY}
+Qt5::Sql
 ${CMAKE_THREAD_LIBS_INIT}
 qAccordion)
