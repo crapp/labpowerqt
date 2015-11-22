@@ -76,7 +76,7 @@ private:
         {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}};
 
     /**
-     * @brief plot The plot widget
+     * @brief The plot widget
      */
     QCustomPlot *plot;
     QCPAxis *voltageAxis;

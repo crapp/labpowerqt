@@ -18,6 +18,16 @@
 #define RECORDAREA_H
 
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSettings>
+#include <QDebug>
+
+#include "global.h"
 
 class RecordArea : public QWidget
 {
@@ -28,6 +38,20 @@ public:
 signals:
 
 public slots:
+    /**
+     * @brief Tell the Record Area there is a working device config
+     * @param status
+     */
+    void canRecord(bool status);
+
+private:
+
+    QGroupBox *recordBox;
+    QGridLayout *recordBoxLayout;
+    QLineEdit *recordName;
+    QPushButton *setRecordName;
+
+    void setupUI();
 };
 
 #endif // RECORDAREA_H

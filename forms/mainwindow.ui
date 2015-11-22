@@ -99,7 +99,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QWidget" name="widgetRecord" native="true"/>
+            <widget class="RecordArea" name="widgetRecord" native="true"/>
            </item>
           </layout>
          </widget>
@@ -287,6 +287,12 @@
    <class>PlottingArea</class>
    <extends>QWidget</extends>
    <header>plottingarea.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RecordArea</class>
+   <extends>QWidget</extends>
+   <header location="global">recordarea.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

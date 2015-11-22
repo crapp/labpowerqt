@@ -16,7 +16,20 @@
 
 #include "recordarea.h"
 
-RecordArea::RecordArea(QWidget *parent) : QWidget(parent)
-{
+RecordArea::RecordArea(QWidget *parent) : QWidget(parent) { this->setupUI(); }
 
+void RecordArea::canRecord(bool status) {}
+
+void RecordArea::setupUI()
+{
+    this->setLayout(new QVBoxLayout());
+    this->recordBox = new QGroupBox("Record data");
+    this->recordBoxLayout = new QGridLayout();
+    this->recordBox->setLayout(this->recordBoxLayout);
+    this->recordBox->setCheckable(true);
+    this->recordBox->setChecked(false);
+    this->layout()->addWidget(this->recordBox);
+    this->recordName = new QLineEdit();
+    this->recordBoxLayout->addWidget(this->recordName, 0, 0,
+                                     Qt::AlignmentFlag::AlignTop);
 }
