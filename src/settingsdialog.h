@@ -36,8 +36,7 @@
 #include <memory>
 
 #include "settingsdefinitions.h"
-#include "serialcommand.h"
-#include "koradscpi.h"
+#include "devicewizard.h"
 
 namespace Ui
 {
@@ -57,9 +56,6 @@ private:
 
     QListWidgetItem *lastItem;
 
-    std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
-    bool deviceConnected;
-
     void setupSettingsList();
     bool checkSettingsChanged(QListWidgetItem *lastItem);
     void saveSettings(int currentRow);
@@ -68,10 +64,7 @@ private slots:
     void settingCategoryChanged(int currentRow);
 
     void buttonBoxClicked(QAbstractButton *button);
-    void testClicked();
-
-    void deviceIdentified(std::shared_ptr<SerialCommand> command);
-    void deviceOpenError(QString errorString);
+    void devicesComboBoxUpdate();
 
     void accept();
     void reject();

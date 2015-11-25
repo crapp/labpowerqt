@@ -119,6 +119,12 @@ private:
     QCPRange lastRange;
 
     void setupUI();
+    void resetGraph();
+
+    /**
+     * @brief Set the default values and connections for the plot
+     */
+    void setupGraphPlot(const QSettings &settings);
 
     void yAxisRange(const QCPRange &currentXRange);
 

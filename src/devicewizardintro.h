@@ -1,4 +1,3 @@
-// This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
 // Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
 //
@@ -15,10 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dbconnector.h"
+#ifndef DEVICEWIZARDINTRO_H
+#define DEVICEWIZARDINTRO_H
 
-DBConnector::DBConnector()
+#include <QWizardPage>
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QLabel>
+
+class DeviceWizardIntro : public QWizardPage
 {
 
-}
+    Q_OBJECT
 
+public:
+    DeviceWizardIntro(QWidget *parent = 0);
+};
+
+#endif // DEVICEWIZARDINTRO_H

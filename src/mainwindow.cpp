@@ -60,72 +60,70 @@ void MainWindow::dataUpdated()
     // this->ui->labelCH1SetVoltage->setText(this->applicationModel->get)
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
-    if (settings.contains(setcon::DEVICE_PORT)) {
-        for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
-             i++) {
-            double voltage = this->applicationModel->getVoltage(
-                static_cast<globcon::CHANNEL>(i));
-            double actualVoltage = this->applicationModel->getActualVoltage(
-                static_cast<globcon::CHANNEL>(i));
-            double current = this->applicationModel->getCurrent(
-                static_cast<globcon::CHANNEL>(i));
-            double actualCurrent = this->applicationModel->getActualCurrent(
-                static_cast<globcon::CHANNEL>(i));
-            double wattage = this->applicationModel->getWattage(
-                static_cast<globcon::CHANNEL>(i));
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
+        double voltage =
+            this->applicationModel->getVoltage(static_cast<globcon::CHANNEL>(i));
+        double actualVoltage = this->applicationModel->getActualVoltage(
+            static_cast<globcon::CHANNEL>(i));
+        double current =
+            this->applicationModel->getCurrent(static_cast<globcon::CHANNEL>(i));
+        double actualCurrent = this->applicationModel->getActualCurrent(
+            static_cast<globcon::CHANNEL>(i));
+        double wattage =
+            this->applicationModel->getWattage(static_cast<globcon::CHANNEL>(i));
 
-            this->ui->widgetGraph->addData(i, voltage,
-                                           this->applicationModel->getTime(),
-                                           globcon::DATATYPE::SETVOLTAGE);
-            this->ui->widgetGraph->addData(i, actualVoltage,
-                                           this->applicationModel->getTime(),
-                                           globcon::DATATYPE::VOLTAGE);
-            this->ui->widgetGraph->addData(i, current,
-                                           this->applicationModel->getTime(),
-                                           globcon::DATATYPE::SETCURRENT);
-            this->ui->widgetGraph->addData(i, actualCurrent,
-                                           this->applicationModel->getTime(),
-                                           globcon::DATATYPE::CURRENT);
-            this->ui->widgetGraph->addData(i, wattage,
-                                           this->applicationModel->getTime(),
-                                           globcon::DATATYPE::WATTAGE);
+        this->ui->widgetGraph->addData(i, voltage,
+                                       this->applicationModel->getTime(),
+                                       globcon::DATATYPE::SETVOLTAGE);
+        this->ui->widgetGraph->addData(i, actualVoltage,
+                                       this->applicationModel->getTime(),
+                                       globcon::DATATYPE::VOLTAGE);
+        this->ui->widgetGraph->addData(i, current,
+                                       this->applicationModel->getTime(),
+                                       globcon::DATATYPE::SETCURRENT);
+        this->ui->widgetGraph->addData(i, actualCurrent,
+                                       this->applicationModel->getTime(),
+                                       globcon::DATATYPE::CURRENT);
+        this->ui->widgetGraph->addData(i, wattage,
+                                       this->applicationModel->getTime(),
+                                       globcon::DATATYPE::WATTAGE);
 
-            ui->widgetDisplay->dataUpdate(
-                std::move(QVariant(QString::number(
-                    voltage, 'f',
-                    settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-                globcon::DATATYPE::SETVOLTAGE, i);
-            ui->widgetDisplay->dataUpdate(
-                std::move(QVariant(QString::number(
-                    actualVoltage, 'f',
-                    settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-                globcon::DATATYPE::VOLTAGE, i);
+        ui->widgetDisplay->dataUpdate(
+            std::move(QVariant(QString::number(
+                voltage, 'f',
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
+            globcon::DATATYPE::SETVOLTAGE, i);
+        ui->widgetDisplay->dataUpdate(
+            std::move(QVariant(QString::number(
+                actualVoltage, 'f',
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
+            globcon::DATATYPE::VOLTAGE, i);
 
-            ui->widgetDisplay->dataUpdate(
-                std::move(QVariant(QString::number(
-                    current, 'f',
-                    settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-                globcon::DATATYPE::SETCURRENT, i);
-            ui->widgetDisplay->dataUpdate(
-                std::move(QVariant(QString::number(
-                    actualCurrent, 'f',
-                    settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-                globcon::DATATYPE::CURRENT, i);
+        ui->widgetDisplay->dataUpdate(
+            std::move(QVariant(QString::number(
+                current, 'f',
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
+            globcon::DATATYPE::SETCURRENT, i);
+        ui->widgetDisplay->dataUpdate(
+            std::move(QVariant(QString::number(
+                actualCurrent, 'f',
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
+            globcon::DATATYPE::CURRENT, i);
 
-            ui->widgetDisplay->dataUpdate(
-                std::move(QVariant(QString::number(wattage, 'f', 3))),
-                globcon::DATATYPE::WATTAGE, i);
+        ui->widgetDisplay->dataUpdate(
+            std::move(QVariant(QString::number(wattage, 'f', 3))),
+            globcon::DATATYPE::WATTAGE, i);
 
-            this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
-                ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                                globcon::CONTROL::OUTPUT, i)
-                : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                                globcon::CONTROL::OUTPUT, i);
-            this->applicationModel->getChannelMode(static_cast<globcon::CHANNEL>(
-                i)) == globcon::MODE::CONSTANT_CURRENT
-                ? ui->widgetDisplay->dataUpdate(globcon::CONSTANT_CURRENT, i)
-                : ui->widgetDisplay->dataUpdate(globcon::CONSTANT_VOLTAGE, i);
-        }
+        this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
+            ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
+                                            globcon::CONTROL::OUTPUT, i)
+            : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
+                                            globcon::CONTROL::OUTPUT, i);
+        this->applicationModel->getChannelMode(
+            static_cast<globcon::CHANNEL>(i)) == globcon::MODE::CONSTANT_CURRENT
+            ? ui->widgetDisplay->dataUpdate(globcon::CONSTANT_CURRENT, i)
+            : ui->widgetDisplay->dataUpdate(globcon::CONSTANT_VOLTAGE, i);
     }
 }
 
@@ -201,6 +199,7 @@ void MainWindow::setupValuesDialog()
 
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
@@ -210,7 +209,6 @@ void MainWindow::setupValuesDialog()
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
-
     }
 }
 
@@ -218,6 +216,7 @@ void MainWindow::setupControlConnections()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         QObject::connect(ui->widgetDisplay, &DisplayArea::doubleValueChanged,
                          this, &MainWindow::displayWidgetDoubleResult);
@@ -251,7 +250,8 @@ void MainWindow::showSettings()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
-    int noChan = settings.value(setcon::DEVICE_CHANNELS, 0).toInt();
+    QString active = settings.value(setcon::DEVICE_ACTIVE).toString();
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     // release the serial port
     // this->controller->disconnectDevice();
     SettingsDialog sd;
@@ -268,7 +268,8 @@ void MainWindow::showSettings()
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
         this->setupControlConnections();
-        if (noChan != settings.value(setcon::DEVICE_CHANNELS).toInt()) {
+        settings.endGroup();
+        if (active != settings.value(setcon::DEVICE_ACTIVE).toString()) {
             ui->widgetDisplay->setupChannels();
             ui->widgetGraph->setupGraph();
         }
@@ -335,7 +336,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (settings.value(setcon::GENERAL_EXIT).toBool()) {
         QMessageBox box;
         // TODO: Can't set parent. Messagebox transparent after this :/??
-        //box.setParent(this);
+        // box.setParent(this);
         box.setStandardButtons(QMessageBox::Cancel | QMessageBox::Ok);
         box.setDefaultButton(QMessageBox::Cancel);
         box.setIcon(QMessageBox::Icon::Question);

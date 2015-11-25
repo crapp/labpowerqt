@@ -1,4 +1,3 @@
-// This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
 // Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
 //
@@ -15,10 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dbconnector.h"
+#include "devicewizardintro.h"
 
-DBConnector::DBConnector()
+DeviceWizardIntro::DeviceWizardIntro(QWidget *parent) : QWizardPage(parent)
 {
+    this->setTitle("Add Power Supply");
+    this->setSubTitle(tr("Add a new Power Supply."));
+    this->setPixmap(QWizard::LogoPixmap, QPixmap(":/icons/device32.png"));
 
+    QLabel *infotext = new QLabel();
+    infotext->setWordWrap(true);
+
+    infotext->setText(
+        "You can use this wizard to add a new Power Supply Device. "
+        "Make sure you have the appropriate permissions to access the device.");
+    this->setLayout(new QVBoxLayout());
+    this->layout()->addWidget(infotext);
 }
-

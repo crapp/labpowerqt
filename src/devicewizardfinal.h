@@ -1,4 +1,3 @@
-// This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
 // Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
 //
@@ -15,10 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dbconnector.h"
+#ifndef DEVICEWIZARDFINAL_H
+#define DEVICEWIZARDFINAL_H
 
-DBConnector::DBConnector()
+#include <QWidget>
+#include <QWizardPage>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QLabel>
+#include <QSettings>
+
+#include <QMessageBox>
+
+#include "settingsdefinitions.h"
+
+class DeviceWizardFinal : public QWizardPage
 {
 
-}
+    Q_OBJECT
 
+public:
+    DeviceWizardFinal(QWidget *parent = 0);
+
+    void initializePage() Q_DECL_OVERRIDE;
+    bool isComplete() const Q_DECL_OVERRIDE;
+
+private:
+    QLineEdit *deviceName;
+    QLabel *summary;
+    QSettings settings;
+
+    bool nameOkay;
+
+    void checkDeviceName();
+};
+
+#endif // DEVICEWIZARDFINAL_H

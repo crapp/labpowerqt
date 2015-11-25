@@ -19,6 +19,7 @@
 
 namespace setcon = settings_constants;
 namespace globcon = global_constants;
+namespace utils = global_utilities;
 
 PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
 {
@@ -71,72 +72,15 @@ void PlottingArea::addData(const int &channel, const double &data,
 void PlottingArea::setupGraph()
 {
     if (this->plot->graphCount() > 0) {
-        // TODO: Does this work? really have to check this!
-        delete this->plot;
-        this->plot = new QCustomPlot();
-        this->plot->setSizePolicy(QSizePolicy::Policy::Expanding,
-                                  QSizePolicy::Policy::Expanding);
+        this->resetGraph();
     }
 
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
 
-        this->plot->setInteractions(QCP::Interaction::iRangeDrag |
-                                    QCP::Interaction::iRangeZoom |
-                                    QCP::Interaction::iSelectLegend);
-
-        this->plot->axisRect()->setRangeZoom(Qt::Orientation::Horizontal);
-        this->plot->axisRect()->setRangeDrag(Qt::Orientation::Horizontal);
-
-        this->voltageAxis = this->plot->yAxis;
-        this->currentAxis =
-            this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
-        this->wattageAxis =
-            this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
-        this->voltageAxis->setLabel("Voltage V");
-        this->voltageAxis->setRangeLower(
-            settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() - 1);
-        this->voltageAxis->setRangeUpper(
-            settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble() + 1);
-        this->currentAxis->setLabel("Current A");
-        this->currentAxis->setRangeLower(
-            settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() - 1);
-        this->currentAxis->setRangeUpper(
-            settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() + 1);
-        this->wattageAxis->setLabel("Wattage W");
-        this->wattageAxis->setRangeLower(
-            settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() *
-                settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() -
-            1);
-        this->wattageAxis->setRangeUpper(
-            settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble() *
-                settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() +
-            1);
-        // xaxis label and ticks
-        this->plot->xAxis->setLabel("Time");
-        this->plot->xAxis->setTickLabelType(QCPAxis::LabelType::ltDateTime);
-        this->plot->xAxis->setDateTimeFormat("HH:mm:ss");
-        // this->plot->xAxis->setAutoTickStep(false);
-        // this->plot->xAxis->setTickStep(30);
-        this->plot->xAxis->setTickLabelRotation(45);
-        this->plot->axisRect()->setupFullAxesBox(true);
-        auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
-                         this->startPoint.time_since_epoch())
-                         .count();
-        // initial range
-        this->plot->xAxis->setRange(msecs / 1000.0, 300, Qt::AlignRight);
-
-        QObject::connect(
-            this->plot->xAxis,
-            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
-                &QCPAxis::rangeChanged),
-            this, &PlottingArea::xAxisRangeChanged);
-        QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
-                         &PlottingArea::beforeReplotHandle);
-
-        QObject::connect(this->plot, &QCustomPlot::mouseMove, this,
-                         &PlottingArea::mouseMoveHandler);
+        this->setupGraphPlot(settings);
 
         int graphIndex = 0;
 
@@ -359,8 +303,11 @@ void PlottingArea::setupUI()
     this->controlBar->setMovable(false);
     mainLayout->addWidget(this->controlBar, 0, 0);
     this->actionGeneral = this->controlBar->addAction("General");
+    this->actionGeneral->setIcon(QPixmap(":/icons/gear.png"));
     this->actionData = this->controlBar->addAction("Data");
+    this->actionData->setIcon(QPixmap(":/icons/visibility_32.png"));
     this->actionAppearance = this->controlBar->addAction("Appearance");
+    this->actionAppearance->setIcon(QPixmap(":/icons/graph.png"));
     QObject::connect(this->controlBar, &QToolBar::actionTriggered, this,
                      &PlottingArea::toolbarActionTriggered);
 
@@ -478,10 +425,88 @@ void PlottingArea::setupUI()
     this->dataDisplayFrame->layout()->addWidget(this->dataDisplayChannels);
 }
 
+void PlottingArea::resetGraph()
+{
+    this->dataDisplayLabels.clear();
+
+    utils::clearLayout(this->controlData->layout());
+    utils::clearLayout(this->controlAppearance->layout());
+
+    // TODO: Does this work? really have to check this!
+    this->layout()->removeWidget(this->plot);
+    delete this->plot;
+    this->plot = new QCustomPlot();
+    this->plot->setSizePolicy(QSizePolicy::Policy::Expanding,
+                              QSizePolicy::Policy::Expanding);
+    dynamic_cast<QGridLayout *>(this->layout())->addWidget(this->plot, 2, 0);
+
+    utils::clearLayout(this->dataDisplayChannels->layout());
+}
+
+void PlottingArea::setupGraphPlot(const QSettings &settings)
+{
+    this->plot->setInteractions(QCP::Interaction::iRangeDrag |
+                                QCP::Interaction::iRangeZoom |
+                                QCP::Interaction::iSelectLegend);
+
+    this->plot->axisRect()->setRangeZoom(Qt::Orientation::Horizontal);
+    this->plot->axisRect()->setRangeDrag(Qt::Orientation::Horizontal);
+
+    this->voltageAxis = this->plot->yAxis;
+    this->currentAxis =
+        this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
+    this->wattageAxis =
+        this->plot->axisRect()->addAxis(QCPAxis::AxisType::atLeft);
+    this->voltageAxis->setLabel("Voltage V");
+    this->voltageAxis->setRangeLower(
+        settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() - 1);
+    this->voltageAxis->setRangeUpper(
+        settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble() + 1);
+    this->currentAxis->setLabel("Current A");
+    this->currentAxis->setRangeLower(
+        settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() - 1);
+    this->currentAxis->setRangeUpper(
+        settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() + 1);
+    this->wattageAxis->setLabel("Wattage W");
+    this->wattageAxis->setRangeLower(
+        settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble() *
+            settings.value(setcon::DEVICE_CURRENT_MIN).toDouble() -
+        1);
+    this->wattageAxis->setRangeUpper(
+        settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble() *
+            settings.value(setcon::DEVICE_CURRENT_MAX).toDouble() +
+        1);
+    // xaxis label and ticks
+    this->plot->xAxis->setLabel("Time");
+    this->plot->xAxis->setTickLabelType(QCPAxis::LabelType::ltDateTime);
+    this->plot->xAxis->setDateTimeFormat("HH:mm:ss");
+    // this->plot->xAxis->setAutoTickStep(false);
+    // this->plot->xAxis->setTickStep(30);
+    this->plot->xAxis->setTickLabelRotation(45);
+    this->plot->axisRect()->setupFullAxesBox(true);
+    auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     this->startPoint.time_since_epoch())
+                     .count();
+    // initial range
+    this->plot->xAxis->setRange(msecs / 1000.0, 300, Qt::AlignRight);
+
+    QObject::connect(
+        this->plot->xAxis,
+        static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+            &QCPAxis::rangeChanged),
+        this, &PlottingArea::xAxisRangeChanged);
+    QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
+                     &PlottingArea::beforeReplotHandle);
+
+    QObject::connect(this->plot, &QCustomPlot::mouseMove, this,
+                     &PlottingArea::mouseMoveHandler);
+}
+
 void PlottingArea::yAxisRange(const QCPRange &currentXRange)
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     YAxisHelper yax;
     YAxisBounds yaxb =
         yax.getyAxisBounds(currentXRange, this->plot,
@@ -583,6 +608,7 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
 
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_CHANNELS)) {
         // get the coordinate on the x axis from the event position
         double x = this->plot->xAxis->pixelToCoord(event->pos().x());

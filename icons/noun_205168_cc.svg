@@ -1,1 +1,64 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 24 30" x="0px" y="0px"><path d="M11.5,18C15.5,18 18.96,15.78 20.74,12.5C18.96,9.22 15.5,7 11.5,7C7.5,7 4.04,9.22 2.26,12.5C4.04,15.78 7.5,18 11.5,18M11.5,6C16.06,6 20,8.65 21.86,12.5C20,16.35 16.06,19 11.5,19C6.94,19 3,16.35 1.14,12.5C3,8.65 6.94,6 11.5,6M11.5,8C14,8 16,10 16,12.5C16,15 14,17 11.5,17C9,17 7,15 7,12.5C7,10 9,8 11.5,8M11.5,9C9.57,9 8,10.57 8,12.5C8,14.43 9.57,16 11.5,16C13.43,16 15,14.43 15,12.5C15,10.57 13.43,9 11.5,9Z"/><text x="0" y="39" fill="#000000" font-size="5px" font-weight="bold" font-family="'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif">Created by Austin Andrews</text><text x="0" y="44" fill="#000000" font-size="5px" font-weight="bold" font-family="'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif">from the Noun Project</text></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 20.719999 20.719999"
+   x="0px"
+   y="0px"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="noun_205168_cc.svg"
+   width="20.719999"
+   height="20.719999"
+   inkscape:export-filename="/home/saedelaere/Projekte/content/labpowerqt/icons/visibility.png"
+   inkscape:export-xdpi="69.49807"
+   inkscape:export-ydpi="69.49807">
+  <metadata
+     id="metadata14">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     id="namedview10"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="7.8666667"
+     inkscape:cx="10.86"
+     inkscape:cy="4"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <path
+     d="m 10.36,16.019999 c 4,0 7.46,-2.22 9.24,-5.5 -1.78,-3.2799997 -5.24,-5.4999997 -9.24,-5.4999997 -4,0 -7.46,2.22 -9.24,5.4999997 1.78,3.28 5.24,5.5 9.24,5.5 m 0,-11.9999997 c 4.56,0 8.5,2.65 10.36,6.4999997 -1.86,3.85 -5.8,6.5 -10.36,6.5 -4.56,0 -8.5,-2.65 -10.36,-6.5 C 1.86,6.6699993 5.8,4.0199993 10.36,4.0199993 m 0,2 c 2.5,0 4.5,2 4.5,4.4999997 0,2.5 -2,4.5 -4.5,4.5 -2.5,0 -4.5,-2 -4.5,-4.5 0,-2.4999997 2,-4.4999997 4.5,-4.4999997 m 0,1 c -1.93,0 -3.5,1.57 -3.5,3.4999997 0,1.93 1.57,3.5 3.5,3.5 1.93,0 3.5,-1.57 3.5,-3.5 0,-1.9299997 -1.57,-3.4999997 -3.5,-3.4999997 z"
+     id="path4"
+     inkscape:connector-curvature="0" />
+</svg>

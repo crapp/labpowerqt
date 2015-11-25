@@ -23,6 +23,7 @@ void LabPowerController::connectDevice()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         QString portName = settings.value(setcon::DEVICE_PORT).toString();
         if (!this->powerSupplyConnector ||
@@ -65,7 +66,6 @@ void LabPowerController::connectDevice()
     } else {
         // TODO: Notify model that no valid power supply is connected.
     }
-    settings.endGroup();
 }
 
 void LabPowerController::disconnectDevice()

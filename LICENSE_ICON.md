@@ -20,4 +20,6 @@ simple icon [license agreement](http://simpleicon.com/license-agreement/)
 * [noun_40976_cc.svg](https://thenounproject.com/icon/40976/) (Graph) - License [CC Attribution 3.0 United States (CC BY 3.0 US)](http://creativecommons.org/licenses/by/3.0/us/)
 * [noun_62224_cc.svg](https://thenounproject.com/icon/62224/) (Gear) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
 * [noun_205168_cc.svg](https://thenounproject.com/icon/205168/) (Visible) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
+* [noun__cc.svg](https://thenounproject.com/icon/39536/) (Flash) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
+* [noun__cc.svg](https://thenounproject.com/icon/112077/) (Device) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
 

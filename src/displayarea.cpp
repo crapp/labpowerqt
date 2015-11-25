@@ -113,6 +113,7 @@ void DisplayArea::setupChannels()
     this->labelConnect->setClickable(false);
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         // if there is a device we must enable the connect button.
         this->labelConnect->setClickable(true);

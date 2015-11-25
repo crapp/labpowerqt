@@ -140,280 +140,76 @@ QListView::item {
         <widget class="QWidget" name="pageDevice">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QScrollArea" name="scrollArea">
-            <property name="widgetResizable">
-             <bool>true</bool>
+           <widget class="QGroupBox" name="groupBoxDeviceManagement">
+            <property name="title">
+             <string>Manage Devices</string>
             </property>
-            <widget class="QWidget" name="scrollAreaWidgetContents">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>443</width>
-               <height>494</height>
-              </rect>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_4">
-              <item>
-               <widget class="QGroupBox" name="groupBoxDeviceProtocoll">
-                <property name="title">
-                 <string>Protocoll</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_3">
-                 <item>
-                  <widget class="QComboBox" name="comboBoxDeviceProtocoll">
-                   <item>
-                    <property name="text">
-                     <string>Korad SCPI V2</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBoxDeviceElectrical">
-                <property name="title">
-                 <string>Electrical Specifications</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="2" column="0" colspan="2">
-                  <widget class="QLabel" name="label">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Output Voltage Range:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="2">
-                  <widget class="QLabel" name="label_2">
-                   <property name="text">
-                    <string>Read back Accuracy:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="2">
-                  <widget class="QComboBox" name="comboBoxDeviceVoltageAccu">
-                   <property name="currentIndex">
-                    <number>2</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string notr="true">1V</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">100mV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">10mV</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">1mV</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="7" column="2">
-                  <widget class="QComboBox" name="comboBoxDeviceCurrentAccu">
-                   <property name="currentIndex">
-                    <number>3</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string notr="true">1A</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">100mA</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">10mA</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string notr="true">1mA</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="1" column="0" colspan="3">
-                  <widget class="QSpinBox" name="spinBoxDeviceChannels">
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>2</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0" colspan="3">
-                  <widget class="QLabel" name="label_5">
-                   <property name="text">
-                    <string>Number of channels:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="0" colspan="2">
-                  <widget class="QLabel" name="label_3">
-                   <property name="text">
-                    <string>Output Current Range:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QDoubleSpinBox" name="doubleSpinBoxdeviceVoltageMax">
-                   <property name="toolTip">
-                    <string>Maximum Voltage</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true"> V</string>
-                   </property>
-                   <property name="decimals">
-                    <number>1</number>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.100000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>31.000000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceCurrentMax">
-                   <property name="toolTip">
-                    <string>Maximum Current</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true"> A</string>
-                   </property>
-                   <property name="decimals">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <double>20.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.100000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>5.100000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceVoltageMin">
-                   <property name="toolTip">
-                    <string>Minimum Voltage</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true"> V</string>
-                   </property>
-                   <property name="decimals">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
-                  <widget class="QDoubleSpinBox" name="doubleSpinBoxDeviceCurrentMin">
-                   <property name="toolTip">
-                    <string>Minimum Current</string>
-                   </property>
-                   <property name="suffix">
-                    <string notr="true"> A</string>
-                   </property>
-                   <property name="decimals">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBoxDeviceCommunication">
-                <property name="title">
-                 <string>Communication</string>
-                </property>
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="5" column="0" colspan="2">
-                  <widget class="QPlainTextEdit" name="plainTextEditDeviceTest">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>100</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgb(47, 47, 47);
-/*color: rgb(101, 220, 80);*/
-color: #7BCF06;</string>
-                   </property>
-                   <property name="readOnly">
-                    <bool>true</bool>
-                   </property>
-                   <property name="plainText">
-                    <string notr="true"/>
-                   </property>
-                   <property name="placeholderText">
-                    <string notr="true">Test output</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_4">
-                   <property name="text">
-                    <string>Port:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0" colspan="2">
-                  <widget class="QComboBox" name="comboBoxDeviceComPort"/>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QPushButton" name="pushButtonDeviceTestConnection">
-                   <property name="text">
-                    <string>Test Connection</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <spacer name="horizontalSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+            <layout class="QGridLayout" name="gridLayout_5">
+             <item row="1" column="0" colspan="3">
+              <widget class="Line" name="line">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QComboBox" name="comboBoxDeviceActive"/>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButtonDeviceAdd">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Add a new Device</string>
+               </property>
+               <property name="text">
+                <string>Add</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButtonDeviceRemove">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Remove selected Device</string>
+               </property>
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="3">
+              <widget class="QLabel" name="labelDeviceOverview">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>No Device selected</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>

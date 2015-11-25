@@ -64,6 +64,7 @@ public:
     void dataUpdate(QVariant val, global_constants::DATATYPE dt, int channel);
     void dataUpdate(QVariant val, global_constants::CONTROL ct, int channel);
     void dataUpdate(global_constants::MODE md, int channel);
+
 signals:
 
     void doubleValueChanged(double val, int dt, int channel);

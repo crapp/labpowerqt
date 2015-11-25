@@ -76,6 +76,11 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dbconnector.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizard.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardconnection.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardfinal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardintro.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardoptions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.h
@@ -98,6 +103,11 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/dbconnector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizard.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardconnection.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardfinal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardintro.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardoptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/displayarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/floatingvaluesdialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/koradscpi.cpp

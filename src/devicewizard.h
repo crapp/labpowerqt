@@ -15,10 +15,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "dbconnector.h"
+#ifndef DEVICEWIZARD_H
+#define DEVICEWIZARD_H
 
-DBConnector::DBConnector()
+#include <QWidget>
+#include <QWizard>
+
+#include "devicewizardintro.h"
+#include "devicewizardoptions.h"
+#include "devicewizardconnection.h"
+#include "devicewizardfinal.h"
+#include "settingsdefinitions.h"
+
+class DeviceWizard : public QWizard
 {
 
-}
+    Q_OBJECT
 
+public:
+    DeviceWizard(QWidget *parent = 0);
+
+    void accept() Q_DECL_OVERRIDE;
+};
+
+#endif // DEVICEWIZARD_H

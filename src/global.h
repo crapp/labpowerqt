@@ -18,10 +18,14 @@
 #ifndef GLOBAL
 #define GLOBAL
 
+#include <QWidget>
+#include <QLayout>
+#include <QLayoutItem>
+
 #ifdef __GNUC__
-  #define ATTR_UNUSED __attribute__((unused))
+#define ATTR_UNUSED __attribute__((unused))
 #else
-  #define ATTR_UNUSED
+#define ATTR_UNUSED
 #endif
 
 namespace global_constants
@@ -35,6 +39,21 @@ enum CONTROL { CONNECT, OCP, OVP, OTP, OUTPUT, SOUND, LOCK, DEVICEID };
 
 const char *const ORANGECOLOR = "#FF7E00";
 const char *const GREENCOLOR = "#7BCF06";
+}
+
+namespace global_utilities
+{
+inline void clearLayout(QLayout *layout)
+{
+    while (QLayoutItem *item = layout->takeAt(0)) {
+        if (QWidget *widget = item->widget())
+            delete widget;
+
+        //           if (QLayout* childLayout = item->layout())
+        //               clearLayout(childLayout, deleteWidgets);
+        delete item;
+    }
+};
 }
 
 #endif // GLOBAL
