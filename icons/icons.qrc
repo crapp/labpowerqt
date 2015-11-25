@@ -25,5 +25,7 @@
         <file>graph.png</file>
         <file>visibility.png</file>
         <file>visibility_32.png</file>
+        <file>gear_32.png</file>
+        <file>graph_32.png</file>
     </qresource>
 </RCC>

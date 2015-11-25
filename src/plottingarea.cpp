@@ -303,11 +303,11 @@ void PlottingArea::setupUI()
     this->controlBar->setMovable(false);
     mainLayout->addWidget(this->controlBar, 0, 0);
     this->actionGeneral = this->controlBar->addAction("General");
-    this->actionGeneral->setIcon(QPixmap(":/icons/gear.png"));
-    this->actionData = this->controlBar->addAction("Data");
+    this->actionGeneral->setIcon(QPixmap(":/icons/gear_32.png"));
+    this->actionData = this->controlBar->addAction("Visibility");
     this->actionData->setIcon(QPixmap(":/icons/visibility_32.png"));
     this->actionAppearance = this->controlBar->addAction("Appearance");
-    this->actionAppearance->setIcon(QPixmap(":/icons/graph.png"));
+    this->actionAppearance->setIcon(QPixmap(":/icons/graph_32.png"));
     QObject::connect(this->controlBar, &QToolBar::actionTriggered, this,
                      &PlottingArea::toolbarActionTriggered);
 
