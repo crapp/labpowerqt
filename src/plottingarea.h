@@ -118,7 +118,13 @@ private:
 
     QCPRange lastRange;
 
+    /**
+     * @brief Setup the basic UI
+     */
     void setupUI();
+    /**
+     * @brief Reset all dynamically generated UI elements
+     */
     void resetGraph();
 
     /**
@@ -126,7 +132,12 @@ private:
      */
     void setupGraphPlot(const QSettings &settings);
 
+    /**
+     * @brief Update the y-axis range
+     * @param currentXRange
+     */
     void yAxisRange(const QCPRange &currentXRange);
+    void yAxisVisibility();
 
 private slots:
 

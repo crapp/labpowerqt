@@ -236,12 +236,13 @@ void PlottingArea::setupGraph()
                 // connect checkbox with a lambda
                 QCPGraph *currentGraph = this->plot->graph(graphIndex);
                 QObject::connect(cbDataSwitch, &QCheckBox::toggled,
-                                 [currentGraph](bool checked) {
+                                 [this, currentGraph](bool checked) {
                                      if (checked) {
                                          currentGraph->setVisible(true);
                                      } else {
                                          currentGraph->setVisible(false);
                                      }
+                                     this->yAxisVisibility();
                                  });
                 // connect linestyle
                 QObject::connect(
@@ -521,6 +522,61 @@ void PlottingArea::yAxisRange(const QCPRange &currentXRange)
 
     // replotting here causes some weird effects.
     // this->plot->replot();
+}
+
+void PlottingArea::yAxisVisibility()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+
+    int voltage = 0;
+    int current = 0;
+    int wattage = 0;
+
+    for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
+        for (int j = 0; j < 5; j++) {
+            globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
+            int graphIndex = (i - 1) * 5 + static_cast<int>(dt);
+            if (dt == globcon::DATATYPE::VOLTAGE ||
+                dt == globcon::DATATYPE::SETVOLTAGE) {
+                if (this->plot->graph(graphIndex)->visible())
+                    voltage = voltage | 1;
+                continue;
+            }
+            if (dt == globcon::DATATYPE::CURRENT ||
+                dt == globcon::DATATYPE::SETCURRENT) {
+                if (this->plot->graph(graphIndex)->visible())
+                    current = current | 1;
+                continue;
+            }
+            if (this->plot->graph(graphIndex)->visible())
+                wattage = wattage | 1;
+        }
+    }
+
+    if (voltage == 0) {
+        if (this->voltageAxis->visible())
+            this->voltageAxis->setVisible(false);
+    } else {
+        if (!this->voltageAxis->visible())
+            this->voltageAxis->setVisible(true);
+    }
+    if (current == 0) {
+        if (this->currentAxis->visible())
+            this->currentAxis->setVisible(false);
+    } else {
+        if (!this->currentAxis->visible())
+            this->currentAxis->setVisible(true);
+    }
+    if (wattage == 0) {
+        if (this->wattageAxis->visible())
+            this->wattageAxis->setVisible(false);
+    } else {
+        if (!this->wattageAxis->visible())
+            this->wattageAxis->setVisible(true);
+    }
+    this->plot->replot();
 }
 
 void PlottingArea::beforeReplotHandle()
