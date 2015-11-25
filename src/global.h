@@ -49,8 +49,9 @@ inline void clearLayout(QLayout *layout)
         if (QWidget *widget = item->widget())
             delete widget;
 
-        //           if (QLayout* childLayout = item->layout())
-        //               clearLayout(childLayout, deleteWidgets);
+        // recursive if the layout has child layouts.
+        if (QLayout *childLayout = item->layout())
+            global_utilities::clearLayout(childLayout);
         delete item;
     }
 };

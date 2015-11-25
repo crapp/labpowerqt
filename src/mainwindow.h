@@ -81,7 +81,6 @@ private:
      * Connect MenuBar Actions
      */
     void setupMenuBarActions();
-    void setupAnimations();
 
     void setupModelConnections();
     void setupValuesDialog();

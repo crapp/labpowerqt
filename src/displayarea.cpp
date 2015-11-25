@@ -18,6 +18,7 @@
 #include "displayarea.h"
 
 namespace globcon = global_constants;
+namespace utils = global_utilities;
 namespace setcon = settings_constants;
 
 DisplayArea::DisplayArea(QWidget *parent) : QWidget(parent)
@@ -122,6 +123,7 @@ void DisplayArea::setupChannels()
 
         // remove all channels from the frame
         for (auto f : this->channelFramesVec) {
+            utils::clearLayout(f->layout());
             this->frameChannels->layout()->removeWidget(f);
             delete (f);
         }
@@ -329,7 +331,8 @@ void DisplayArea::setupUI()
 
     this->setLayout(new QGridLayout());
     this->setStyleSheet("background-color: rgb(47, 47, 47); color: " +
-                        QString(globcon::GREENCOLOR) + ";");
+                        QString(globcon::GREENCOLOR) + "; \n"
+                        + " QToolTip {}");
     this->setAutoFillBackground(true);
     this->layout()->setSpacing(0);
     QMargins layMargins = this->layout()->contentsMargins();

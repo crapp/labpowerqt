@@ -47,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
         new LabPowerController(this->applicationModel));
 
     this->setupMenuBarActions();
-    this->setupAnimations();
     this->setupModelConnections();
     this->setupValuesDialog();
     this->setupControlConnections();
@@ -161,31 +160,23 @@ void MainWindow::setupMenuBarActions()
                      SLOT(showAboutQt()));
 }
 
-void MainWindow::setupAnimations()
-{
-    //    this->showVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
-    //        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
-    //    this->showVoltCurrentSpinner->setDuration(500);
-    //    this->showVoltCurrentSpinner->setStartValue(0);
-    //    this->showVoltCurrentSpinner->setEndValue(ui->frame_2->height());
-
-    //    this->hideVoltCurrentSpinner = std::unique_ptr<QPropertyAnimation>(
-    //        new QPropertyAnimation(this->ui->frame_2, "maximumHeight"));
-    //    this->hideVoltCurrentSpinner->setDuration(500);
-    //    this->hideVoltCurrentSpinner->setStartValue(
-    //        this->showVoltCurrentSpinner->endValue());
-    //    this->hideVoltCurrentSpinner->setEndValue(0);
-}
-
 void MainWindow::setupModelConnections()
 {
-    QObject::connect(this->applicationModel.get(),
-                     SIGNAL(deviceConnectionStatus(bool)), this,
-                     SLOT(deviceConnectionUpdated(bool)));
-    QObject::connect(this->applicationModel.get(), SIGNAL(deviceID()), this,
-                     SLOT(deviceIDUpdated()));
-    QObject::connect(this->applicationModel.get(), SIGNAL(statusUpdate()), this,
-                     SLOT(dataUpdated()));
+    QObject::connect(
+        this->applicationModel.get(), &LabPowerModel::deviceConnectionStatus,
+        this, &MainWindow::deviceConnectionUpdated,
+        static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection |
+                                        Qt::ConnectionType::UniqueConnection));
+    QObject::connect(
+        this->applicationModel.get(), &LabPowerModel::deviceID, this,
+        &MainWindow::deviceIDUpdated,
+        static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection |
+                                        Qt::ConnectionType::UniqueConnection));
+    QObject::connect(
+        this->applicationModel.get(), &LabPowerModel::statusUpdate, this,
+        &MainWindow::dataUpdated,
+        static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection |
+                                        Qt::ConnectionType::UniqueConnection));
 }
 
 void MainWindow::setupValuesDialog()
@@ -219,10 +210,16 @@ void MainWindow::setupControlConnections()
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         QObject::connect(ui->widgetDisplay, &DisplayArea::doubleValueChanged,
-                         this, &MainWindow::displayWidgetDoubleResult);
+                         this, &MainWindow::displayWidgetDoubleResult,
+                         static_cast<Qt::ConnectionType>(
+                             Qt::ConnectionType::AutoConnection |
+                             Qt::ConnectionType::UniqueConnection));
         QObject::connect(ui->widgetDisplay,
                          &DisplayArea::deviceControlValueChanged, this,
-                         &MainWindow::deviceControl);
+                         &MainWindow::deviceControl,
+                         static_cast<Qt::ConnectionType>(
+                             Qt::ConnectionType::AutoConnection |
+                             Qt::ConnectionType::UniqueConnection));
         if (this->applicationModel->getDeviceConnected()) {
             this->statusBar()->showMessage("Connected");
         } else {
@@ -267,12 +264,22 @@ void MainWindow::showSettings()
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
-        this->setupControlConnections();
         settings.endGroup();
         if (active != settings.value(setcon::DEVICE_ACTIVE).toString()) {
+            // make sure we disconnect in this case
+            QObject::disconnect(this->applicationModel.get(),
+                                &LabPowerModel::statusUpdate, this, 0);
+            this->controller->disconnectDevice();
             ui->widgetDisplay->setupChannels();
             ui->widgetGraph->setupGraph();
+            QObject::connect(this->applicationModel.get(),
+                             &LabPowerModel::statusUpdate, this,
+                             &MainWindow::dataUpdated,
+                             static_cast<Qt::ConnectionType>(
+                                 Qt::ConnectionType::AutoConnection |
+                                 Qt::ConnectionType::UniqueConnection));
         }
+        this->setupControlConnections();
     }
 }
 

@@ -39,7 +39,7 @@
 
 struct ChannelWidgets {
 public:
-    ChannelWidgets(){};
+    ChannelWidgets(){}
 
     QLabel *voltageActual;
     QLabel *currentActual;
