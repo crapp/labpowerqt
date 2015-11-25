@@ -68,23 +68,23 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port could not be opened
      */
-    KoradSCPI(const QString &serialPortName, const int &noOfChannels,
-              const int &voltageAccuracy, const int &currentAccuracy);
+    KoradSCPI(QString serialPortName, QString deviceName, int noOfChannels,
+              int voltageAccuracy, int currentAccuracy);
     ~KoradSCPI();
 
     // LabPowerSupply Interface
     void getIdentification();
     void getStatus();
-    void changeChannel(const int &channel);
-    void setVoltage(const int &channel, const double &value);
-    void setCurrent(const int &channel, const double &value);
+    void changeChannel(int channel);
+    void setVoltage(int channel, double value);
+    void setCurrent(int channel, double value);
     void setOCP(bool status);
     void setOVP(bool status);
     void setOTP(bool status);
     void setLocked(bool status);
     void setBeep(bool status);
-    void setTracking(const global_constants::TRACKING &trMode);
-    void setOutput(const int &channel, bool status);
+    void setTracking(global_constants::TRACKING trMode);
+    void setOutput(int channel, bool status);
 
 signals:
 

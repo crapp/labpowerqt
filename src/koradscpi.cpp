@@ -21,10 +21,10 @@ namespace powcon = PowerSupplySCPI_constants;
 namespace korcon = KoradSCPI_constants;
 namespace statuscon = PowerSupplyStatus_constants;
 
-KoradSCPI::KoradSCPI(const QString &serialPortName, const int &noOfChannels,
-                     const int &voltageAccuracy, const int &currentAccuracy)
-    : PowerSupplySCPI(serialPortName, noOfChannels, voltageAccuracy,
-                      currentAccuracy)
+KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
+                     int noOfChannels, int voltageAccuracy, int currentAccuracy)
+    : PowerSupplySCPI(std::move(serialPortName), std::move(deviceName),
+                      noOfChannels, voltageAccuracy, currentAccuracy)
 {
     this->canCalculateWattage = true;
     this->port_baudraute = QSerialPort::BaudRate::Baud9600;
@@ -37,8 +37,8 @@ KoradSCPI::KoradSCPI(const QString &serialPortName, const int &noOfChannels,
                             powcon::GETACTUALCURRENT, powcon::GETVOLTAGE,
                             powcon::GETACTUALVOLTAGE};
 
-    QObject::connect(this, SIGNAL(deviceOpen()), this,
-                     SLOT(deviceInitialization()));
+    QObject::connect(this, &KoradSCPI::deviceOpen, this,
+                     &KoradSCPI::deviceInitialization);
 }
 
 KoradSCPI::~KoradSCPI()
@@ -64,16 +64,16 @@ void KoradSCPI::getStatus()
                         QVariant(0), true);
 }
 
-void KoradSCPI::changeChannel(ATTR_UNUSED const int &channel) {}
+void KoradSCPI::changeChannel(ATTR_UNUSED int channel) {}
 
-void KoradSCPI::setVoltage(const int &channel, const double &value)
+void KoradSCPI::setVoltage(int channel, double value)
 {
     this->serQueue.push(
         static_cast<int>(powcon::COMMANDS::SETVOLTAGE), channel,
         QVariant(QString::number(value, 'f', this->voltageAccuracy)), false);
 }
 
-void KoradSCPI::setCurrent(const int &channel, const double &value)
+void KoradSCPI::setCurrent(int channel, double value)
 {
     this->serQueue.push(
         static_cast<int>(powcon::COMMANDS::SETCURRENT), channel,
@@ -114,12 +114,12 @@ void KoradSCPI::setBeep(bool status)
                         false);
 }
 
-void KoradSCPI::setTracking(ATTR_UNUSED const globcon::TRACKING &trMode)
+void KoradSCPI::setTracking(ATTR_UNUSED globcon::TRACKING trMode)
 {
     // TODO: Implement Tracking in Korad SCPI Class.
 }
 
-void KoradSCPI::setOutput(ATTR_UNUSED const int &channel, bool status)
+void KoradSCPI::setOutput(ATTR_UNUSED int channel, bool status)
 {
     QVariant val = 0;
     if (status) {

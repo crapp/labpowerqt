@@ -55,7 +55,7 @@ public slots:
     void receiveStatus(std::shared_ptr<PowerSupplyStatus> status);
 
 private:
-    std::unique_ptr<KoradSCPI> powerSupplyConnector;
+    std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;
 
     std::unique_ptr<QTimer> powerSupplyStatusUpdater;

@@ -69,7 +69,8 @@ void DeviceWizardConnection::testConnection()
     if (static_cast<global_constants::PROTOCOL>(field("protocol").toInt()) ==
         global_constants::PROTOCOL::KORADV2) {
         this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(new KoradSCPI(
-            field("comPort").toString(), field("channel").toInt(),
+            std::move(field("comPort").toString()),
+            std::move(QString("WizardConnectionTest")), field("channel").toInt(),
             field("voltAcc").toInt(), field("currentAcc").toInt()));
     }
 

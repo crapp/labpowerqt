@@ -67,14 +67,10 @@ public slots:
     void updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status);
 
 private:
-
     std::shared_ptr<PowerSupplyStatus> status;
 
     bool deviceConnected;
     QString deviceIdentification;
-
-
-
 };
 
 #endif // LABPOWERMODEL_H

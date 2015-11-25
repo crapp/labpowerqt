@@ -26,12 +26,16 @@ void LabPowerController::connectDevice()
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         QString portName = settings.value(setcon::DEVICE_PORT).toString();
+        QString deviceName = settings.value(setcon::DEVICE_NAME).toString();
         if (!this->powerSupplyConnector ||
-            this->powerSupplyConnector->getserialPortName() != portName) {
+            this->powerSupplyConnector->getserialPortName() != portName ||
+            this->powerSupplyConnector->getDeviceName() != deviceName) {
 
             this->powerSupplyConnector =
                 std::unique_ptr<KoradSCPI>(new KoradSCPI(
-                    portName, settings.value(setcon::DEVICE_CHANNELS).toInt(),
+                    std::move(portName),
+                    std::move(deviceName),
+                    settings.value(setcon::DEVICE_CHANNELS).toInt(),
                     settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
                     settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
 

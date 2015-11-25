@@ -2,11 +2,11 @@
 
 namespace powcon = PowerSupplySCPI_constants;
 
-PowerSupplySCPI::PowerSupplySCPI(const QString &serialPortName,
-                                 const int &noOfChannels,
-                                 const int &voltageAccuracy,
-                                 const int &currentAccuracy, QObject *parent)
-    : serialPortName(serialPortName), noOfChannels(noOfChannels),
+PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QString deviceName,
+                                 int noOfChannels, int voltageAccuracy,
+                                 int currentAccuracy, QObject *parent)
+    : serialPortName(std::move(serialPortName)),
+      deviceName(std::move(deviceName)), noOfChannels(noOfChannels),
       voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
       QObject(parent)
 {
@@ -33,6 +33,8 @@ void PowerSupplySCPI::startPowerSupplyBackgroundThread()
 }
 
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
+
+QString PowerSupplySCPI::getDeviceName() { return this->deviceName; }
 
 void PowerSupplySCPI::threadFunc()
 {
@@ -117,8 +119,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     std::chrono::high_resolution_clock::time_point tEnd =
         std::chrono::high_resolution_clock::now();
-    int duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                       tEnd - tStart).count();
+    int duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
+            .count();
     qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
              << "ms";
 

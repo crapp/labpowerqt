@@ -53,31 +53,36 @@ class PowerSupplySCPI : public QObject
 {
     Q_OBJECT
 public:
-    PowerSupplySCPI(const QString &serialPortName, const int &noOfChannels,
-                    const int &voltageAccuracy, const int &currentAccuracy,
+    PowerSupplySCPI(QString serialPortName, QString deviceName, int noOfChannels,
+                    int voltageAccuracy, int currentAccuracy,
                     QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
 
     /**
-     * @brief getserialPortName
+     * @brief Get the name of the serial port
      * @return
      */
     QString getserialPortName();
+    /**
+     * @brief Every Device has a device name.
+     * @return
+     */
+    QString getDeviceName();
     virtual void getIdentification() = 0;
     virtual void getStatus() = 0;
-    virtual void changeChannel(const int &channel) = 0;
-    virtual void setVoltage(const int &channel, const double &value) = 0;
-    virtual void setCurrent(const int &channel, const double &value) = 0;
+    virtual void changeChannel(int channel) = 0;
+    virtual void setVoltage(int channel, double value) = 0;
+    virtual void setCurrent(int channel, double value) = 0;
     virtual void setOCP(bool status) = 0;
     virtual void setOVP(bool status) = 0;
     // TODO Not sure if this actually supported by any device.
     virtual void setOTP(bool status) = 0;
     virtual void setLocked(bool status) = 0;
     virtual void setBeep(bool status) = 0;
-    virtual void setTracking(const global_constants::TRACKING &trMode) = 0;
-    virtual void setOutput(const int &channel, bool status) = 0;
+    virtual void setTracking(global_constants::TRACKING trMode) = 0;
+    virtual void setOutput(int channel, bool status) = 0;
 
 signals:
 
@@ -110,6 +115,7 @@ protected:
     SerialQueue serQueue;
 
     QString serialPortName;
+    QString deviceName;
     QSerialPort::BaudRate port_baudraute = QSerialPort::BaudRate::Baud9600;
     QSerialPort::FlowControl port_flowControl =
         QSerialPort::FlowControl::NoFlowControl;
