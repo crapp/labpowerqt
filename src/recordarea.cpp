@@ -18,8 +18,6 @@
 
 RecordArea::RecordArea(QWidget *parent) : QWidget(parent) { this->setupUI(); }
 
-void RecordArea::canRecord(bool status) {}
-
 void RecordArea::setupUI()
 {
     this->setLayout(new QVBoxLayout());

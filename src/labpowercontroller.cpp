@@ -10,6 +10,7 @@ LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
 {
     this->powerSupplyConnector = nullptr;
     this->powerSupplyStatusUpdater = nullptr;
+    this->dbConnector = std::unique_ptr<DBConnector>(new DBConnector());
     // this->connectDevice();
 }
 
@@ -33,37 +34,27 @@ void LabPowerController::connectDevice()
 
             this->powerSupplyConnector =
                 std::unique_ptr<KoradSCPI>(new KoradSCPI(
-                    std::move(portName),
-                    std::move(deviceName),
+                    std::move(portName), std::move(deviceName),
                     settings.value(setcon::DEVICE_CHANNELS).toInt(),
                     settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
                     settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
 
             QObject::connect(this->powerSupplyConnector.get(),
-                             SIGNAL(errorOpen(const QString &)),
-                             SLOT(deviceError(const QString &)));
+                             &PowerSupplySCPI::errorOpen, this,
+                             &LabPowerController::deviceError);
             QObject::connect(this->powerSupplyConnector.get(),
-                             SIGNAL(errorReadWrite(const QString &)), this,
-                             SLOT(deviceReadWriteError(const QString &)));
+                             &PowerSupplySCPI::errorReadWrite, this,
+                             &LabPowerController::deviceReadWriteError);
             QObject::connect(this->powerSupplyConnector.get(),
-                             SIGNAL(deviceOpen()), this,
-                             SLOT(deviceConnected()));
+                             &PowerSupplySCPI::deviceOpen, this,
+                             &LabPowerController::deviceConnected);
 
-            QObject::connect(
-                this->powerSupplyConnector.get(),
-                SIGNAL(requestFinished(std::shared_ptr<SerialCommand>)), this,
-                SLOT(receiveData(std::shared_ptr<SerialCommand>)));
-            QObject::connect(
-                this->powerSupplyConnector.get(),
-                SIGNAL(statusReady(std::shared_ptr<PowerSupplyStatus>)), this,
-                SLOT(receiveStatus(std::shared_ptr<PowerSupplyStatus>)));
-
-            QObject::connect(
-                this->powerSupplyConnector.get(),
-                SIGNAL(statusReady(std::shared_ptr<PowerSupplyStatus>)),
-                this->applicationModel.get(),
-                SLOT(updatePowerSupplyStatus(
-                    std::shared_ptr<PowerSupplyStatus>)));
+            QObject::connect(this->powerSupplyConnector.get(),
+                             &PowerSupplySCPI::requestFinished, this,
+                             &LabPowerController::receiveData);
+            QObject::connect(this->powerSupplyConnector.get(),
+                             &PowerSupplySCPI::statusReady, this,
+                             &LabPowerController::receiveStatus);
 
             this->powerSupplyConnector->startPowerSupplyBackgroundThread();
         }
@@ -82,6 +73,9 @@ void LabPowerController::disconnectDevice()
         }
         this->powerSupplyConnector.reset(nullptr);
         this->applicationModel->setDeviceConnected(false);
+    }
+    if (this->dbConnector) {
+        this->dbConnector->stopRecording();
     }
 }
 
@@ -111,6 +105,10 @@ void LabPowerController::deviceConnected()
     // TODO: Make the interval configurable. Determine a sane minimum.
     this->powerSupplyStatusUpdater->setInterval(1000);
     this->powerSupplyStatusUpdater->start();
+
+    // FIXME: Start a recording for testing purposes only
+    this->dbConnector->startRecording(
+        "rec_" + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate));
 }
 
 void LabPowerController::deviceReadWriteError(const QString &errorString)
@@ -119,34 +117,34 @@ void LabPowerController::deviceReadWriteError(const QString &errorString)
              << "Could not open Read/write to device: " << errorString;
 }
 
-void LabPowerController::setVoltage(const int &channel, const double &value)
+void LabPowerController::setVoltage(int channel, double value)
 {
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setVoltage(channel, value);
 }
 
-void LabPowerController::setCurrent(const int &channel, const double &value)
+void LabPowerController::setCurrent(int channel, double value)
 {
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setCurrent(channel, value);
 }
 
-void LabPowerController::setOutput(const int &channel, const bool &status)
+void LabPowerController::setOutput(int channel, bool status)
 {
     this->powerSupplyConnector->setOutput(channel, status);
 }
 
-void LabPowerController::setAudio(const bool &status)
+void LabPowerController::setAudio(bool status)
 {
     this->powerSupplyConnector->setBeep(status);
 }
 
-void LabPowerController::setLock(const bool &status)
+void LabPowerController::setLock(bool status)
 {
     this->powerSupplyConnector->setLocked(status);
 }
 
-void LabPowerController::setTrackingMode(const int &mode)
+void LabPowerController::setTrackingMode(int mode)
 {
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setTracking(
@@ -172,6 +170,7 @@ void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
     case powcon::COMMANDS::GETIDN:
         this->applicationModel->setDeviceIdentification(
             com->getValue().toString());
+        break;
     default:
         break;
     }
@@ -179,7 +178,16 @@ void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
 
 void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status)
 {
-    qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
+    this->applicationModel->updatePowerSupplyStatus(status);
+
+    QSettings settings;
+    settings.beginGroup(setcon::RECORD_GROUP);
+    if (this->applicationModel->getBufferSize() >=
+        settings.value(setcon::RECORD_BUFFER, 60).toInt()) {
+        this->dbConnector->insertMeasurement(
+            this->applicationModel->getBuffer());
+    }
+    /*qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
     qDebug() << Q_FUNC_INFO << "Beeper: " << status->getBeeper();
     qDebug() << Q_FUNC_INFO << "Locked: " << status->getLocked();
     qDebug() << Q_FUNC_INFO
@@ -192,5 +200,5 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
     qDebug() << Q_FUNC_INFO
              << "Adjusted Current1: " << status->getAdjustedCurrent(1);
     qDebug() << Q_FUNC_INFO
-             << "Adjusted Voltage1: " << status->getAdjustedVoltage(1);
+             << "Adjusted Voltage1: " << status->getAdjustedVoltage(1);*/
 }

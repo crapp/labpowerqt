@@ -13,15 +13,21 @@
 
 #include "global.h"
 #include "settingsdefinitions.h"
+
 #include "koradscpi.h"
 #include "serialcommand.h"
 #include "powersupplystatus.h"
+
 #include "labpowermodel.h"
+#include "dbconnector.h"
 
 class LabPowerController : public QObject
 {
     Q_OBJECT
 public:
+    // TODO: Why don't we use in the MainWindow class. Would be much better to
+    // have the model only here and notify the MainWindow when the model has
+    // changed. At least it would be more consistent
     LabPowerController(std::shared_ptr<LabPowerModel> appModel);
     ~LabPowerController();
 
@@ -35,12 +41,12 @@ public slots:
     void deviceError(const QString &errorString);
     void deviceConnected();
     void deviceReadWriteError(const QString &errorString);
-    void setVoltage(const int &channel, const double &value);
-    void setCurrent(const int &channel, const double &value);
-    void setOutput(const int &channel, const bool &status);
-    void setAudio(const bool &status);
-    void setLock(const bool &status);
-    void setTrackingMode(const int &mode);
+    void setVoltage(int channel, double value);
+    void setCurrent(int channel, double value);
+    void setOutput(int channel, bool status);
+    void setAudio(bool status);
+    void setLock(bool status);
+    void setTrackingMode(int mode);
     void getIdentification();
     void getStatus();
     /**
@@ -57,6 +63,7 @@ public slots:
 private:
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;
+    std::unique_ptr<DBConnector> dbConnector;
 
     std::unique_ptr<QTimer> powerSupplyStatusUpdater;
 };

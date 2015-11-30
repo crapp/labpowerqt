@@ -36,8 +36,9 @@ void DeviceWizard::accept()
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(field("deviceName").toString());
-    settings.setValue(setcon::DEVICE_PORT, field("comPort").toString());
+    settings.setValue(setcon::DEVICE_NAME, field("deviceName").toString());
     settings.setValue(setcon::DEVICE_PROTOCOL, field("protocol").toInt());
+    settings.setValue(setcon::DEVICE_PORT, field("comPort").toString());
     settings.setValue(setcon::DEVICE_CHANNELS, field("channel").toInt());
     settings.setValue(setcon::DEVICE_VOLTAGE_MIN, field("voltLow").toDouble());
     settings.setValue(setcon::DEVICE_VOLTAGE_MAX, field("voltHigh").toDouble());

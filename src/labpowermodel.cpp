@@ -71,22 +71,22 @@ std::chrono::system_clock::time_point LabPowerModel::getTime()
 
 double LabPowerModel::getVoltage(global_constants::CHANNEL c)
 {
-    return this->status->getAdjustedVoltage(static_cast<int>(c));
+    return this->status->getVoltageSet(static_cast<int>(c));
 }
 
 double LabPowerModel::getActualVoltage(global_constants::CHANNEL c)
 {
-    return this->status->getActualVoltage(static_cast<int>(c));
+    return this->status->getVoltage(static_cast<int>(c));
 }
 
 double LabPowerModel::getCurrent(global_constants::CHANNEL c)
 {
-    return this->status->getAdjustedCurrent(static_cast<int>(c));
+    return this->status->getCurrentSet(static_cast<int>(c));
 }
 
 double LabPowerModel::getActualCurrent(global_constants::CHANNEL c)
 {
-    return this->status->getActualCurrent(static_cast<int>(c));
+    return this->status->getCurrent(static_cast<int>(c));
 }
 
 double LabPowerModel::getWattage(global_constants::CHANNEL c)
@@ -94,9 +94,25 @@ double LabPowerModel::getWattage(global_constants::CHANNEL c)
     return this->status->getWattage(static_cast<int>(c));
 }
 
+std::vector<std::shared_ptr<PowerSupplyStatus> > LabPowerModel::getBuffer()
+{
+    return this->statusBuffer;
+}
+
+int LabPowerModel::getBufferSize()
+{
+    return static_cast<int>(this->statusBuffer.size());
+}
+
 void LabPowerModel::updatePowerSupplyStatus(
     std::shared_ptr<PowerSupplyStatus> status)
 {
     this->status = status;
+    this->statusBuffer.push_back(this->status);
     emit this->statusUpdate();
+}
+
+void LabPowerModel::clearBuffer()
+{
+    this->statusBuffer.clear();
 }

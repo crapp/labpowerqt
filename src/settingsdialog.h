@@ -56,6 +56,10 @@ private:
 
     QListWidgetItem *lastItem;
 
+    void initGeneral();
+    void initDevice();
+    void initPlot();
+    void initRecord();
     void setupSettingsList();
     bool checkSettingsChanged(QListWidgetItem *lastItem);
     void saveSettings(int currentRow);

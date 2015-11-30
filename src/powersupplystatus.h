@@ -42,7 +42,7 @@ public:
         this->ocp = false;
         this->otp = false;
         this->time = std::chrono::system_clock::now();
-    };
+    }
 
     void setBeeper(bool beep) { this->beeper = beep; }
     bool getBeeper() { return this->beeper; }
@@ -54,16 +54,16 @@ public:
     bool getOcp() { return this->ocp; }
     void setOtp(bool otp) { this->otp = otp; }
     bool getOtp() { return this->otp; }
-    void setTime(const std::chrono::system_clock::time_point &t)
+    void setTime(std::chrono::system_clock::time_point t)
     {
-        this->time = t;
+        this->time = std::move(t);
     }
     std::chrono::system_clock::time_point getTime()
     {
         return this->time;
     }
 
-    void setActualCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    void setCurrent(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->actualCurrent.insert(value);
     }
@@ -73,12 +73,12 @@ public:
      * @return actual current as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    const double &getActualCurrent(const int &channel)
+    double getCurrent(int channel)
     {
         return this->actualCurrent.at(channel);
     }
     void
-    setAdjustedCurrent(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    setCurrentSet(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->adjustedCurrent.insert(value);
     }
@@ -88,12 +88,12 @@ public:
      * @return Adjusted Current as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    const double &getAdjustedCurrent(const int &channel)
+    double getCurrentSet(int channel)
     {
         return this->adjustedCurrent.at(channel);
     }
 
-    void setActualVoltage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    void setVoltage(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->actualVoltage.insert(value);
     }
@@ -103,13 +103,13 @@ public:
      * @return Actual Voltage as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    const double &getActualVoltage(const int &channel)
+    double getVoltage(int channel)
     {
         return this->actualVoltage.at(channel);
     }
 
     void
-    setAdjustedVoltage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    setVoltageSet(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->adjustedVoltage.insert(value);
     }
@@ -119,35 +119,35 @@ public:
      * @return Adjusted Voltage as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    const double &getAdjustedVoltage(const int &channel)
+    double getVoltageSet(int channel)
     {
         return this->adjustedVoltage.at(channel);
     }
 
-    void setWattage(const PowerSupplyStatus_constants::CHANNELVALUE &value)
+    void setWattage(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->wattage.insert(value);
     }
-    const double &getWattage(const int &channel)
+    double getWattage(int channel)
     {
         return this->wattage.at(channel);
     }
 
-    void setChannelMode(const PowerSupplyStatus_constants::CHANNELMODE &mode)
+    void setChannelMode(PowerSupplyStatus_constants::CHANNELMODE mode)
     {
         this->channelMode.insert(mode);
     }
-    const global_constants::MODE &getChannelMode(const int &channel)
+    global_constants::MODE getChannelMode(int channel)
     {
         return this->channelMode.at(channel);
     }
 
     void
-    setChannelOutput(const PowerSupplyStatus_constants::CHANNELOUTPUT &output)
+    setChannelOutput(PowerSupplyStatus_constants::CHANNELOUTPUT output)
     {
         this->channelOutput.insert(output);
     }
-    bool getChannelOutput(const int &channel)
+    bool getChannelOutput(int channel)
     {
         return this->channelOutput.at(channel);
     }

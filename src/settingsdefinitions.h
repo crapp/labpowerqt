@@ -46,5 +46,6 @@ const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
 const char *const RECORD_GROUP = "record";
 const char *const RECORD_SQLPATH = "sqlpath";
 const char *const RECORD_TBLPRE = "tblprefix";
+const char *const RECORD_BUFFER = "buffersize";
 }
 #endif // SETTINGSDEFINITIONS_H

@@ -22,8 +22,8 @@
 #include <QString>
 
 #include <memory>
-#include <map>
 #include <chrono>
+#include <vector>
 
 #include "global.h"
 #include "powersupplystatus.h"
@@ -56,6 +56,9 @@ public:
     double getActualCurrent(global_constants::CHANNEL c);
     double getWattage(global_constants::CHANNEL c);
 
+    std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
+    int getBufferSize();
+
 signals:
 
     void statusUpdate();
@@ -65,8 +68,10 @@ signals:
 public slots:
 
     void updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status);
+    void clearBuffer();
 
 private:
+    std::vector<std::shared_ptr<PowerSupplyStatus>> statusBuffer;
     std::shared_ptr<PowerSupplyStatus> status;
 
     bool deviceConnected;

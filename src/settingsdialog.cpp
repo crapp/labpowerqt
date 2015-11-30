@@ -29,6 +29,11 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->listWidgetSettings->setMinimumWidth(
         ui->listWidgetSettings->sizeHintForColumn(0));
 
+    this->initGeneral();
+    this->initDevice();
+    this->initPlot();
+    this->initRecord();
+
     QObject::connect(ui->listWidgetSettings, &QListWidget::currentRowChanged,
                      this, &SettingsDialog::settingCategoryChanged);
 
@@ -111,6 +116,36 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
 SettingsDialog::~SettingsDialog() { delete ui; }
 
+void SettingsDialog::initGeneral()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::GENERAL_GROUP);
+    ui->checkBoxGeneralAskExit->setChecked(
+        settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool());
+    ui->checkBoxGeneralAskBeforeDis->setChecked(
+        settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool());
+}
+
+void SettingsDialog::initDevice() { this->devicesComboBoxUpdate(); }
+
+void SettingsDialog::initPlot() {}
+
+void SettingsDialog::initRecord()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::RECORD_GROUP);
+    QString defaultSqlFile =
+        QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        QDir::separator() + "labpowerqt.sqlite";
+    // ui->checkBoxRecordDefault->setChecked(settings.value(setcon::r))
+    ui->lineEditSqlitePath->setText(
+        settings.value(setcon::RECORD_SQLPATH, defaultSqlFile).toString());
+    ui->lineEditRecordTablePrefix->setText(
+        settings.value(setcon::RECORD_TBLPRE).toString());
+    ui->spinBoxRecordBuffer->setValue(
+        settings.value(setcon::RECORD_BUFFER, 60).toInt());
+}
+
 void SettingsDialog::setupSettingsList()
 {
     ui->listWidgetSettings->addItem(tr("General"));
@@ -167,6 +202,10 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                 settings.value(setcon::RECORD_TBLPRE).toString()) {
                 somethingChanged = true;
             }
+            if (ui->spinBoxRecordBuffer->value() !=
+                settings.value(setcon::RECORD_BUFFER).toInt()) {
+                somethingChanged = true;
+            }
         }
         break;
     }
@@ -186,6 +225,8 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
 
 void SettingsDialog::saveSettings(int currentRow)
 {
+    // FIXME: If user saves before all categories have been clicked some widgets
+    // are in an undefined state:
     QSettings settings;
     if (currentRow == 0) {
         settings.beginGroup(setcon::GENERAL_GROUP);
@@ -227,37 +268,23 @@ void SettingsDialog::settingCategoryChanged(int currentRow)
 
     this->lastItem = ui->listWidgetSettings->currentItem();
 
-    QSettings settings;
     switch (currentRow) {
     case 0: // general section
+        this->initGeneral();
         ui->stackedWidget->setCurrentIndex(0);
-        settings.beginGroup(setcon::GENERAL_GROUP);
-        ui->checkBoxGeneralAskExit->setChecked(
-            settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool());
-        ui->checkBoxGeneralAskBeforeDis->setChecked(
-            settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool());
         break;
     case 1: // device section
-        this->devicesComboBoxUpdate();
+        this->initDevice();
         ui->stackedWidget->setCurrentIndex(1);
         break;
     case 2: // graph section
+        this->initPlot();
         ui->stackedWidget->setCurrentIndex(2);
         break;
     case 3:
+        this->initRecord();
         ui->stackedWidget->setCurrentIndex(3);
-        {
-            settings.beginGroup(setcon::RECORD_GROUP);
-            QString defaultSqlFile =
-                QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
-                QDir::separator() + "labpowerqt.sqlite";
-            ui->lineEditSqlitePath->setText(
-                settings.value(setcon::RECORD_SQLPATH, defaultSqlFile)
-                    .toString());
-            ui->lineEditRecordTablePrefix->setText(
-                settings.value(setcon::RECORD_TBLPRE).toString());
-            break;
-        }
+        break;
     default:
         break;
     }

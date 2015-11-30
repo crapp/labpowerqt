@@ -37,12 +37,9 @@ public:
 
 signals:
 
+    void recordNameChanged(QString name);
+
 public slots:
-    /**
-     * @brief Tell the Record Area there is a working device config
-     * @param status
-     */
-    void canRecord(bool status);
 
 private:
 
