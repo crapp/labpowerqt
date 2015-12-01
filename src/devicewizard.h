@@ -20,6 +20,8 @@
 
 #include <QWidget>
 #include <QWizard>
+#include <QSettings>
+#include <QCryptographicHash>
 
 #include "devicewizardintro.h"
 #include "devicewizardoptions.h"

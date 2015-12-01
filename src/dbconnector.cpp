@@ -93,7 +93,8 @@ void DBConnector::stopRecording()
     // clang-format off
     recUpdate.prepare(QString("UPDATE ") + TBL_RECORDING + " SET "
                       + TBL_RECORDING_STOP + " = ? WHERE "
-                      + TBL_RECORDING_ID + " = ? ");
+                      + TBL_RECORDING_ID + " = ? AND "
+                      + TBL_RECORDING_STOP + " IS NULL");
     // clang-format on
     recUpdate.bindValue(0, QDateTime::currentDateTime());
     recUpdate.bindValue(1, QVariant(this->recID));
@@ -109,6 +110,8 @@ void DBConnector::stopRecording()
 void DBConnector::insertMeasurement(
     std::vector<std::shared_ptr<PowerSupplyStatus>> statusBuffer)
 {
+    // should we run this in a separate thread? If the user sets the buffer size
+    // very high we could get into trouble here with a non responsive ui.
     QSqlDatabase db = QSqlDatabase::database();
     db.transaction();
     for (const auto &status : statusBuffer) {
@@ -122,9 +125,8 @@ void DBConnector::insertMeasurement(
 
 void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus)
 {
-    if (this->recID == -1) {
+    if (this->recID == -1)
         return;
-    }
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
@@ -142,12 +144,13 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
     insertQueryChannel.prepare(QString("INSERT INTO ") + TBL_CHANNEL
                                + " (" + TBL_CHANNEL_MES + ", "
                                + TBL_CHANNEL_CHAN + ", "
+                               + TBL_CHANNEL_OUTPUT + ", "
                                + TBL_CHANNEL_MODE + ", "
                                + TBL_CHANNEL_V + ", "
                                + TBL_CHANNEL_VS + ", "
                                + TBL_CHANNEL_A + ", "
                                + TBL_CHANNEL_AS + ", "
-                               + TBL_CHANNEL_W + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+                               + TBL_CHANNEL_W + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
     // clang-format on
     insertQueryMeasurement.bindValue(0, this->recID);
     insertQueryMeasurement.bindValue(1, QVariant()); // TODO: Not implemented yet
@@ -159,22 +162,26 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
         5, QDateTime::fromMSecsSinceEpoch(
                std::chrono::duration_cast<std::chrono::milliseconds>(duration)
                    .count()));
-    long long maxID1 = this->maxID(TBL_MEASUREMENT, TBL_MEASUREMENT_ID);
     if (!insertQueryMeasurement.exec()) {
         qDebug() << Q_FUNC_INFO << insertQueryMeasurement.lastError().text();
         qDebug() << Q_FUNC_INFO << db.lastError().text();
     }
-    long long maxID2 = this->maxID(TBL_MEASUREMENT, TBL_MEASUREMENT_ID);
-    insertQueryChannel.bindValue(0, maxID2);
+
+    long long maxIDMeasurement =
+        this->maxID(TBL_MEASUREMENT, TBL_MEASUREMENT_ID);
+    if (maxIDMeasurement == -1)
+        return;
+    insertQueryChannel.bindValue(0, maxIDMeasurement);
     for (int channel = 1;
          channel <= settings.value(setcon::DEVICE_CHANNELS).toInt(); channel++) {
         insertQueryChannel.bindValue(1, channel);
-        insertQueryChannel.bindValue(2, powStatus->getChannelMode(channel));
-        insertQueryChannel.bindValue(3, powStatus->getVoltage(channel));
-        insertQueryChannel.bindValue(4, powStatus->getVoltageSet(channel));
-        insertQueryChannel.bindValue(5, powStatus->getCurrent(channel));
-        insertQueryChannel.bindValue(6, powStatus->getCurrentSet(channel));
-        insertQueryChannel.bindValue(7, powStatus->getWattage(channel));
+        insertQueryChannel.bindValue(2, powStatus->getChannelOutput(channel));
+        insertQueryChannel.bindValue(3, powStatus->getChannelMode(channel));
+        insertQueryChannel.bindValue(4, powStatus->getVoltage(channel));
+        insertQueryChannel.bindValue(5, powStatus->getVoltageSet(channel));
+        insertQueryChannel.bindValue(6, powStatus->getCurrent(channel));
+        insertQueryChannel.bindValue(7, powStatus->getCurrentSet(channel));
+        insertQueryChannel.bindValue(8, powStatus->getWattage(channel));
         if (!insertQueryChannel.exec()) {
             qDebug() << Q_FUNC_INFO << insertQueryChannel.lastError().text();
             qDebug() << Q_FUNC_INFO << db.lastError().text();
@@ -188,8 +195,10 @@ void DBConnector::dbOptimize()
     QSqlQuery("PRAGMA foreign_keys = ON", db);
     QSqlQuery("PRAGMA journal_mode = MEMORY", db);
     QSqlQuery("PRAGMA temp_store = MEMORY", db);
+    // TODO: Think about sqlite page and cache size
     QSqlQuery("PRAGMA page_size = 16384", db);
     QSqlQuery("PRAGMA cache_size = 163840", db);
+    // TODO: Which locking mechanism should I choose?
     QSqlQuery("PRAGMA locking_mode = UNLOCKED", db);
     QSqlQuery("PRAGMA synchronous = OFF", db);
 }
@@ -222,11 +231,12 @@ void DBConnector::initDBTables()
                      + TBL_MEASUREMENT_TIME + " DATETIME NOT NULL, "
                      + TBL_MEASUREMENT_TS + " DATEIME NOT NULL DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')), "
                      + "FOREIGN KEY (" + TBL_MEASUREMENT_REC + ") "
-                     + "REFERENCES " + TBL_RECORDING + "(" + TBL_RECORDING_ID + "))");
+                     + "REFERENCES " + TBL_RECORDING + "(" + TBL_RECORDING_ID + ") ON DELETE CASCADE)");
     queryCha.prepare(QString("CREATE TABLE IF NOT EXISTS ") + TBL_CHANNEL + " ("
                      + TBL_CHANNEL_ID + " INTEGER PRIMARY KEY, "
                      + TBL_CHANNEL_MES + " INTEGER NOT NULL, "
                      + TBL_CHANNEL_CHAN + " INTEGER NOT NULL, "
+                     + TBL_CHANNEL_OUTPUT + " INTEGER, "
                      + TBL_CHANNEL_MODE + " INTEGER, "
                      + TBL_CHANNEL_V + " DOUBLE, "
                      + TBL_CHANNEL_VS + " DOUBLE, "
@@ -235,7 +245,7 @@ void DBConnector::initDBTables()
                      + TBL_CHANNEL_W + " DOUBLE, "
                      + TBL_CHANNEL_TS + " DATETIME NOT NULL DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')), "
                      + "FOREIGN KEY (" + TBL_CHANNEL_MES + ") "
-                     + "REFERENCES " + TBL_MEASUREMENT + "(" + TBL_MEASUREMENT_ID + "))");
+                     + "REFERENCES " + TBL_MEASUREMENT + "(" + TBL_MEASUREMENT_ID + ") ON DELETE CASCADE)");
     // TODO: Add some indexes? Especially on the foreign key columns.
     // clang-format on
     queryVec.push_back(std::move(queryRec));

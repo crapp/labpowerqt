@@ -57,6 +57,7 @@ qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR} # config.h
     ${CMAKE_SOURCE_DIR}/external/qcustomplot
+    ${CMAKE_SOURCE_DIR}/external/switchbutton
     ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
 
@@ -133,6 +134,8 @@ add_executable(labpowerqt
     ${${CMAKE_PROJECT_NAME}_FORMS}
     ${CUSTOMPLOT_HEADER}
     ${CUSTOMPLOT_SOURCE}
+    ${SWITCHBUTTON_HEADER}
+    ${SWITCHBUTTON_SOURCE}
     ${ICON_RESOURCE_ADDED}
 )
 # define our c++ standard and make sure cmake fails if the requirement is not met.

@@ -22,12 +22,17 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QDateTime>
 #include <QSettings>
+#include <QMessageBox>
 #include <QDebug>
 
 #include "global.h"
+#include "settingsdefinitions.h"
+#include "switchbutton.h"
 
 class RecordArea : public QWidget
 {
@@ -37,18 +42,32 @@ public:
 
 signals:
 
-    void recordNameChanged(QString name);
+    /**
+     * @brief Signal recording start / stop
+     * @param status
+     */
+    void record(bool status, QString rname);
 
 public slots:
 
+    /**
+     * @brief In case the recording was started / stopped from somewhere else
+     * @param status
+     * @param name
+     */
+    void recordExternal(bool status, QString name);
+
 private:
 
-    QGroupBox *recordBox;
-    QGridLayout *recordBoxLayout;
+    SwitchButton *recordToggle;
     QLineEdit *recordName;
-    QPushButton *setRecordName;
 
     void setupUI();
+
+private slots:
+
+    void recordStateToggled(bool checked);
+
 };
 
 #endif // RECORDAREA_H

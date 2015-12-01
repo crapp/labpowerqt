@@ -21,6 +21,7 @@ LabPowerModel::LabPowerModel()
     this->status = std::make_shared<PowerSupplyStatus>();
     this->deviceConnected = false;
     this->deviceIdentification = "";
+    this->record = false;
 }
 
 bool LabPowerModel::getDeviceConnected() { return this->deviceConnected; }
@@ -104,11 +105,22 @@ int LabPowerModel::getBufferSize()
     return static_cast<int>(this->statusBuffer.size());
 }
 
+bool LabPowerModel::getRecord()
+{
+    return this->record;
+}
+
+void LabPowerModel::setRecord(bool status)
+{
+    this->record = status;
+}
+
 void LabPowerModel::updatePowerSupplyStatus(
     std::shared_ptr<PowerSupplyStatus> status)
 {
     this->status = status;
-    this->statusBuffer.push_back(this->status);
+    if (this->record)
+        this->statusBuffer.push_back(this->status);
     emit this->statusUpdate();
 }
 

@@ -228,6 +228,12 @@ void MainWindow::setupControlConnections()
     } else {
         this->statusBar()->showMessage("No Device configuration found");
     }
+
+    QObject::connect(
+        ui->widgetRecord, &RecordArea::record, this->controller.get(),
+        &LabPowerController::toggleRecording,
+        static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection |
+                                        Qt::ConnectionType::UniqueConnection));
 }
 
 void MainWindow::fileBugReport()
@@ -247,15 +253,18 @@ void MainWindow::showSettings()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
-    QString active = settings.value(setcon::DEVICE_ACTIVE).toString();
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    QByteArray hash = settings.value(setcon::DEVICE_HASH).toByteArray();
     // release the serial port
     // this->controller->disconnectDevice();
     SettingsDialog sd;
     sd.exec();
 
+    // FIXME: In fact this hole thing here is useless. When the user changes the
+    // active device in the settings dialog and a recording or whatever is
+    // running it will have some nasty effects. So we need some sort signal
     // Udate the values for the valuesDialog floating widget
-    if (settings.contains(setcon::DEVICE_PORT)) {
+    if (settings.value(setcon::DEVICE_HASH).toByteArray() != hash) {
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
             settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble(),
@@ -264,21 +273,22 @@ void MainWindow::showSettings()
             settings.value(setcon::DEVICE_CURRENT_MAX).toDouble(),
             settings.value(setcon::DEVICE_CURRENT_ACCURACY).toUInt(),
             settings.value(setcon::DEVICE_CHANNELS).toUInt());
-        settings.endGroup();
-        if (active != settings.value(setcon::DEVICE_ACTIVE).toString()) {
-            // make sure we disconnect in this case
-            QObject::disconnect(this->applicationModel.get(),
-                                &LabPowerModel::statusUpdate, this, 0);
-            this->controller->disconnectDevice();
-            ui->widgetDisplay->setupChannels();
-            ui->widgetGraph->setupGraph();
-            QObject::connect(this->applicationModel.get(),
-                             &LabPowerModel::statusUpdate, this,
-                             &MainWindow::dataUpdated,
-                             static_cast<Qt::ConnectionType>(
-                                 Qt::ConnectionType::AutoConnection |
-                                 Qt::ConnectionType::UniqueConnection));
-        }
+        // disconnect here or the application behaves very strange
+        QObject::disconnect(this->applicationModel.get(),
+                            &LabPowerModel::statusUpdate, this, 0);
+
+        // stop recording
+        ui->widgetRecord->recordExternal(false, "");
+        this->controller->toggleRecording(false, "");
+        this->controller->disconnectDevice();
+        // refresh the ui in case number of channels changed.
+        ui->widgetDisplay->setupChannels();
+        ui->widgetGraph->setupGraph();
+        QObject::connect(
+            this->applicationModel.get(), &LabPowerModel::statusUpdate, this,
+            &MainWindow::dataUpdated, static_cast<Qt::ConnectionType>(
+                                          Qt::ConnectionType::AutoConnection |
+                                          Qt::ConnectionType::UniqueConnection));
         this->setupControlConnections();
     }
 }

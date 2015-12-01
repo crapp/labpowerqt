@@ -36,19 +36,34 @@ void DeviceWizard::accept()
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(field("deviceName").toString());
+    QCryptographicHash hash(QCryptographicHash::Algorithm::Md5);
     settings.setValue(setcon::DEVICE_NAME, field("deviceName").toString());
+    hash.addData(settings.value(setcon::DEVICE_NAME).toByteArray());
     settings.setValue(setcon::DEVICE_PROTOCOL, field("protocol").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PROTOCOL).toByteArray());
     settings.setValue(setcon::DEVICE_PORT, field("comPort").toString());
+    hash.addData(settings.value(setcon::DEVICE_PORT).toByteArray());
     settings.setValue(setcon::DEVICE_CHANNELS, field("channel").toInt());
+    hash.addData(settings.value(setcon::DEVICE_CHANNELS).toByteArray());
     settings.setValue(setcon::DEVICE_VOLTAGE_MIN, field("voltLow").toDouble());
+    hash.addData(settings.value(setcon::DEVICE_VOLTAGE_MIN).toByteArray());
     settings.setValue(setcon::DEVICE_VOLTAGE_MAX, field("voltHigh").toDouble());
+    hash.addData(settings.value(setcon::DEVICE_VOLTAGE_MAX).toByteArray());
     settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, field("voltAcc").toInt());
+    hash.addData(settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toByteArray());
     settings.setValue(setcon::DEVICE_CURRENT_MIN,
                       field("currentLow").toDouble());
+    hash.addData(settings.value(setcon::DEVICE_CURRENT_MIN).toByteArray());
     settings.setValue(setcon::DEVICE_CURRENT_MAX,
                       field("currentHigh").toDouble());
+    hash.addData(settings.value(setcon::DEVICE_CURRENT_MAX).toByteArray());
     settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
                       field("currentAcc").toInt());
+    hash.addData(settings.value(setcon::DEVICE_CURRENT_ACCURACY).toByteArray());
+    // use a md5 hash to easily determine if the device has changed.
+    // TODO: Why don't we use this hash for the active field? Would allow the
+    // user to add devices with the same name (if this makes any sense)
+    settings.setValue(setcon::DEVICE_HASH, hash.result());
     settings.endGroup();
     settings.setValue(setcon::DEVICE_ACTIVE, field("deviceName").toString());
     settings.endGroup();

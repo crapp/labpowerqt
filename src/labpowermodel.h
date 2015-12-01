@@ -59,6 +59,9 @@ public:
     std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
     int getBufferSize();
 
+    bool getRecord();
+    void setRecord(bool status);
+
 signals:
 
     void statusUpdate();
@@ -76,6 +79,8 @@ private:
 
     bool deviceConnected;
     QString deviceIdentification;
+    bool record;
+
 };
 
 #endif // LABPOWERMODEL_H

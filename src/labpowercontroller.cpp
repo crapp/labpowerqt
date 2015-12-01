@@ -74,9 +74,6 @@ void LabPowerController::disconnectDevice()
         this->powerSupplyConnector.reset(nullptr);
         this->applicationModel->setDeviceConnected(false);
     }
-    if (this->dbConnector) {
-        this->dbConnector->stopRecording();
-    }
 }
 
 void LabPowerController::deviceError(const QString &errorString)
@@ -105,10 +102,6 @@ void LabPowerController::deviceConnected()
     // TODO: Make the interval configurable. Determine a sane minimum.
     this->powerSupplyStatusUpdater->setInterval(1000);
     this->powerSupplyStatusUpdater->start();
-
-    // FIXME: Start a recording for testing purposes only
-    this->dbConnector->startRecording(
-        "rec_" + QDateTime::currentDateTime().toString(Qt::DateFormat::ISODate));
 }
 
 void LabPowerController::deviceReadWriteError(const QString &errorString)
@@ -180,12 +173,15 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
 {
     this->applicationModel->updatePowerSupplyStatus(status);
 
-    QSettings settings;
-    settings.beginGroup(setcon::RECORD_GROUP);
-    if (this->applicationModel->getBufferSize() >=
-        settings.value(setcon::RECORD_BUFFER, 60).toInt()) {
-        this->dbConnector->insertMeasurement(
-            this->applicationModel->getBuffer());
+    if (this->applicationModel->getRecord()) {
+        QSettings settings;
+        settings.beginGroup(setcon::RECORD_GROUP);
+        if (this->applicationModel->getBufferSize() >=
+            settings.value(setcon::RECORD_BUFFER, 60).toInt()) {
+            this->dbConnector->insertMeasurement(
+                this->applicationModel->getBuffer());
+            this->applicationModel->clearBuffer();
+        }
     }
     /*qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
     qDebug() << Q_FUNC_INFO << "Beeper: " << status->getBeeper();
@@ -201,4 +197,15 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
              << "Adjusted Current1: " << status->getAdjustedCurrent(1);
     qDebug() << Q_FUNC_INFO
              << "Adjusted Voltage1: " << status->getAdjustedVoltage(1);*/
+}
+
+void LabPowerController::toggleRecording(bool status, QString rname)
+{
+    this->applicationModel->setRecord(status);
+    if (status) {
+        this->dbConnector->startRecording(std::move(rname));
+    } else {
+        this->applicationModel->clearBuffer();
+        this->dbConnector->stopRecording();
+    }
 }

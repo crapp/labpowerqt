@@ -53,6 +53,20 @@
         <string>Control</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="7">
+         <widget class="PlottingArea" name="widgetGraph" native="true">
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="6">
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QFrame" name="frameDisplayRecordContainer">
           <property name="sizePolicy">
@@ -79,7 +93,10 @@
           <property name="frameShadow">
            <enum>QFrame::Plain</enum>
           </property>
-          <layout class="QGridLayout" name="gridLayout_19">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -92,10 +109,7 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item row="0" column="0">
+           <item>
             <widget class="DisplayArea" name="widgetDisplay" native="true">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -105,24 +119,23 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
+           <item>
             <widget class="RecordArea" name="widgetRecord" native="true"/>
            </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
           </layout>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="PlottingArea" name="widgetGraph" native="true">
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
          </widget>
         </item>
        </layout>

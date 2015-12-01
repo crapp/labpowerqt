@@ -60,6 +60,8 @@ public slots:
      */
     void receiveStatus(std::shared_ptr<PowerSupplyStatus> status);
 
+    void toggleRecording(bool status, QString rname);
+
 private:
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;

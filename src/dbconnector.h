@@ -97,6 +97,7 @@ private:
     const char *const TBL_CHANNEL_ID = "id";
     const char *const TBL_CHANNEL_MES = "measurement";
     const char *const TBL_CHANNEL_CHAN = "channelno";
+    const char *const TBL_CHANNEL_OUTPUT = "output";
     const char *const TBL_CHANNEL_MODE = "mode";
     const char *const TBL_CHANNEL_V = "voltage";
     const char *const TBL_CHANNEL_VS = "voltage_set";

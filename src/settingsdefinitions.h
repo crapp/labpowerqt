@@ -31,6 +31,7 @@ const char *const GENERAL_DISC = "disconnect";
 // device
 const char *const DEVICE_GROUP = "device";
 const char *const DEVICE_ACTIVE = "active";
+const char *const DEVICE_HASH = "hash";
 const char *const DEVICE_NAME = "name";
 const char *const DEVICE_PROTOCOL = "protocol";
 const char *const DEVICE_PORT = "port";
