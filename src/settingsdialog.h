@@ -29,6 +29,9 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
+#include <QSqlDatabase>
+#include <QSqlError>
+
 #include <QDebug>
 #include <QSettings>
 
@@ -36,6 +39,7 @@
 #include <memory>
 
 #include "settingsdefinitions.h"
+#include "databasedef.h"
 #include "devicewizard.h"
 
 namespace Ui

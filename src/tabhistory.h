@@ -15,54 +15,49 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef DBCONNECTOR_H
-#define DBCONNECTOR_H
+#ifndef TABHISTORY_H
+#define TABHISTORY_H
 
-#include <QObject>
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QTableView>
+#include <QHeaderView>
+#include <QLabel>
 
 #include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QSqlError>
+#include <QSqlTableModel>
 
-#include <QDateTime>
+#include <QSettings>
 
 #include <QStandardPaths>
 #include <QDir>
-#include <QSettings>
 #include <QDebug>
 
-#include <vector>
 #include <memory>
-#include <chrono>
 
-#include "global.h"
 #include "settingsdefinitions.h"
 #include "databasedef.h"
-#include "powersupplystatus.h"
 
-class DBConnector : public QObject
+class TabHistory : public QWidget
 {
-
     Q_OBJECT
-
 public:
-    DBConnector();
-    ~DBConnector();
+    explicit TabHistory(QWidget *parent = 0);
+
+signals:
 
 public slots:
 
-    void startRecording(QString recName);
-    void stopRecording();
-    void insertMeasurement(
-        std::vector<std::shared_ptr<PowerSupplyStatus>> statusBuffer);
-    void insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus);
+    void updateModel(bool status);
 
 private:
+    QGridLayout *lay;
+    std::unique_ptr<QSqlTableModel> tblModel;
+    QTableView *tblView;
 
-    long long recID;
-
-    long long maxID(const QString &table, const QString &id);
+    void setupUI();
 };
 
-#endif // DBCONNECTOR_H
+#endif // TABHISTORY_H

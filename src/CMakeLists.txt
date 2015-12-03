@@ -76,6 +76,7 @@ configure_file (
 set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/aboutme.h
     ${CMAKE_CURRENT_SOURCE_DIR}/clickablelabel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/databasedef.h
     ${CMAKE_CURRENT_SOURCE_DIR}/dbconnector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/devicewizard.h
     ${CMAKE_CURRENT_SOURCE_DIR}/devicewizardconnection.h
@@ -97,6 +98,8 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tabprogram.h
     ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.h
 )
 
@@ -121,6 +124,8 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/recordarea.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tabprogram.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.cpp
 )
 

@@ -18,6 +18,7 @@
 #include "ui_settingsdialog.h"
 
 namespace setcon = settings_constants;
+namespace dbutil = database_utils;
 
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::SettingsDialog)
@@ -225,8 +226,6 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
 
 void SettingsDialog::saveSettings(int currentRow)
 {
-    // FIXME: If user saves before all categories have been clicked some widgets
-    // are in an undefined state:
     QSettings settings;
     if (currentRow == 0) {
         settings.beginGroup(setcon::GENERAL_GROUP);
@@ -248,6 +247,21 @@ void SettingsDialog::saveSettings(int currentRow)
                           ui->lineEditSqlitePath->text());
         settings.setValue(setcon::RECORD_TBLPRE,
                           ui->lineEditRecordTablePrefix->text());
+        QSqlDatabase db = QSqlDatabase::database();
+        if (db.databaseName() != ui->lineEditSqlitePath->text()) {
+            db.close();
+            db.setDatabaseName(ui->lineEditSqlitePath->text());
+            if (!db.open()) {
+                QMessageBox::warning(this, "Could not open Database",
+                                     "Could not open " +
+                                         ui->lineEditSqlitePath->text() + "\n" +
+                                         db.lastError().text(),
+                                     QMessageBox::StandardButton::Ok);
+            } else {
+                dbutil::setDBOptimizations();
+                dbutil::initTables();
+            }
+        }
     }
 }
 

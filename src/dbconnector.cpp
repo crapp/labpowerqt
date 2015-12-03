@@ -19,28 +19,22 @@
 
 namespace globcon = global_constants;
 namespace setcon = settings_constants;
+namespace dbcon = database_constants;
+namespace dbutil = database_utils;
 
 DBConnector::DBConnector()
 {
     this->recID = -1;
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
-    db.setDatabaseName(settings.value(setcon::RECORD_SQLPATH,
-                                      QStandardPaths::writableLocation(
-                                          QStandardPaths::DataLocation) +
-                                          QDir::separator() +
-                                          QString("labpowerqt.sqlite"))
-                           .toString());
-    qDebug() << Q_FUNC_INFO << db.databaseName();
-    if (!db.open()) {
-        qDebug() << Q_FUNC_INFO
-                 << "Can not open Database. Error: " << db.lastError().text();
-        // TODO: Emit Database Error
-    } else {
-        this->dbOptimize();
-        this->initDBTables();
-    }
+    dbutil::initDatabase("QSQLITE",
+                         settings.value(setcon::RECORD_SQLPATH,
+                                        QStandardPaths::writableLocation(
+                                            QStandardPaths::DataLocation) +
+                                            QDir::separator() +
+                                            QString("labpowerqt.sqlite"))
+                             .toString());
+
 }
 
 DBConnector::~DBConnector()
@@ -58,13 +52,13 @@ void DBConnector::startRecording(QString recName)
     db.transaction();
     QSqlQuery recInsert(db);
     // clang-format off
-    recInsert.prepare(QString("INSERT INTO ") + TBL_RECORDING
-                      + "(" + TBL_RECORDING_NAME + ", "
-                      + TBL_RECORDING_DEVICE + ", "
-                      + TBL_RECORDING_PROTO + ", "
-                      + TBL_RECORDING_PORT + ", "
-                      + TBL_RECORDING_CHAN + ", "
-                      + TBL_RECORDING_START + ") VALUES(?, ?, ?, ?, ?, ?)");
+    recInsert.prepare(QString("INSERT INTO ") + dbcon::TBL_RECORDING
+                      + "(" + dbcon::TBL_RECORDING_NAME + ", "
+                      + dbcon::TBL_RECORDING_DEVICE + ", "
+                      + dbcon::TBL_RECORDING_PROTO + ", "
+                      + dbcon::TBL_RECORDING_PORT + ", "
+                      + dbcon::TBL_RECORDING_CHAN + ", "
+                      + dbcon::TBL_RECORDING_START + ") VALUES(?, ?, ?, ?, ?, ?)");
     // clang-format on
     recInsert.bindValue(0, recName);
     recInsert.bindValue(1, settings.value(setcon::DEVICE_NAME));
@@ -82,7 +76,7 @@ void DBConnector::startRecording(QString recName)
         qDebug() << Q_FUNC_INFO << db.lastError().text();
         return;
     }
-    this->recID = this->maxID(TBL_RECORDING, TBL_RECORDING_ID);
+    this->recID = this->maxID(dbcon::TBL_RECORDING, dbcon::TBL_RECORDING_ID);
 }
 
 void DBConnector::stopRecording()
@@ -91,10 +85,10 @@ void DBConnector::stopRecording()
     db.transaction();
     QSqlQuery recUpdate(db);
     // clang-format off
-    recUpdate.prepare(QString("UPDATE ") + TBL_RECORDING + " SET "
-                      + TBL_RECORDING_STOP + " = ? WHERE "
-                      + TBL_RECORDING_ID + " = ? AND "
-                      + TBL_RECORDING_STOP + " IS NULL");
+    recUpdate.prepare(QString("UPDATE ") + dbcon::TBL_RECORDING + " SET "
+                      + dbcon::TBL_RECORDING_STOP + " = ? WHERE "
+                      + dbcon::TBL_RECORDING_ID + " = ? AND "
+                      + dbcon::TBL_RECORDING_STOP + " IS NULL");
     // clang-format on
     recUpdate.bindValue(0, QDateTime::currentDateTime());
     recUpdate.bindValue(1, QVariant(this->recID));
@@ -134,23 +128,23 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
     QSqlQuery insertQueryMeasurement(db);
     QSqlQuery insertQueryChannel(db);
     // clang-format off
-    insertQueryMeasurement.prepare(QString("INSERT INTO ") + TBL_MEASUREMENT
-                                   + " (" + TBL_MEASUREMENT_REC + ", "
-                                   + TBL_MEASUREMENT_TRMODE + ", "
-                                   + TBL_MEASUREMENT_OCP + ", "
-                                   + TBL_MEASUREMENT_OVP + ", "
-                                   + TBL_MEASUREMENT_OTP + ", "
-                                   + TBL_MEASUREMENT_TIME + ") VALUES(?, ?, ?, ?, ?, ?)");
-    insertQueryChannel.prepare(QString("INSERT INTO ") + TBL_CHANNEL
-                               + " (" + TBL_CHANNEL_MES + ", "
-                               + TBL_CHANNEL_CHAN + ", "
-                               + TBL_CHANNEL_OUTPUT + ", "
-                               + TBL_CHANNEL_MODE + ", "
-                               + TBL_CHANNEL_V + ", "
-                               + TBL_CHANNEL_VS + ", "
-                               + TBL_CHANNEL_A + ", "
-                               + TBL_CHANNEL_AS + ", "
-                               + TBL_CHANNEL_W + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    insertQueryMeasurement.prepare(QString("INSERT INTO ") + dbcon::TBL_MEASUREMENT
+                                   + " (" + dbcon::TBL_MEASUREMENT_REC + ", "
+                                   + dbcon::TBL_MEASUREMENT_TRMODE + ", "
+                                   + dbcon::TBL_MEASUREMENT_OCP + ", "
+                                   + dbcon::TBL_MEASUREMENT_OVP + ", "
+                                   + dbcon::TBL_MEASUREMENT_OTP + ", "
+                                   + dbcon::TBL_MEASUREMENT_TIME + ") VALUES(?, ?, ?, ?, ?, ?)");
+    insertQueryChannel.prepare(QString("INSERT INTO ") + dbcon::TBL_CHANNEL
+                               + " (" + dbcon::TBL_CHANNEL_MES + ", "
+                               + dbcon::TBL_CHANNEL_CHAN + ", "
+                               + dbcon::TBL_CHANNEL_OUTPUT + ", "
+                               + dbcon::TBL_CHANNEL_MODE + ", "
+                               + dbcon::TBL_CHANNEL_V + ", "
+                               + dbcon::TBL_CHANNEL_VS + ", "
+                               + dbcon::TBL_CHANNEL_A + ", "
+                               + dbcon::TBL_CHANNEL_AS + ", "
+                               + dbcon::TBL_CHANNEL_W + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
     // clang-format on
     insertQueryMeasurement.bindValue(0, this->recID);
     insertQueryMeasurement.bindValue(1, QVariant()); // TODO: Not implemented yet
@@ -168,7 +162,7 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
     }
 
     long long maxIDMeasurement =
-        this->maxID(TBL_MEASUREMENT, TBL_MEASUREMENT_ID);
+        this->maxID(dbcon::TBL_MEASUREMENT, dbcon::TBL_MEASUREMENT_ID);
     if (maxIDMeasurement == -1)
         return;
     insertQueryChannel.bindValue(0, maxIDMeasurement);
@@ -187,81 +181,6 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
             qDebug() << Q_FUNC_INFO << db.lastError().text();
         }
     }
-}
-
-void DBConnector::dbOptimize()
-{
-    QSqlDatabase db = QSqlDatabase::database();
-    QSqlQuery("PRAGMA foreign_keys = ON", db);
-    QSqlQuery("PRAGMA journal_mode = MEMORY", db);
-    QSqlQuery("PRAGMA temp_store = MEMORY", db);
-    // TODO: Think about sqlite page and cache size
-    QSqlQuery("PRAGMA page_size = 16384", db);
-    QSqlQuery("PRAGMA cache_size = 163840", db);
-    // TODO: Which locking mechanism should I choose?
-    QSqlQuery("PRAGMA locking_mode = UNLOCKED", db);
-    QSqlQuery("PRAGMA synchronous = OFF", db);
-}
-
-void DBConnector::initDBTables()
-{
-    std::vector<QSqlQuery> queryVec;
-    QSqlDatabase db = QSqlDatabase::database();
-    QSqlQuery queryRec(db);
-    QSqlQuery queryMes(db);
-    QSqlQuery queryCha(db);
-    // clang-format off
-    queryRec.prepare(QString("CREATE TABLE IF NOT EXISTS ") + TBL_RECORDING + " ("
-                     + TBL_RECORDING_ID + " INTEGER PRIMARY KEY, "
-                     + TBL_RECORDING_NAME + " TEXT NOT NULL, "
-                     + TBL_RECORDING_DEVICE + " TEXT NOT NULL, "
-                     + TBL_RECORDING_PROTO + " INTEGER NOT NULL, "
-                     + TBL_RECORDING_PORT + " TEXT NOT NULL, "
-                     + TBL_RECORDING_CHAN + " INTEGER NOT NULL, "
-                     + TBL_RECORDING_START + " DATETIME NOT NULL, "
-                     + TBL_RECORDING_STOP + " DATETIME, "
-                     + TBL_RECORDING_TS + " DATEIME NOT NULL DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')))");
-    queryMes.prepare(QString("CREATE TABLE IF NOT EXISTS ") + TBL_MEASUREMENT + " ("
-                     + TBL_MEASUREMENT_ID + " INTEGER PRIMARY KEY, "
-                     + TBL_MEASUREMENT_REC + " INTEGER NOT NULL, "
-                     + TBL_MEASUREMENT_TRMODE + " INTEGER, "
-                     + TBL_MEASUREMENT_OCP + " INTEGER, "
-                     + TBL_MEASUREMENT_OVP + " INTEGER, "
-                     + TBL_MEASUREMENT_OTP + " INTEGER, "
-                     + TBL_MEASUREMENT_TIME + " DATETIME NOT NULL, "
-                     + TBL_MEASUREMENT_TS + " DATEIME NOT NULL DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')), "
-                     + "FOREIGN KEY (" + TBL_MEASUREMENT_REC + ") "
-                     + "REFERENCES " + TBL_RECORDING + "(" + TBL_RECORDING_ID + ") ON DELETE CASCADE)");
-    queryCha.prepare(QString("CREATE TABLE IF NOT EXISTS ") + TBL_CHANNEL + " ("
-                     + TBL_CHANNEL_ID + " INTEGER PRIMARY KEY, "
-                     + TBL_CHANNEL_MES + " INTEGER NOT NULL, "
-                     + TBL_CHANNEL_CHAN + " INTEGER NOT NULL, "
-                     + TBL_CHANNEL_OUTPUT + " INTEGER, "
-                     + TBL_CHANNEL_MODE + " INTEGER, "
-                     + TBL_CHANNEL_V + " DOUBLE, "
-                     + TBL_CHANNEL_VS + " DOUBLE, "
-                     + TBL_CHANNEL_A + " DOUBLE, "
-                     + TBL_CHANNEL_AS + " DOUBLE, "
-                     + TBL_CHANNEL_W + " DOUBLE, "
-                     + TBL_CHANNEL_TS + " DATETIME NOT NULL DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')), "
-                     + "FOREIGN KEY (" + TBL_CHANNEL_MES + ") "
-                     + "REFERENCES " + TBL_MEASUREMENT + "(" + TBL_MEASUREMENT_ID + ") ON DELETE CASCADE)");
-    // TODO: Add some indexes? Especially on the foreign key columns.
-    // clang-format on
-    queryVec.push_back(std::move(queryRec));
-    queryVec.push_back(std::move(queryMes));
-    queryVec.push_back(std::move(queryCha));
-    // TODO: Are transactions supported for DDL?
-    db.transaction();
-    for (auto &query : queryVec) {
-        if (!query.exec()) {
-            db.rollback();
-            qDebug() << Q_FUNC_INFO << query.lastError().text();
-            qDebug() << Q_FUNC_INFO << db.lastError().text();
-            return;
-        }
-    }
-    db.commit();
 }
 
 long long DBConnector::maxID(const QString &table, const QString &id)
