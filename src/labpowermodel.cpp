@@ -95,7 +95,7 @@ double LabPowerModel::getWattage(global_constants::CHANNEL c)
     return this->status->getWattage(static_cast<int>(c));
 }
 
-std::vector<std::shared_ptr<PowerSupplyStatus> > LabPowerModel::getBuffer()
+std::vector<std::shared_ptr<PowerSupplyStatus>> LabPowerModel::getBuffer()
 {
     return this->statusBuffer;
 }
@@ -105,15 +105,9 @@ int LabPowerModel::getBufferSize()
     return static_cast<int>(this->statusBuffer.size());
 }
 
-bool LabPowerModel::getRecord()
-{
-    return this->record;
-}
+bool LabPowerModel::getRecord() { return this->record; }
 
-void LabPowerModel::setRecord(bool status)
-{
-    this->record = status;
-}
+void LabPowerModel::setRecord(bool status) { this->record = status; }
 
 void LabPowerModel::updatePowerSupplyStatus(
     std::shared_ptr<PowerSupplyStatus> status)
@@ -124,7 +118,4 @@ void LabPowerModel::updatePowerSupplyStatus(
     emit this->statusUpdate();
 }
 
-void LabPowerModel::clearBuffer()
-{
-    this->statusBuffer.clear();
-}
+void LabPowerModel::clearBuffer() { this->statusBuffer.clear(); }

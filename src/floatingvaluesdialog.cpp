@@ -69,12 +69,12 @@ void FloatingValuesDialog::updateDeviceSpecs(
 {
     voltageSpinBox->setMinimum(voltageMin);
     voltageSpinBox->setMaximum(voltageMax);
-    voltageSpinBox->setDecimals(voltagePrecision);
+    voltageSpinBox->setDecimals(static_cast<int>(voltagePrecision));
     voltageSpinBox->setSingleStep(1.0 / std::pow(10.0, voltagePrecision));
 
     currentSpinBox->setMinimum(currentMin);
     currentSpinBox->setMaximum(currentMax);
-    currentSpinBox->setDecimals(currentPrecision);
+    currentSpinBox->setDecimals(static_cast<int>(currentPrecision));
     currentSpinBox->setSingleStep(1.0 / std::pow(10.0, currentPrecision));
 }
 
@@ -82,6 +82,8 @@ void FloatingValuesDialog::createUI()
 {
     this->mainLayout = new QGridLayout(this);
     this->setLayout(mainLayout);
+    mainLayout->setHorizontalSpacing(2);
+    mainLayout->setContentsMargins(2, 2, 2, 2);
     this->stackedContainer = new QStackedWidget();
     mainLayout->addWidget(this->stackedContainer, 0, 0);
 
@@ -109,18 +111,26 @@ void FloatingValuesDialog::createUI()
     currentSpinBox->setAlignment(Qt::AlignRight);
     currentLayout->addWidget(currentSpinBox);
 
-    // TODO emkplement the other stacked Widgets
+    // TODO implement the other stacked Widgets
+    // Edit 10.12.2015: Like what?
 
     this->acceptButton = new QToolButton();
-    acceptButton->setText("");
+    acceptButton->setText("Accept");
     QIcon acceptIcon;
-    acceptIcon.addPixmap(QPixmap(":/icons/dialog_accept.png"));
+    acceptIcon.addPixmap(QPixmap(":/icons/checkmark_16.png"));
     acceptButton->setIcon(acceptIcon);
 
-    this->mainLayout->addWidget(this->acceptButton, 0, 1);
+    QToolButton *cancelButton = new QToolButton();
+    cancelButton->setText("Cancel");
+    cancelButton->setIcon(QPixmap(":/icons/cancel_close_16.png"));
 
-    QObject::connect(this->acceptButton, SIGNAL(clicked()), this,
-                     SLOT(accept()));
+    this->mainLayout->addWidget(this->acceptButton, 0, 1);
+    this->mainLayout->addWidget(cancelButton, 0, 2);
+
+    QObject::connect(this->acceptButton, &QToolButton::clicked, this,
+                     &FloatingValuesDialog::accept);
+    QObject::connect(cancelButton, &QToolButton::clicked, this,
+                     &FloatingValuesDialog::reject);
 }
 
 void FloatingValuesDialog::accept()

@@ -25,20 +25,30 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QLabel>
+#include <QToolBar>
+#include <QAction>
 
 #include <QSqlDatabase>
 #include <QSqlTableModel>
+#include <QSqlRecord>
 
 #include <QSettings>
 
+#include <QMessageBox>
+#include <QFileDialog>
+
 #include <QStandardPaths>
 #include <QDir>
+#include <QFile>
+#include <QTextStream>
 #include <QDebug>
 
 #include <memory>
 
 #include "settingsdefinitions.h"
 #include "databasedef.h"
+
+#include "recordsqlmodel.h"
 
 class TabHistory : public QWidget
 {
@@ -50,14 +60,26 @@ signals:
 
 public slots:
 
-    void updateModel(bool status);
+    void updateModel();
+
+private slots:
+
+    void indexChanged(const QModelIndex &current, const QModelIndex &previous);
+    void toolBarAction(QAction *action);
 
 private:
     QGridLayout *lay;
+    QToolBar *tbar;
+    QAction *actionDelete;
+    QAction *actionExport;
     std::unique_ptr<QSqlTableModel> tblModel;
     QTableView *tblView;
 
     void setupUI();
+    void setupConnections();
+
+    void deleteRecordings();
+    void exportToCsv();
 };
 
 #endif // TABHISTORY_H

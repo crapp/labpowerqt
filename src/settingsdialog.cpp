@@ -262,6 +262,8 @@ void SettingsDialog::saveSettings(int currentRow)
                 dbutil::initTables();
             }
         }
+        settings.setValue(setcon::RECORD_BUFFER,
+                          ui->spinBoxRecordBuffer->value());
     }
 }
 

@@ -27,5 +27,11 @@
         <file>visibility_32.png</file>
         <file>gear_32.png</file>
         <file>graph_32.png</file>
+        <file>csv16.png</file>
+        <file>csv32.png</file>
+        <file>trash16.png</file>
+        <file>trash32.png</file>
+        <file>cancel_close_16.png</file>
+        <file>checkmark_16.png</file>
     </qresource>
 </RCC>

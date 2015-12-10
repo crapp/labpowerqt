@@ -205,6 +205,8 @@ void LabPowerController::toggleRecording(bool status, QString rname)
     if (status) {
         this->dbConnector->startRecording(std::move(rname));
     } else {
+        this->dbConnector->insertMeasurement(
+            this->applicationModel->getBuffer());
         this->applicationModel->clearBuffer();
         this->dbConnector->stopRecording();
     }

@@ -39,6 +39,8 @@ DBConnector::DBConnector()
 
 DBConnector::~DBConnector()
 {
+    // stop the recording.
+    this->stopRecording();
     // close the open database
     QSqlDatabase::database().close();
 }

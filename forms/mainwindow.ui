@@ -40,7 +40,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -48,7 +48,7 @@
       <property name="tabBarAutoHide">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="tabControl">
+      <widget class="TabControl" name="tabControl">
        <attribute name="title">
         <string>Control</string>
        </attribute>
@@ -120,10 +120,23 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>100</height>
+              </size>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="RecordArea" name="widgetRecord" native="true"/>
+            <widget class="RecordArea" name="widgetRecord" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="verticalSpacer">
@@ -247,7 +260,13 @@
   <customwidget>
    <class>TabProgram</class>
    <extends>QWidget</extends>
-   <header location="global">tabprogram.h</header>
+   <header>tabprogram.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TabControl</class>
+   <extends>QWidget</extends>
+   <header location="global">tabcontrol.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

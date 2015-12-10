@@ -92,9 +92,12 @@ private slots:
     void showAboutQt();
     void showSettings();
 
+    void tabWidgetChangedIndex(int index);
+
     void displayWidgetDoubleResult(double val, int dt,
                                    int channel);
     void deviceControl(int control, int channel);
+    void recordToggle(bool status, QString name);
 
     // QWidget interface
 protected:

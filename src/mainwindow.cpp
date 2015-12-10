@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->controller = std::unique_ptr<LabPowerController>(
         new LabPowerController(this->applicationModel));
 
+    QObject::connect(ui->tabWidgetMainWindow, &QTabWidget::currentChanged, this,
+                     &MainWindow::tabWidgetChangedIndex);
+
     this->setupMenuBarActions();
     this->setupModelConnections();
     this->setupValuesDialog();
@@ -56,7 +59,6 @@ MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::dataUpdated()
 {
-    // this->ui->labelCH1SetVoltage->setText(this->applicationModel->get)
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
@@ -230,8 +232,7 @@ void MainWindow::setupControlConnections()
     }
 
     QObject::connect(
-        ui->widgetRecord, &RecordArea::record, this->controller.get(),
-        &LabPowerController::toggleRecording,
+        ui->widgetRecord, &RecordArea::record, this, &MainWindow::recordToggle,
         static_cast<Qt::ConnectionType>(Qt::ConnectionType::AutoConnection |
                                         Qt::ConnectionType::UniqueConnection));
 }
@@ -293,6 +294,8 @@ void MainWindow::showSettings()
     }
 }
 
+void MainWindow::tabWidgetChangedIndex(int index) {}
+
 void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 {
     switch (static_cast<globcon::DATATYPE>(dt)) {
@@ -344,6 +347,11 @@ void MainWindow::deviceControl(int control, int channel)
     default:
         break;
     }
+}
+
+void MainWindow::recordToggle(bool status, QString name) {
+    this->controller->toggleRecording(status, std::move(name));
+    ui->tabHistory->updateModel();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
