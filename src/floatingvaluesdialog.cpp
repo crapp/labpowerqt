@@ -40,9 +40,11 @@ void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
     switch (dt) {
     case globcon::DATATYPE::SETVOLTAGE:
         this->stackedContainer->setCurrentIndex(0);
+        this->voltageSpinBox->setFocus();
         break;
     case globcon::DATATYPE::SETCURRENT:
         this->stackedContainer->setCurrentIndex(1);
+        this->currentSpinBox->setFocus();
         break;
     default:
         break;
@@ -94,7 +96,7 @@ void FloatingValuesDialog::createUI()
     voltageLayout->setHorizontalSpacing(0);
     voltageLayout->setVerticalSpacing(0);
     voltageLayout->setMargin(0);
-    this->voltageSpinBox = new QDoubleSpinBox();
+    this->voltageSpinBox = new ValueDoubleSpinBox();
     voltageSpinBox->setSuffix(" V");
     voltageSpinBox->setAlignment(Qt::AlignRight);
     voltageLayout->addWidget(voltageSpinBox);
@@ -106,7 +108,7 @@ void FloatingValuesDialog::createUI()
     currentLayout->setHorizontalSpacing(0);
     currentLayout->setVerticalSpacing(0);
     currentLayout->setMargin(0);
-    this->currentSpinBox = new QDoubleSpinBox();
+    this->currentSpinBox = new ValueDoubleSpinBox();
     currentSpinBox->setSuffix(" A");
     currentSpinBox->setAlignment(Qt::AlignRight);
     currentLayout->addWidget(currentSpinBox);
@@ -131,6 +133,10 @@ void FloatingValuesDialog::createUI()
                      &FloatingValuesDialog::accept);
     QObject::connect(cancelButton, &QToolButton::clicked, this,
                      &FloatingValuesDialog::reject);
+    QObject::connect(this->voltageSpinBox, &ValueDoubleSpinBox::enterKeyPressed,
+                     this, &FloatingValuesDialog::accept);
+    QObject::connect(this->currentSpinBox, &ValueDoubleSpinBox::enterKeyPressed,
+                     this, &FloatingValuesDialog::accept);
 }
 
 void FloatingValuesDialog::accept()

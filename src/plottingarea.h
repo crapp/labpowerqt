@@ -22,7 +22,11 @@
 #include <QColor>
 #include <QScrollArea>
 #include <QColorDialog>
+#include <QPushButton>
 #include <QDateTime>
+
+#include <QFileDialog>
+
 #include <QDebug>
 
 #include <vector>
@@ -82,6 +86,8 @@ private:
     QCPAxis *voltageAxis;
     QCPAxis *currentAxis;
     QCPAxis *wattageAxis;
+    QPen xAxisGridPen;
+    QPen yAxisGridPen;
 
     QToolBar *controlBar;
     QAction *actionGeneral;
@@ -109,7 +115,7 @@ private:
     std::map<global_constants::CHANNEL,
              std::map<global_constants::DATATYPE, QLabel *>> dataDisplayLabels;
 
-    QCheckBox *cbGeneralAutoscrl;
+    QCheckBox *cbGeneralAutoscrl; /**< need to keep a pointer to this one*/
 
     bool firstStart;
     bool autoScroll;

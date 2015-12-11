@@ -207,9 +207,12 @@ void PlottingArea::setupGraph()
                 if (dt == globcon::DATATYPE::VOLTAGE ||
                     dt == globcon::DATATYPE::CURRENT ||
                     dt == globcon::DATATYPE::WATTAGE) {
+                    // these are visible and have a solid linestyle
                     cbDataSwitch->setCheckState(Qt::CheckState::Checked);
                     graphLineStyle->setCurrentIndex(0);
                     graphPen.setStyle(Qt::PenStyle::SolidLine);
+                    // add the visible graphs to the legend
+                    this->plot->graph(graphIndex)->addToLegend();
                 } else {
                     // these ones are invisible and only dotted.
                     cbDataSwitch->setCheckState(Qt::CheckState::Unchecked);
@@ -234,48 +237,52 @@ void PlottingArea::setupGraph()
                     ->addLayout(appearanceElemLayout);
 
                 // connect checkbox with a lambda
-                QCPGraph *currentGraph = this->plot->graph(graphIndex);
-                QObject::connect(cbDataSwitch, &QCheckBox::toggled,
-                                 [this, currentGraph](bool checked) {
-                                     if (checked) {
-                                         currentGraph->setVisible(true);
-                                     } else {
-                                         currentGraph->setVisible(false);
-                                     }
-                                     this->yAxisVisibility();
-                                 });
+                QObject::connect(
+                    cbDataSwitch, &QCheckBox::toggled,
+                    [this, graphIndex](bool checked) {
+                        if (checked) {
+                            this->plot->graph(graphIndex)->setVisible(true);
+                            // this->plot->graph(graphIndex)->addToLegend();
+                        } else {
+                            this->plot->graph(graphIndex)->setVisible(false);
+                            // this->plot->graph(graphIndex)->removeFromLegend();
+                        }
+                        this->yAxisVisibility();
+                    });
                 // connect linestyle
                 QObject::connect(
                     graphLineStyle, static_cast<void (QComboBox::*)(int)>(
                                         &QComboBox::currentIndexChanged),
-                    [currentGraph, graphLineStyle, graphIndex](int idx) {
-                        QPen graphPen = currentGraph->pen();
+                    [this, graphLineStyle, graphIndex](int idx) {
+                        QPen graphPen = this->plot->graph(graphIndex)->pen();
                         if (idx == 0) {
                             graphPen.setStyle(Qt::PenStyle::SolidLine);
                         } else {
                             graphPen.setStyle(Qt::PenStyle::DotLine);
                         }
-                        currentGraph->setPen(graphPen);
+                        this->plot->graph(graphIndex)->setPen(graphPen);
+                        this->plot->replot();
                     });
                 // connect line thickness
                 QObject::connect(
                     graphLineThickness, static_cast<void (QSpinBox::*)(int)>(
                                             &QSpinBox::valueChanged),
-                    [currentGraph, graphIndex, graphLineThickness](int value) {
-                        QPen graphPen = currentGraph->pen();
+                    [this, graphIndex, graphLineThickness](int value) {
+                        QPen graphPen = this->plot->graph(graphIndex)->pen();
                         graphPen.setWidth(value);
-                        currentGraph->setPen(graphPen);
+                        this->plot->graph(graphIndex)->setPen(graphPen);
+                        this->plot->replot();
                     });
                 // connect color button
                 QObject::connect(
                     graphColor, &QPushButton::clicked,
-                    [this, currentGraph, graphColor, graphIndex]() {
-                        QPen graphPen = currentGraph->pen();
+                    [this, graphColor, graphIndex]() {
+                        QPen graphPen = this->plot->graph(graphIndex)->pen();
                         QColor col = QColorDialog::getColor(
                             graphPen.color(), this, "Choose a color");
                         if (col.isValid()) {
                             graphPen.setColor(col);
-                            currentGraph->setPen(graphPen);
+                            this->plot->graph(graphIndex)->setPen(graphPen);
                             QPixmap pic = graphColor->icon().pixmap(64, 16);
                             pic.fill(col);
                             graphColor->setIcon(pic);
@@ -314,29 +321,62 @@ void PlottingArea::setupUI()
 
     this->controlStack = new QStackedWidget();
     mainLayout->addWidget(this->controlStack, 1, 0);
+
     this->controlGeneral = new QWidget();
-    QGridLayout *controlGeneralLay = new QGridLayout();
+    QVBoxLayout *controlGeneralLay = new QVBoxLayout();
     this->controlGeneralScroll = new QScrollArea();
     this->controlGeneral->setLayout(controlGeneralLay);
+
+    QHBoxLayout *generalCBLayout = new QHBoxLayout();
+    controlGeneralLay->addLayout(generalCBLayout);
     this->cbGeneralAutoscrl = new QCheckBox();
     this->cbGeneralAutoscrl->setText("Auto Scroll");
     this->cbGeneralAutoscrl->setToolTip(
         "When this checkbox is activated the plot will be scrolled so the most "
         "recent data is visible. Panning or zooming disables this option.");
     this->cbGeneralAutoscrl->setChecked(true);
-    controlGeneralLay->addWidget(this->cbGeneralAutoscrl, 0, 0, Qt::AlignTop);
+    generalCBLayout->addWidget(this->cbGeneralAutoscrl);
     QObject::connect(this->cbGeneralAutoscrl, &QCheckBox::stateChanged, this,
                      &PlottingArea::generalCBCheckState);
     QCheckBox *dataDisplayArea = new QCheckBox("Show data under Plot");
     dataDisplayArea->setToolTip("Activate this option to show the data at the "
                                 "mouse cursor position under the plot.");
     dataDisplayArea->setChecked(true);
-    controlGeneralLay->addWidget(dataDisplayArea, 1, 0, Qt::AlignTop);
+    generalCBLayout->addWidget(dataDisplayArea);
+    QCheckBox *generalShowGrid = new QCheckBox("Show Grid");
+    generalShowGrid->setChecked(true);
+    generalShowGrid->setToolTip("Show Grid in Plot");
+    generalCBLayout->addWidget(generalShowGrid);
+    QCheckBox *generalShowLegend = new QCheckBox("Show Legend");
+    generalShowLegend->setChecked(false);
+    generalShowLegend->setToolTip("Show Plot Legend");
+    generalCBLayout->addWidget(generalShowLegend);
+    generalCBLayout->addStretch();
+    QPushButton *generalDiscardData = new QPushButton("Discard Data");
+    generalDiscardData->setToolTip(
+        "Discard all the Data in the Plot. This will not affect Recordings");
+    generalDiscardData->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    controlGeneralLay->addWidget(generalDiscardData);
+    QHBoxLayout *generalExportLayout = new QHBoxLayout();
+    controlGeneralLay->addLayout(generalExportLayout);
+    QPushButton *generalExport = new QPushButton("Export to Image");
+    generalExport->setToolTip(
+        "Export the currently visible ViewPort of the plot as Image");
+    generalExport->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QComboBox *generalImageFormat = new QComboBox();
+    generalImageFormat->addItems({"jpg", "png", "pdf"});
+    generalImageFormat->setToolTip("Choose the image format");
+    generalExportLayout->addWidget(generalExport);
+    generalExportLayout->addWidget(generalImageFormat);
+    generalExportLayout->addStretch();
+    controlGeneralLay->addStretch();
+
     this->animationGroupDataDisplay =
         std::unique_ptr<QParallelAnimationGroup>(new QParallelAnimationGroup());
     QPropertyAnimation *maxHeightAniDisplay = new QPropertyAnimation();
     maxHeightAniDisplay->setPropertyName("maximumHeight");
     this->animationGroupDataDisplay->addAnimation(maxHeightAniDisplay);
+
     QObject::connect(dataDisplayArea, &QCheckBox::stateChanged, [this](
                                                                     int state) {
         if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
@@ -364,6 +404,54 @@ void PlottingArea::setupUI()
             this->animationGroupDataDisplay->start();
         }
     });
+    QObject::connect(generalDiscardData, &QPushButton::clicked, [this]() {
+        if (QMessageBox::question(
+                this, "Discard Data",
+                "Do you really want to discard the data in the "
+                "plot? This will not affect Recordings")) {
+            for (int i = 0; i < this->plot->graphCount(); i++) {
+                this->plot->graph(i)->clearData();
+            }
+        }
+    });
+    QObject::connect(
+        generalExport, &QPushButton::clicked, [this, generalImageFormat]() {
+            // close the upper control area to maximize the plot viewport
+            this->toolbarActionTriggered(this->actionGeneral);
+            QString imageFile = QFileDialog::getSaveFileName(
+                this, "Choose file to export image",
+                QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+                "Export Files (*.jpg *.png *.pdf)");
+            if (imageFile != "") {
+                if (generalImageFormat->currentIndex() == 0)
+                    this->plot->saveJpg(imageFile, 0, 0, 2.0);
+                if (generalImageFormat->currentIndex() == 1)
+                    this->plot->savePng(imageFile, 0, 0, 2.0);
+                if (generalImageFormat->currentIndex() == 2)
+                    this->plot->savePdf(imageFile, false, 0, 0, "LabPowerQt");
+            }
+            this->toolbarActionTriggered(this->actionGeneral);
+        });
+    QObject::connect(
+        generalShowGrid, &QCheckBox::stateChanged, [this](int state) {
+            if (state == static_cast<int>(Qt::CheckState::Checked)) {
+                this->plot->xAxis->grid()->setPen(this->xAxisGridPen);
+                this->plot->yAxis->grid()->setPen(this->yAxisGridPen);
+            } else {
+                this->plot->xAxis->grid()->setPen(QPen(Qt::NoPen));
+                this->plot->yAxis->grid()->setPen(QPen(Qt::NoPen));
+            }
+            this->plot->replot();
+        });
+    QObject::connect(
+        generalShowLegend, &QCheckBox::stateChanged, [this](int state) {
+            if (state == static_cast<int>(Qt::CheckState::Checked)) {
+                this->plot->legend->setVisible(true);
+            } else {
+                this->plot->legend->setVisible(false);
+            }
+            this->plot->replot();
+        });
     this->controlGeneralScroll->setWidget(this->controlGeneral);
     this->controlGeneralScroll->setWidgetResizable(true);
     this->controlStack->addWidget(this->controlGeneralScroll);
@@ -404,6 +492,8 @@ void PlottingArea::setupUI()
     this->plot = new QCustomPlot();
     this->plot->setSizePolicy(QSizePolicy::Policy::Expanding,
                               QSizePolicy::Policy::Expanding);
+    this->xAxisGridPen = this->plot->xAxis->grid()->pen();
+    this->yAxisGridPen = this->plot->yAxis->grid()->pen();
     mainLayout->addWidget(this->plot, 2, 0);
     // take as much space as possible
     mainLayout->setRowStretch(2, 100);
@@ -446,10 +536,19 @@ void PlottingArea::resetGraph()
 
 void PlottingArea::setupGraphPlot(const QSettings &settings)
 {
+    // define interactions
     this->plot->setInteractions(QCP::Interaction::iRangeDrag |
                                 QCP::Interaction::iRangeZoom |
                                 QCP::Interaction::iSelectLegend);
 
+    // don't add graphs to legend automagically
+    this->plot->setAutoAddPlottableToLegend(false);
+    // TODO: How can we be sure the legend has index 0?
+    // Place legend top left
+    this->plot->axisRect()->insetLayout()->setInsetAlignment(
+        0, Qt::AlignLeft | Qt::AlignTop);
+
+    // zooming and dragging only in horizontal direction (no zooming on yAxis)
     this->plot->axisRect()->setRangeZoom(Qt::Orientation::Horizontal);
     this->plot->axisRect()->setRangeDrag(Qt::Orientation::Horizontal);
 

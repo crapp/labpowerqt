@@ -102,6 +102,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/tabcontrol.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabprogram.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/valuedoublespinbox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.h
 )
 
@@ -130,6 +131,7 @@ set(SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/tabcontrol.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tabprogram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/valuedoublespinbox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/yaxishelper.cpp
 )
 

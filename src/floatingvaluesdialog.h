@@ -23,7 +23,6 @@
 #include <QGridLayout>
 #include <QStackedWidget>
 #include <QLabel>
-#include <QDoubleSpinBox>
 #include <QToolButton>
 
 #include <QDebug>
@@ -32,6 +31,7 @@
 #include <cmath>
 
 #include "global.h"
+#include "valuedoublespinbox.h"
 
 /**
  * @brief Struct to save the values user set with the FloatingValuesDialog
@@ -58,7 +58,7 @@ class FloatingValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
     void setValuesDialogData(std::shared_ptr<FloatingValuesDialogData> data);
 
@@ -81,8 +81,8 @@ private:
     QStackedWidget *stackedContainer;
     QToolButton *acceptButton;
 
-    QDoubleSpinBox *voltageSpinBox;
-    QDoubleSpinBox *currentSpinBox;
+    ValueDoubleSpinBox *voltageSpinBox;
+    ValueDoubleSpinBox *currentSpinBox;
 
     global_constants::DATATYPE dt;
     int sourceChannel;
