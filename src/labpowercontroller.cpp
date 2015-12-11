@@ -127,6 +127,21 @@ void LabPowerController::setOutput(int channel, bool status)
     this->powerSupplyConnector->setOutput(channel, status);
 }
 
+void LabPowerController::setOVP(bool status)
+{
+    this->powerSupplyConnector->setOVP(status);
+}
+
+void LabPowerController::setOCP(bool status)
+{
+    this->powerSupplyConnector->setOCP(status);
+}
+
+void LabPowerController::setOTP(bool status)
+{
+    this->powerSupplyConnector->setOTP(status);
+}
+
 void LabPowerController::setAudio(bool status)
 {
     this->powerSupplyConnector->setBeep(status);

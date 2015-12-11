@@ -88,7 +88,14 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
     case globcon::CONTROL::OUTPUT:
         this->chanwVector.at(channel - 1)->outputSet->setText(val.toString());
         break;
-    default:
+    case globcon::CONTROL::OVP:
+        this->labelOVPSet->setText(val.toString());
+        break;
+    case globcon::CONTROL::OCP:
+        this->labelOCPSet->setText(val.toString());
+        break;
+    case globcon::CONTROL::OTP:
+        this->labelOTPSet->setText(val.toString());
         break;
     }
 }
@@ -101,8 +108,6 @@ void DisplayArea::dataUpdate(global_constants::MODE md, int channel)
         break;
     case globcon::MODE::CONSTANT_CURRENT:
         this->chanwVector.at(channel - 1)->modeActual->setText("CC");
-        break;
-    default:
         break;
     }
 }
@@ -331,8 +336,7 @@ void DisplayArea::setupUI()
 
     this->setLayout(new QGridLayout());
     this->setStyleSheet("background-color: rgb(47, 47, 47); color: " +
-                        QString(globcon::GREENCOLOR) + "; \n"
-                        + " QToolTip {}");
+                        QString(globcon::GREENCOLOR) + "; \n" + " QToolTip {}");
     this->setAutoFillBackground(true);
     this->layout()->setSpacing(0);
     QMargins layMargins = this->layout()->contentsMargins();
@@ -410,6 +414,11 @@ void DisplayArea::setupUI()
     this->labelOVPSet->setNoReturnValue(true);
     frameOVP->layout()->addWidget(this->labelOVPSet);
     this->frameFooter->layout()->addWidget(frameOVP);
+    QObject::connect(this->labelOVPSet, &ClickableLabel::doubleClickNoValue,
+                     [this]() {
+                         emit this->deviceControlValueChanged(
+                             static_cast<int>(globcon::CONTROL::OVP), 0);
+                     });
 
     QFrame *frameOCP = new QFrame();
     frameOCP->setLayout(new QHBoxLayout());
@@ -419,6 +428,11 @@ void DisplayArea::setupUI()
     this->labelOCPSet->setNoReturnValue(true);
     frameOCP->layout()->addWidget(this->labelOCPSet);
     this->frameFooter->layout()->addWidget(frameOCP);
+    QObject::connect(this->labelOCPSet, &ClickableLabel::doubleClickNoValue,
+                     [this]() {
+                         emit this->deviceControlValueChanged(
+                             static_cast<int>(globcon::CONTROL::OCP), 0);
+                     });
 
     QFrame *frameOTP = new QFrame();
     frameOTP->setLayout(new QHBoxLayout());
@@ -428,6 +442,11 @@ void DisplayArea::setupUI()
     this->labelOTPSet->setNoReturnValue(true);
     frameOTP->layout()->addWidget(this->labelOTPSet);
     this->frameFooter->layout()->addWidget(frameOTP);
+    QObject::connect(this->labelOTPSet, &ClickableLabel::doubleClickNoValue,
+                     [this]() {
+                         emit this->deviceControlValueChanged(
+                             static_cast<int>(globcon::CONTROL::OTP), 0);
+                     });
 
     QFrame *frameTracking = new QFrame();
     frameTracking->setLayout(new QHBoxLayout());

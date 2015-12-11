@@ -126,6 +126,22 @@ void MainWindow::dataUpdated()
             ? ui->widgetDisplay->dataUpdate(globcon::CONSTANT_CURRENT, i)
             : ui->widgetDisplay->dataUpdate(globcon::CONSTANT_VOLTAGE, i);
     }
+
+    this->applicationModel->getOVP()
+        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
+                                        globcon::CONTROL::OVP, 0)
+        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
+                                        globcon::CONTROL::OVP, 0);
+    this->applicationModel->getOCP()
+        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
+                                        globcon::CONTROL::OCP, 0)
+        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
+                                        globcon::CONTROL::OCP, 0);
+    this->applicationModel->getOTP()
+        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
+                                        globcon::CONTROL::OTP, 0)
+        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
+                                        globcon::CONTROL::OTP, 0);
 }
 
 void MainWindow::deviceConnectionUpdated(bool connected)
@@ -338,18 +354,25 @@ void MainWindow::deviceControl(int control, int channel)
             : this->controller->setOutput(channel - 1, true);
         break;
     // TODO OCP, OVP, OTP controls missing. Also missing in model and controller.
+    case globcon::CONTROL::OVP:
+        this->applicationModel->getOVP() ? this->controller->setOVP(false)
+                                         : this->controller->setOVP(true);
+        break;
     case globcon::CONTROL::OCP:
-        //        this->applicationModel->getOCP() ?
-        //        this->controller->setOCP(true)
-        //                                         :
-        //                                         this->controller->setOCP(false);
+        this->applicationModel->getOCP() ? this->controller->setOCP(false)
+                                         : this->controller->setOCP(true);
+        break;
+    case globcon::CONTROL::OTP:
+        this->applicationModel->getOTP() ? this->controller->setOTP(false)
+                                         : this->controller->setOTP(true);
         break;
     default:
         break;
     }
 }
 
-void MainWindow::recordToggle(bool status, QString name) {
+void MainWindow::recordToggle(bool status, QString name)
+{
     this->controller->toggleRecording(status, std::move(name));
     ui->tabHistory->updateModel();
 }

@@ -32,10 +32,14 @@ KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
     this->port_databits = QSerialPort::DataBits::Data8;
     this->port_parity = QSerialPort::Parity::NoParity;
     this->port_stopbits = QSerialPort::StopBits::OneStop;
+    this->ovp = false;
+    this->ocp = false;
 
-    this->statusCommands = {powcon::GETSTATUS, powcon::GETCURRENT,
-                            powcon::GETACTUALCURRENT, powcon::GETVOLTAGE,
-                            powcon::GETACTUALVOLTAGE};
+    // GETOVP and GETOCP are just pseudo commands here
+    this->statusCommands = {
+        powcon::GETSTATUS,  powcon::GETCURRENT,       powcon::GETACTUALCURRENT,
+        powcon::GETVOLTAGE, powcon::GETACTUALVOLTAGE, powcon::GETOVP,
+        powcon::GETOCP};
 
     QObject::connect(this, &KoradSCPI::deviceOpen, this,
                      &KoradSCPI::deviceInitialization);
@@ -82,6 +86,7 @@ void KoradSCPI::setCurrent(int channel, double value)
 
 void KoradSCPI::setOCP(bool status)
 {
+    this->ocp = status;
     QVariant val = 0;
     if (status) {
         val = 1;
@@ -92,6 +97,7 @@ void KoradSCPI::setOCP(bool status)
 
 void KoradSCPI::setOVP(bool status)
 {
+    this->ovp = status;
     QVariant val = 0;
     if (status) {
         val = 1;
@@ -202,19 +208,27 @@ void KoradSCPI::processStatusCommands(
     if (com->getCommand() == powcon::COMMANDS::GETACTUALCURRENT) {
         // qDebug() << Q_FUNC_INFO << "Current Actual: " << com->getValue();
         status->setCurrent(std::make_pair(com->getPowerSupplyChannel(),
-                                                com->getValue().toDouble()));
+                                          com->getValue().toDouble()));
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETVOLTAGE) {
         // qDebug() << Q_FUNC_INFO << "Voltage: " << com->getValue();
         status->setVoltageSet(std::make_pair(com->getPowerSupplyChannel(),
-                                                  com->getValue().toDouble()));
+                                             com->getValue().toDouble()));
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETACTUALVOLTAGE) {
         // qDebug() << Q_FUNC_INFO << "Voltage Actual: " << com->getValue();
         status->setVoltage(std::make_pair(com->getPowerSupplyChannel(),
-                                                com->getValue().toDouble()));
+                                          com->getValue().toDouble()));
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETOVP) {
+        // We set the status directly from what we got from the UI.
+        status->setOvp(this->ovp);
+    }
+    if (com->getCommand() == powcon::COMMANDS::GETOCP) {
+        // We set the status directly from what we got from the UI.
+        status->setOcp(this->ocp);
     }
 }
 
@@ -223,9 +237,9 @@ void KoradSCPI::calculateWattage(
 {
     for (int i = 1; i <= this->noOfChannels; i++) {
         // P = U*I :)
-        double wattValue =
-            status->getVoltage(i) * status->getCurrent(i);
-        // qDebug() << Q_FUNC_INFO << "Calculated Watt for channel " << i << " = "
+        double wattValue = status->getVoltage(i) * status->getCurrent(i);
+        // qDebug() << Q_FUNC_INFO << "Calculated Watt for channel " << i << " =
+        // "
         //         << wattValue;
         statuscon::CHANNELVALUE watt = std::make_pair(i, wattValue);
         status->setWattage(watt);
@@ -237,6 +251,7 @@ void KoradSCPI::deviceInitialization()
     // The Korad firmware does not allow to query the status of OCP and OVP. So
     // we have to disable them both at the beginning. Otherwise our Application
     // could be in an undefined state.
+    // Edit 11.12.15: Why are these two function calls commented?
     // this->setOCP(false);
     // this->setOVP(false);
 }
@@ -244,8 +259,10 @@ void KoradSCPI::deviceInitialization()
 QByteArray KoradSCPI::prepareCommand(const std::shared_ptr<SerialCommand> &com)
 {
     // First job create the command
-    QString commandString = korcon::SERIALCOMMANDMAP.at(
-        static_cast<powcon::COMMANDS>(com->getCommand()));
+    powcon::COMMANDS command = static_cast<powcon::COMMANDS>(com->getCommand());
+    if (command == powcon::COMMANDS::GETOVP || command == powcon::COMMANDS::GETOCP)
+        return "";
+    QString commandString = korcon::SERIALCOMMANDMAP.at(command);
     /*
      * We have four different command types.
      * 1. Command that does something with a channel
@@ -264,7 +281,7 @@ QByteArray KoradSCPI::prepareCommand(const std::shared_ptr<SerialCommand> &com)
         }
     }
 
-    // qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
+    qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
 
     QByteArray commandByte = commandString.toLocal8Bit();
     return commandByte;

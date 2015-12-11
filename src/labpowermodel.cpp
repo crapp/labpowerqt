@@ -95,6 +95,21 @@ double LabPowerModel::getWattage(global_constants::CHANNEL c)
     return this->status->getWattage(static_cast<int>(c));
 }
 
+bool LabPowerModel::getOVP()
+{
+    return this->status->getOvp();
+}
+
+bool LabPowerModel::getOCP()
+{
+    return this->status->getOcp();
+}
+
+bool LabPowerModel::getOTP()
+{
+    return this->status->getOtp();
+}
+
 std::vector<std::shared_ptr<PowerSupplyStatus>> LabPowerModel::getBuffer()
 {
     return this->statusBuffer;

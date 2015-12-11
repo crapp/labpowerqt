@@ -56,6 +56,10 @@ public:
     double getActualCurrent(global_constants::CHANNEL c);
     double getWattage(global_constants::CHANNEL c);
 
+    bool getOVP();
+    bool getOCP();
+    bool getOTP();
+
     std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
     int getBufferSize();
 

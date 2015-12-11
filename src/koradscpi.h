@@ -45,7 +45,9 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
     {powcon::SAVESETTINGS, "SAV%1"}, // save current settings on memory position
     {powcon::SETOCP, "OCP%1"},       // switch over current protection
     {powcon::SETOVP, "OVP%1"},       // switch over voltage protection
-    {powcon::SETDUMMY, "DUMMY"},     // just some dummy command
+    {powcon::GETOVP, "OVP%1?"}, // dummy command because firmware does not support this
+    {powcon::GETOCP, "OCP%1?"}, // dummy command because firmware does not support this
+    {powcon::SETDUMMY, "DUMMY"}, // just some dummy command
 };
 }
 
@@ -80,7 +82,15 @@ public:
     void setCurrent(int channel, double value);
     void setOCP(bool status);
     void setOVP(bool status);
+    /**
+     * @brief Not provided by Protocol
+     * @param status
+     */
     void setOTP(bool status);
+    /**
+     * @brief Not provided by Protocol
+     * @param status
+     */
     void setLocked(bool status);
     void setBeep(bool status);
     void setTracking(global_constants::TRACKING trMode);
@@ -94,6 +104,14 @@ private:
     void processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
                                const std::shared_ptr<SerialCommand> &com);
     void calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status);
+
+    // No way to query the status of over voltage and over surrent protection so
+    // we save the status here :/ In order to get this to work properly both
+    // functions have to be disabled before a connection by labpowerqt is
+    // established. I know this is unreliable and bad, but you have to blame the
+    // Korad guys for the firmware issues.
+    bool ocp;
+    bool ovp;
 
 private slots:
     void deviceInitialization();

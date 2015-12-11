@@ -44,6 +44,9 @@ public slots:
     void setVoltage(int channel, double value);
     void setCurrent(int channel, double value);
     void setOutput(int channel, bool status);
+    void setOVP(bool status);
+    void setOCP(bool status);
+    void setOTP(bool status);
     void setAudio(bool status);
     void setLock(bool status);
     void setTrackingMode(int mode);

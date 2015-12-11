@@ -65,7 +65,8 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     // called because we use several pure virtual methods here.
     // Solutions: 1. Provide basic implementations in base class :(
     // 2. Wait in derived destructor until serialPortGuard is available. This
-    // sounds good but every derived class needs to do this. Not convenient.
+    // sounds good but every derived class needs to do this. Not convenient and
+    // most of all not error prone.
 
     std::lock_guard<std::mutex> lock(this->serialPortGuard);
     std::shared_ptr<PowerSupplyStatus> status = nullptr;
@@ -86,18 +87,28 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
         status = std::make_shared<PowerSupplyStatus>();
     }
 
+    // TODO: The Timeout values for serial port operations are critical. Maybe
+    // they need to be configurable
     for (auto &c : commands) {
         QByteArray commandByte = this->prepareCommand(c);
-        this->serialPort->write(commandByte);
-        // wait for ouur bytes to be written
-        if (this->serialPort->waitForBytesWritten(1000)) {
+        bool waitForBytes = true;
+        if (this->serialPort->write(commandByte) != -1) {
+            // wait for for bytes to be written
+            if (commandByte != "")
+                waitForBytes = this->serialPort->waitForBytesWritten(1000);
+        }
+
+        if (waitForBytes) {
             // is this command with a feedback?
             if (c->getCommandWithReply()) {
-                // wait until port is ready to read
-                this->serialPort->waitForReadyRead(1000);
-                QByteArray reply = this->serialPort->readAll();
-                while (this->serialPort->waitForReadyRead(10)) {
-                    reply += this->serialPort->readAll();
+                QByteArray reply;
+                if (commandByte != "") {
+                    // wait until port is ready to read
+                    this->serialPort->waitForReadyRead(1000);
+                    reply = this->serialPort->readAll();
+                    while (this->serialPort->waitForReadyRead(10)) {
+                        reply += this->serialPort->readAll();
+                    }
                 }
                 c->setValue(QVariant(reply));
 
@@ -119,7 +130,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     std::chrono::high_resolution_clock::time_point tEnd =
         std::chrono::high_resolution_clock::now();
-    int duration =
+    long duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
             .count();
     qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
