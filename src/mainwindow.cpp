@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
     settings.beginGroup(setcon::MAINWINDOW_GROUP);
     this->restoreGeometry(settings.value(setcon::MAINWINDOW_GEO).toByteArray());
     this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());
+    ui->tabWidgetMainWindow->setCurrentIndex(
+        settings.value(setcon::MAINWINDOW_ACTIVE_TAB, 0).toInt());
     settings.endGroup();
 
     // create model and controller
@@ -310,7 +312,12 @@ void MainWindow::showSettings()
     }
 }
 
-void MainWindow::tabWidgetChangedIndex(int index) {}
+void MainWindow::tabWidgetChangedIndex(int index)
+{
+    QSettings settings;
+    settings.beginGroup(setcon::MAINWINDOW_GROUP);
+    settings.setValue(setcon::MAINWINDOW_ACTIVE_TAB, index);
+}
 
 void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 {

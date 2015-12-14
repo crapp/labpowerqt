@@ -379,6 +379,9 @@ void PlottingArea::setupUI()
 
     QObject::connect(dataDisplayArea, &QCheckBox::stateChanged, [this](
                                                                     int state) {
+        QSettings settings;
+        settings.beginGroup(setcon::PLOT_GROUP);
+        settings.setValue(setcon::PLOT_SHOW_DATA, state);
         if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
             QVariant oldStartValue =
                 dynamic_cast<QPropertyAnimation *>(
@@ -434,6 +437,9 @@ void PlottingArea::setupUI()
         });
     QObject::connect(
         generalShowGrid, &QCheckBox::stateChanged, [this](int state) {
+            QSettings settings;
+            settings.beginGroup(setcon::PLOT_GROUP);
+            settings.setValue(setcon::PLOT_SHOW_GRID, state);
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->plot->xAxis->grid()->setPen(this->xAxisGridPen);
                 this->plot->yAxis->grid()->setPen(this->yAxisGridPen);
@@ -445,6 +451,9 @@ void PlottingArea::setupUI()
         });
     QObject::connect(
         generalShowLegend, &QCheckBox::stateChanged, [this](int state) {
+            QSettings settings;
+            settings.beginGroup(setcon::PLOT_GROUP);
+            settings.setValue(setcon::PLOT_SHOW_LEGEND, state);
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->plot->legend->setVisible(true);
             } else {
@@ -514,6 +523,15 @@ void PlottingArea::setupUI()
     this->dataDisplayChannels = new QFrame();
     this->dataDisplayChannels->setLayout(new QVBoxLayout());
     this->dataDisplayFrame->layout()->addWidget(this->dataDisplayChannels);
+
+    QSettings settings;
+    settings.beginGroup(setcon::PLOT_GROUP);
+    dataDisplayArea->setChecked(
+        settings.value(setcon::PLOT_SHOW_DATA, true).toBool());
+    generalShowGrid->setChecked(
+        settings.value(setcon::PLOT_SHOW_GRID, true).toBool());
+    generalShowLegend->setChecked(
+        settings.value(setcon::PLOT_SHOW_LEGEND, false).toBool());
 }
 
 void PlottingArea::resetGraph()

@@ -22,6 +22,7 @@ namespace settings_constants
 const char *const MAINWINDOW_GROUP = "mainwindow";
 const char *const MAINWINDOW_STATE = "state";
 const char *const MAINWINDOW_GEO = "geometry";
+const char *const MAINWINDOW_ACTIVE_TAB = "tab";
 
 // settings dialog
 // general
@@ -43,6 +44,31 @@ const char *const DEVICE_VOLTAGE_MIN = "voltage_min";
 const char *const DEVICE_VOLTAGE_MAX = "voltage_max";
 const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
 // plot
+const char *const PLOT_GROUP = "plot";
+const char *const PLOT_SHOW_DATA = "show_data";
+const char *const PLOT_SHOW_GRID = "show_grid";
+const char *const PLOT_SHOW_LEGEND = "show_legend";
+const char *const PLOT_GROUP_CHANNEL = "channel_";
+const char *const PLOT_GRAPH_V_VISIBLE = "voltage_visible";
+const char *const PLOT_GRAPH_V_COLOR = "voltage_color";
+const char *const PLOT_GRAPH_V_LS = "voltage_ls"; /**< line style */
+const char *const PLOT_GRAPH_V_LINE = "voltage_line"; /**< line thickness */
+const char *const PLOT_GRAPH_VS_VISIBLE = "voltageset_visible";
+const char *const PLOT_GRAPH_VS_COLOR = "voltageset_color";
+const char *const PLOT_GRAPH_VS_LS = "voltageset_ls"; /**< line style */
+const char *const PLOT_GRAPH_VS_LINE = "voltageset_line"; /**< line thickness */
+const char *const PLOT_GRAPH_A_VISIBLE = "current_visible";
+const char *const PLOT_GRAPH_A_COLOR = "current_color";
+const char *const PLOT_GRAPH_A_LS = "current_ls"; /**< line style */
+const char *const PLOT_GRAPH_A_LINE = "current_line"; /**< line thickness */
+const char *const PLOT_GRAPH_AS_VISIBLE = "currentset_visible";
+const char *const PLOT_GRAPH_AS_COLOR = "currentset_color";
+const char *const PLOT_GRAPH_AS_LS = "currentset_ls"; /**< line style */
+const char *const PLOT_GRAPH_AS_LINE = "currentset_line"; /**< line thickness */
+const char *const PLOT_GRAPH_W_VISIBLE = "wattage_visible";
+const char *const PLOT_GRAPH_W_COLOR = "wattage_color";
+const char *const PLOT_GRAPH_W_LS = "wattage_ls"; /**< line style */
+const char *const PLOT_GRAPH_W_LINE = "wattage_line"; /**< line thickness */
 // record
 const char *const RECORD_GROUP = "record";
 const char *const RECORD_SQLPATH = "sqlpath";
