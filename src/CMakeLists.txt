@@ -26,7 +26,7 @@ elseif(WIN32)
     # So far only msvc is supported on Windows.
     if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     message(
-      ERROR
+      FATAL_ERROR
       "LabPowerQt does not support compiling on Windows with "
       "${CMAKE_CXX_COMPILER_ID}. Please use MSVC.")
     endif (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -35,7 +35,7 @@ elseif(WIN32)
     # use anything else.
     if (${MSVC_VERSION} LESS 1800)
     message(
-      ERROR
+      FATAL_ERROR
       "LabPowerQt does not support compiling on MSVC versions earlier than 1800. "
       "Please use MSVC 1800 (included with Visual Studio 2013 or later).")
     endif (${MSVC_VERSION} LESS 1800)
@@ -79,11 +79,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/external/switchbutton
     ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
-
-# include qAccordion build directory
-if (EXT_INCLUDE)
-    include_directories(${EXT_INCLUDE})
-endif(EXT_INCLUDE)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -179,5 +174,4 @@ Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
 Qt5::Sql
-${CMAKE_THREAD_LIBS_INIT}
-qAccordion)
+${CMAKE_THREAD_LIBS_INIT})

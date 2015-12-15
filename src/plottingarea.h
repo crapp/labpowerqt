@@ -32,6 +32,7 @@
 #include <vector>
 #include <chrono>
 #include <map>
+#include <memory>
 #include <iostream>
 
 #include "qcustomplot.h"
