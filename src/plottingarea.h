@@ -35,7 +35,6 @@
 #include <iostream>
 
 #include "qcustomplot.h"
-#include "qAccordion/qaccordion.h"
 #include "global.h"
 #include "settingsdefinitions.h"
 #include "yaxishelper.h"
