@@ -87,9 +87,10 @@ void PlottingArea::setupGraph()
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
             // trhe box that controls the visibility of the graphs
-            QGroupBox *graphBox = new QGroupBox("Channel " + QString::number(i));
-            graphBox->setLayout(new QHBoxLayout());
-            this->controlData->layout()->addWidget(graphBox);
+            QGroupBox *graphVisibilityBox =
+                new QGroupBox("Channel " + QString::number(i));
+            graphVisibilityBox->setLayout(new QHBoxLayout());
+            this->controlData->layout()->addWidget(graphVisibilityBox);
             // the box that controls color, line thickness and style
             QGroupBox *appearanceBox =
                 new QGroupBox("Channel " + QString::number(i));
@@ -114,11 +115,6 @@ void PlottingArea::setupGraph()
             for (int j = 0; j < 5; j++) {
                 globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
 
-                // init a QPen for our graph
-                QPen graphPen;
-                // set the width of the pen
-                graphPen.setWidth(2);
-
                 /*
                  * For every graph we add:
                  * A Switch to turn visibility on or off
@@ -127,8 +123,8 @@ void PlottingArea::setupGraph()
                  * A Button to choose the graph color
                  * Two labels to display the data below the plot on mouseover
                  */
-                QCheckBox *cbDataSwitch = new QCheckBox();
-                cbDataSwitch->setText(this->datatypeStrings.at(dt));
+                QCheckBox *cbVisibilitySwitch = new QCheckBox();
+                cbVisibilitySwitch->setText(this->datatypeStrings.at(dt));
                 QLabel *labelGraphProps =
                     new QLabel(this->datatypeStrings.at(dt));
                 labelGraphProps->setMinimumWidth(120);
@@ -139,11 +135,12 @@ void PlottingArea::setupGraph()
                 QSpinBox *graphLineThickness = new QSpinBox();
                 graphLineThickness->setMinimum(1);
                 graphLineThickness->setMaximum(5);
-                graphLineThickness->setValue(2);
+                graphLineThickness->setValue(1);
 
                 QPushButton *graphColor = new QPushButton();
                 graphColor->setToolTip("Choose graph color");
                 graphColor->setIconSize(QSize(64, 16));
+                // the image that is displayed in the color choose button
                 QPixmap pic(64, 16);
 
                 QLabel *dataDisplayLabel =
@@ -160,8 +157,6 @@ void PlottingArea::setupGraph()
                 if (dt == globcon::DATATYPE::SETCURRENT ||
                     dt == globcon::DATATYPE::CURRENT) {
                     this->plot->addGraph(this->plot->xAxis, this->currentAxis);
-                    pic.fill(this->currentGraphColors.at(i - 1));
-                    graphPen.setColor(this->currentGraphColors.at(i - 1));
                     if (dt == globcon::DATATYPE::CURRENT) {
                         dataDisplayCurrentGrid->addWidget(dataDisplayLabel, 0,
                                                           0);
@@ -176,8 +171,6 @@ void PlottingArea::setupGraph()
                     }
                 } else if (dt == globcon::DATATYPE::WATTAGE) {
                     this->plot->addGraph(this->plot->xAxis, this->wattageAxis);
-                    pic.fill(this->wattageGraphColors.at(i - 1));
-                    graphPen.setColor(this->wattageGraphColors.at(i - 1));
                     dataDisplayWattageGrid->addWidget(dataDisplayLabel, 0, 0);
                     dataDisplayLabel->setAlignment(Qt::AlignmentFlag::AlignTop |
                                                    Qt::AlignmentFlag::AlignLeft);
@@ -185,8 +178,6 @@ void PlottingArea::setupGraph()
                                                       1);
                 } else {
                     this->plot->addGraph();
-                    pic.fill(this->voltageGraphColors.at(i - 1));
-                    graphPen.setColor(this->voltageGraphColors.at(i - 1));
                     if (dt == globcon::DATATYPE::VOLTAGE) {
                         dataDisplayVoltageGrid->addWidget(dataDisplayLabel, 0,
                                                           0);
@@ -201,32 +192,7 @@ void PlottingArea::setupGraph()
                     }
                 }
 
-                graphColor->setIcon(pic);
-
-                // only some graphs are visible
-                if (dt == globcon::DATATYPE::VOLTAGE ||
-                    dt == globcon::DATATYPE::CURRENT ||
-                    dt == globcon::DATATYPE::WATTAGE) {
-                    // these are visible and have a solid linestyle
-                    cbDataSwitch->setCheckState(Qt::CheckState::Checked);
-                    graphLineStyle->setCurrentIndex(0);
-                    graphPen.setStyle(Qt::PenStyle::SolidLine);
-                    // add the visible graphs to the legend
-                    this->plot->graph(graphIndex)->addToLegend();
-                } else {
-                    // these ones are invisible and only dotted.
-                    cbDataSwitch->setCheckState(Qt::CheckState::Unchecked);
-                    graphLineStyle->setCurrentIndex(1);
-                    this->plot->graph(graphIndex)->setVisible(false);
-                    graphPen.setStyle(Qt::PenStyle::DotLine);
-                }
-
-                this->plot->graph(graphIndex)->setPen(graphPen);
-                // set graph name
-                this->plot->graph(graphIndex)
-                    ->setName(this->graphNames.at(dt).arg(QString::number(i)));
-
-                graphBox->layout()->addWidget(cbDataSwitch);
+                graphVisibilityBox->layout()->addWidget(cbVisibilitySwitch);
                 QHBoxLayout *appearanceElemLayout = new QHBoxLayout();
                 appearanceElemLayout->addWidget(labelGraphProps);
                 appearanceElemLayout->addWidget(graphLineStyle);
@@ -236,17 +202,22 @@ void PlottingArea::setupGraph()
                 dynamic_cast<QVBoxLayout *>(appearanceBox->layout())
                     ->addLayout(appearanceElemLayout);
 
-                // connect checkbox with a lambda
+                // connect visibility checkbox with a lambda
                 QObject::connect(
-                    cbDataSwitch, &QCheckBox::toggled,
+                    cbVisibilitySwitch, &QCheckBox::toggled,
                     [this, graphIndex](bool checked) {
+                        QSettings settings;
+                        settings.beginGroup(setcon::PLOT_GROUP);
+                        QString key =
+                            QString(setcon::PLOT_GRAPH_VISIBLE).arg(graphIndex);
                         if (checked) {
                             this->plot->graph(graphIndex)->setVisible(true);
-                            // this->plot->graph(graphIndex)->addToLegend();
+                            this->plot->graph(graphIndex)->addToLegend();
                         } else {
                             this->plot->graph(graphIndex)->setVisible(false);
-                            // this->plot->graph(graphIndex)->removeFromLegend();
+                            this->plot->graph(graphIndex)->removeFromLegend();
                         }
+                        settings.setValue(key, checked);
                         this->yAxisVisibility();
                     });
                 // connect linestyle
@@ -254,12 +225,17 @@ void PlottingArea::setupGraph()
                     graphLineStyle, static_cast<void (QComboBox::*)(int)>(
                                         &QComboBox::currentIndexChanged),
                     [this, graphLineStyle, graphIndex](int idx) {
+                        QSettings settings;
+                        settings.beginGroup(setcon::PLOT_GROUP);
+                        QString key =
+                            QString(setcon::PLOT_GRAPH_LS).arg(graphIndex);
                         QPen graphPen = this->plot->graph(graphIndex)->pen();
                         if (idx == 0) {
                             graphPen.setStyle(Qt::PenStyle::SolidLine);
                         } else {
                             graphPen.setStyle(Qt::PenStyle::DotLine);
                         }
+                        settings.setValue(key, idx);
                         this->plot->graph(graphIndex)->setPen(graphPen);
                         this->plot->replot();
                     });
@@ -268,8 +244,13 @@ void PlottingArea::setupGraph()
                     graphLineThickness, static_cast<void (QSpinBox::*)(int)>(
                                             &QSpinBox::valueChanged),
                     [this, graphIndex, graphLineThickness](int value) {
+                        QSettings settings;
+                        settings.beginGroup(setcon::PLOT_GROUP);
+                        QString key =
+                            QString(setcon::PLOT_GRAPH_LINE).arg(graphIndex);
                         QPen graphPen = this->plot->graph(graphIndex)->pen();
                         graphPen.setWidth(value);
+                        settings.setValue(key, value);
                         this->plot->graph(graphIndex)->setPen(graphPen);
                         this->plot->replot();
                     });
@@ -277,6 +258,10 @@ void PlottingArea::setupGraph()
                 QObject::connect(
                     graphColor, &QPushButton::clicked,
                     [this, graphColor, graphIndex]() {
+                        QSettings settings;
+                        settings.beginGroup(setcon::PLOT_GROUP);
+                        QString key =
+                            QString(setcon::PLOT_GRAPH_COLOR).arg(graphIndex);
                         QPen graphPen = this->plot->graph(graphIndex)->pen();
                         QColor col = QColorDialog::getColor(
                             graphPen.color(), this, "Choose a color");
@@ -286,13 +271,78 @@ void PlottingArea::setupGraph()
                             QPixmap pic = graphColor->icon().pixmap(64, 16);
                             pic.fill(col);
                             graphColor->setIcon(pic);
+                            settings.setValue(key, col);
                             this->plot->replot();
                         }
                     });
 
+                settings.endGroup();
+                settings.endGroup();
+                settings.beginGroup(setcon::PLOT_GROUP);
+                QString colkey =
+                    QString(setcon::PLOT_GRAPH_COLOR).arg(graphIndex);
+                QColor graphCol;
+                if (dt == globcon::DATATYPE::SETCURRENT ||
+                    dt == globcon::DATATYPE::CURRENT) {
+                    graphCol =
+                        QColor(settings.value(colkey,
+                                              this->currentGraphColors.at(i - 1))
+                                   .toString());
+                } else if (dt == globcon::DATATYPE::VOLTAGE ||
+                           dt == globcon::DATATYPE::SETVOLTAGE) {
+                    graphCol =
+                        QColor(settings.value(colkey,
+                                              this->voltageGraphColors.at(i - 1))
+                                   .toString());
+
+                } else {
+                    graphCol =
+                        QColor(settings.value(colkey,
+                                              this->wattageGraphColors.at(i - 1))
+                                   .toString());
+                }
+                pic.fill(graphCol);
+                graphColor->setIcon(pic);
+                // init a QPen for our graph
+                QPen graphPen;
+                graphPen.setColor(graphCol);
+
+                this->plot->graph(graphIndex)->setPen(graphPen);
+                // set graph name
+                this->plot->graph(graphIndex)
+                    ->setName(this->graphNames.at(dt).arg(QString::number(i)));
+
+                QString viskey =
+                    QString(setcon::PLOT_GRAPH_VISIBLE).arg(graphIndex);
+                QString linekey =
+                    QString(setcon::PLOT_GRAPH_LINE).arg(graphIndex);
+                QString lskey = QString(setcon::PLOT_GRAPH_LS).arg(graphIndex);
+                if (dt == globcon::DATATYPE::VOLTAGE ||
+                    dt == globcon::DATATYPE::CURRENT ||
+                    dt == globcon::DATATYPE::WATTAGE) {
+                    // these are by default visible and have a solid linestyle
+                    cbVisibilitySwitch->setChecked(
+                        settings.value(viskey, true).toBool());
+                    graphLineStyle->setCurrentIndex(
+                        settings.value(lskey, 0).toInt());
+                } else {
+                    // these ones are by default invisible and have a dotted
+                    // line.
+                    cbVisibilitySwitch->setChecked(
+                        settings.value(viskey, false).toBool());
+                    graphLineStyle->setCurrentIndex(
+                        settings.value(lskey, 1).toInt());
+                }
+                graphLineThickness->setValue(settings.value(linekey, 2).toInt());
+                settings.endGroup();
+                settings.beginGroup(setcon::DEVICE_GROUP);
+                settings.beginGroup(
+                    settings.value(setcon::DEVICE_ACTIVE).toString());
+
                 graphIndex++;
             }
-            dynamic_cast<QHBoxLayout *>(graphBox->layout())->addStretch();
+            dynamic_cast<QHBoxLayout *>(graphVisibilityBox->layout())
+                ->addStretch();
             dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())->addStretch();
             this->dataDisplayLabels.insert(
                 {static_cast<globcon::CHANNEL>(i), chanDisplayLabels});
@@ -359,7 +409,7 @@ void PlottingArea::setupUI()
     controlGeneralLay->addWidget(generalDiscardData);
     QHBoxLayout *generalExportLayout = new QHBoxLayout();
     controlGeneralLay->addLayout(generalExportLayout);
-    QPushButton *generalExport = new QPushButton("Export to Image");
+    QPushButton *generalExport = new QPushButton("Export as");
     generalExport->setToolTip(
         "Export the currently visible ViewPort of the plot as Image");
     generalExport->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -651,25 +701,26 @@ void PlottingArea::yAxisVisibility()
     int current = 0;
     int wattage = 0;
 
-    for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
-        for (int j = 0; j < 5; j++) {
-            globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
-            int graphIndex = (i - 1) * 5 + static_cast<int>(dt);
-            if (dt == globcon::DATATYPE::VOLTAGE ||
-                dt == globcon::DATATYPE::SETVOLTAGE) {
-                if (this->plot->graph(graphIndex)->visible())
-                    voltage = voltage | 1;
-                continue;
-            }
-            if (dt == globcon::DATATYPE::CURRENT ||
-                dt == globcon::DATATYPE::SETCURRENT) {
-                if (this->plot->graph(graphIndex)->visible())
-                    current = current | 1;
-                continue;
-            }
-            if (this->plot->graph(graphIndex)->visible())
-                wattage = wattage | 1;
+    int channel = 0;
+    for (int i = 0; i < this->plot->graphCount(); i++) {
+        if (i != 0 && i % 5 == 0)
+            channel++;
+        int dtindex = i - (channel * 5);
+        globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(dtindex);
+        if (dt == globcon::DATATYPE::VOLTAGE ||
+            dt == globcon::DATATYPE::SETVOLTAGE) {
+            if (this->plot->graph(i)->visible())
+                voltage = voltage | 1;
+            continue;
         }
+        if (dt == globcon::DATATYPE::CURRENT ||
+            dt == globcon::DATATYPE::SETCURRENT) {
+            if (this->plot->graph(i)->visible())
+                current = current | 1;
+            continue;
+        }
+        if (this->plot->graph(i)->visible())
+            wattage = wattage | 1;
     }
 
     if (voltage == 0) {
