@@ -1,34 +1,53 @@
-# Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG          "-Wextra -O0 -g -Wno-reorder") # No reorder warnings since this pop up frequently if you are using the Q_OBJECT macro
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+# Initialize CXXFLAGS for Linux and OS X
+if (NOT WIN32)
+    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+    set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
+    # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
+    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wno-reorder")
+    set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+endif(NOT WIN32)
 
-#add_definitions(-DQT_NO_DEBUG_OUTPUT)
+# Compiler-specific C++11 activation.
+if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    execute_process(
+        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+    if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
+        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
+    endif ()
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
+    elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    endif()
+elseif(WIN32)
+    # So far only msvc is supported on Windows.
+    if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    message(
+      ERROR
+      "LabPowerQt does not support compiling on Windows with "
+      "${CMAKE_CXX_COMPILER_ID}. Please use MSVC.")
+    endif (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+    # MSVC 1800 supports C++11; earlier versions don't. So, warn if you try to
+    # use anything else.
+    if (${MSVC_VERSION} LESS 1800)
+    message(
+      ERROR
+      "LabPowerQt does not support compiling on MSVC versions earlier than 1800. "
+      "Please use MSVC 1800 (included with Visual Studio 2013 or later).")
+    endif (${MSVC_VERSION} LESS 1800)
+else ()
+    message(FATAL_ERROR "Your C++ compiler does not support C++11.")
+endif ()
 
 if (${SANITIZER})
     message(WARNING "Using address sanitizer compiler option!")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
-
-# Compiler-specific C++11 activation.
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-    execute_process(
-        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
-        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
-    endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
-    elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    endif()
-else ()
-    message(FATAL_ERROR "Your C++ compiler does not support C++11.")
-endif ()
 
 # Add our custom cmake search modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
