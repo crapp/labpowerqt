@@ -1,5 +1,5 @@
-# Initialize CXXFLAGS for Linux and OS X
-if (NOT WIN32)
+# Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
+if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
     # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
@@ -7,7 +7,7 @@ if (NOT WIN32)
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-endif(NOT WIN32)
+endif(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
 # Compiler-specific C++11 activation.
 if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -22,23 +22,13 @@ elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif()
-elseif(WIN32)
-    # So far only msvc is supported on Windows.
-    if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND ${MSVC_VERSION} LESS 1900)
     message(
+        # MSVC 1900 has the best C++11 support so far. So, warn if you try to
+        # use anything else.
       FATAL_ERROR
       "LabPowerQt does not support compiling on Windows with "
       "${CMAKE_CXX_COMPILER_ID}. Please use MSVC.")
-    endif (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-
-    # MSVC 1800 supports C++11; earlier versions don't. So, warn if you try to
-    # use anything else.
-    if (${MSVC_VERSION} LESS 1800)
-    message(
-      FATAL_ERROR
-      "LabPowerQt does not support compiling on MSVC versions earlier than 1800. "
-      "Please use MSVC 1800 (included with Visual Studio 2013 or later).")
-    endif (${MSVC_VERSION} LESS 1800)
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
