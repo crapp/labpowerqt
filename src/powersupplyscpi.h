@@ -12,6 +12,8 @@
 #include <QByteArray>
 #include <QtSerialPort/QtSerialPort>
 #include <QString>
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "serialqueue.h"
 #include "serialcommand.h"
@@ -52,6 +54,7 @@ enum COMMANDS {
 class PowerSupplySCPI : public QObject
 {
     Q_OBJECT
+
 public:
     PowerSupplySCPI(QString serialPortName, QString deviceName, int noOfChannels,
                     int voltageAccuracy, int currentAccuracy,
@@ -59,6 +62,7 @@ public:
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
+    void stopPowerSupplyBackgroundThread();
 
     /**
      * @brief Get the name of the serial port
@@ -105,6 +109,8 @@ signals:
      */
     void deviceOpen();
 
+    void backgroundThreadStopped();
+
 public slots:
 
 protected:
@@ -134,10 +140,11 @@ protected:
 
     // TODO: Change this raw pointer to a smart pointer
     QSerialPort *serialPort;
-    std::mutex serialPortGuard;
+    // std::mutex serialPortGuard;
+    QMutex qserialPortGuard;
 
     bool backgroundWorkerThreadRun;
-    std::thread backgroundWorkerThread;
+    // std::thread backgroundWorkerThread;
 
     /**
      * @brief statusCommands The commands needed to get the Power Supply status

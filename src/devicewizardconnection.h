@@ -23,6 +23,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QPlainTextEdit>
+#include <QThread>
 
 #include <QDebug>
 
@@ -49,6 +50,8 @@ private:
     QPushButton *startTest;
     QPlainTextEdit *txt;
     QString devID;
+
+    std::unique_ptr<QThread> t;
 
     bool connectionSuccessfull;
 

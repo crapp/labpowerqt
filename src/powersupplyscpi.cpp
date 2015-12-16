@@ -14,22 +14,18 @@ PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QString deviceName,
     this->canCalculateWattage = false;
 }
 
-PowerSupplySCPI::~PowerSupplySCPI()
-{
-    this->backgroundWorkerThreadRun = false;
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETDUMMY));
-    this->backgroundWorkerThread.join();
-
-    if (this->serialPort->isOpen()) {
-        this->serialPort->close();
-    }
-    delete serialPort;
-}
+PowerSupplySCPI::~PowerSupplySCPI() {}
 
 void PowerSupplySCPI::startPowerSupplyBackgroundThread()
 {
     this->backgroundWorkerThreadRun = true;
-    backgroundWorkerThread = std::thread(&PowerSupplySCPI::threadFunc, this);
+    this->threadFunc();
+}
+
+void PowerSupplySCPI::stopPowerSupplyBackgroundThread()
+{
+    this->backgroundWorkerThreadRun = false;
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETDUMMY));
 }
 
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
@@ -38,25 +34,35 @@ QString PowerSupplySCPI::getDeviceName() { return this->deviceName; }
 
 void PowerSupplySCPI::threadFunc()
 {
-    if (!this->serialPort) {
-        this->serialPort = new QSerialPort(this->serialPortName);
-        if (!this->serialPort->open(QIODevice::ReadWrite)) {
-            emit errorOpen(this->serialPort->errorString());
-            return;
-        }
+    this->serialPort = new QSerialPort(this->serialPortName);
 
-        this->serialPort->setBaudRate(this->port_baudraute);
-        this->serialPort->setFlowControl(this->port_flowControl);
-        this->serialPort->setDataBits(this->port_databits);
-        this->serialPort->setParity(this->port_parity);
-        this->serialPort->setStopBits(this->port_stopbits);
-
-        emit deviceOpen();
+    // this->serialPort = new QSerialPort(this->serialPortName);
+    if (!this->serialPort->open(QIODevice::ReadWrite)) {
+        emit errorOpen(this->serialPort->errorString());
+        return;
     }
+
+    this->serialPort->setBaudRate(this->port_baudraute);
+    this->serialPort->setFlowControl(this->port_flowControl);
+    this->serialPort->setDataBits(this->port_databits);
+    this->serialPort->setParity(this->port_parity);
+    this->serialPort->setStopBits(this->port_stopbits);
+
+    emit deviceOpen();
 
     while (this->backgroundWorkerThreadRun) {
         this->readWriteData(this->serQueue.pop());
     }
+
+    qDebug() << Q_FUNC_INFO << "Background thread stopped";
+
+    QMutexLocker qlock(&this->qserialPortGuard);
+    if (this->serialPort && this->serialPort->isOpen()) {
+        this->serialPort->close();
+        delete this->serialPort;
+    }
+
+    emit backgroundThreadStopped();
 }
 
 void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
@@ -68,12 +74,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     // sounds good but every derived class needs to do this. Not convenient and
     // most of all not error prone.
 
-    std::lock_guard<std::mutex> lock(this->serialPortGuard);
+    QMutexLocker qlock(&this->qserialPortGuard);
     std::shared_ptr<PowerSupplyStatus> status = nullptr;
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
-
-    if (!this->serialPort->isOpen())
-        return;
 
     if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
         return;

@@ -363,11 +363,11 @@ void DisplayArea::setupUI()
     this->labelConnect->setNoReturnValue(true);
     this->labelConnect->setAlignment(Qt::AlignCenter);
     this->frameHeader->layout()->addWidget(this->labelConnect);
-    QObject::connect(this->labelConnect, &ClickableLabel::doubleClickNoValue,
-                     [this]() {
-                         emit this->deviceControlValueChanged(
-                             static_cast<int>(globcon::CONTROL::CONNECT), 0);
-                     });
+    QObject::connect(
+        this->labelConnect, &ClickableLabel::doubleClickNoValue, [this]() {
+            emit this->deviceControlValueChanged(
+                static_cast<int>(globcon::CONTROL::CONNECT), 0);
+        });
 
     this->labelSound = new ClickableLabel();
     this->labelSound->setPixmap(QPixmap(":/icons/speaker_orange.png"));

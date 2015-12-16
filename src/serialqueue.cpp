@@ -5,24 +5,23 @@ SerialQueue::SerialQueue() {}
 void SerialQueue::push(const int &command, const int &channel,
                        const QVariant &value, const bool &withReply)
 {
-    std::lock_guard<std::mutex> lock(this->mtx);
+    QMutexLocker qlock(&this->qmtx);
     std::shared_ptr<SerialCommand> com =
         std::make_shared<SerialCommand>(command, channel, value, withReply);
 
     this->internalQueue.push(com);
     // notify thread to wake up and pop latest command
-    this->threadWakeUpCondition.notify_one();
+    this->qcondition.wakeOne();
 }
 
 std::shared_ptr<SerialCommand> SerialQueue::pop()
 {
-    // we use a unique lock as conditional variable requires one
-    std::unique_lock<std::mutex> lock(this->mtx);
+    QMutexLocker qlock(&this->qmtx);
 
-    // this unlocks our mutex and waits unitl our internal queue
+    // this unlocks our mutex and waits until our internal queue
     // is no longer empty.
-    this->threadWakeUpCondition.wait(
-        lock, [this]() { return !this->internalQueue.empty(); });
+    if (this->internalQueue.empty())
+        this->qcondition.wait(&this->qmtx);
 
     std::shared_ptr<SerialCommand> com = this->internalQueue.front();
     this->internalQueue.pop();
@@ -32,6 +31,6 @@ std::shared_ptr<SerialCommand> SerialQueue::pop()
 
 bool SerialQueue::empty()
 {
-    std::lock_guard<std::mutex> lock(this->mtx);
+    QMutexLocker qlock(&this->qmtx);
     return this->internalQueue.empty();
 }

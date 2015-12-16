@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    qDebug() << Q_FUNC_INFO << QThread::currentThreadId();
+
     qRegisterMetaType<std::shared_ptr<SerialCommand>>();
     qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
 
@@ -339,12 +341,24 @@ void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 void MainWindow::deviceControl(int control, int channel)
 {
     switch (static_cast<globcon::CONTROL>(control)) {
-    case globcon::CONTROL::CONNECT:
-        this->applicationModel->getDeviceConnected()
-            ? this->controller->disconnectDevice()
-            : this->controller->connectDevice();
-
+    case globcon::CONTROL::CONNECT: {
+        if (this->applicationModel->getDeviceConnected()) {
+            QSettings settings;
+            settings.beginGroup(setcon::GENERAL_GROUP);
+            if (settings.value(setcon::GENERAL_DISC).toBool()) {
+                if (QMessageBox::question(this, "Disconnect Device",
+                                          "Do you really want to disconnect?",
+                                          QMessageBox::StandardButton::Yes |
+                                              QMessageBox::StandardButton::No,
+                                          QMessageBox::StandardButton::No) ==
+                    static_cast<int>(QMessageBox::StandardButton::Yes))
+                    this->controller->disconnectDevice();
+            }
+        } else {
+            this->controller->connectDevice();
+        }
         break;
+    }
     case globcon::CONTROL::SOUND:
         this->applicationModel->getDeviceMute()
             ? this->controller->setAudio(false)

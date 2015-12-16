@@ -14,11 +14,7 @@ LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
     // this->connectDevice();
 }
 
-LabPowerController::~LabPowerController()
-{
-    if (this->powerSupplyStatusUpdater)
-        this->powerSupplyStatusUpdater->stop();
-}
+LabPowerController::~LabPowerController() { this->disconnectDevice(); }
 
 void LabPowerController::connectDevice()
 {
@@ -31,14 +27,16 @@ void LabPowerController::connectDevice()
         if (!this->powerSupplyConnector ||
             this->powerSupplyConnector->getserialPortName() != portName ||
             this->powerSupplyConnector->getDeviceName() != deviceName) {
-
-            this->powerSupplyConnector =
-                std::unique_ptr<KoradSCPI>(new KoradSCPI(
-                    std::move(portName), std::move(deviceName),
-                    settings.value(setcon::DEVICE_CHANNELS).toInt(),
-                    settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
-                    settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()));
-
+            if (settings.value(setcon::DEVICE_PROTOCOL).toInt() ==
+                static_cast<int>(globcon::PROTOCOL::KORADV2)) {
+                this->powerSupplyConnector =
+                    std::unique_ptr<KoradSCPI>(new KoradSCPI(
+                        std::move(portName), std::move(deviceName),
+                        settings.value(setcon::DEVICE_CHANNELS).toInt(),
+                        settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
+                        settings.value(setcon::DEVICE_CURRENT_ACCURACY)
+                            .toInt()));
+            }
             QObject::connect(this->powerSupplyConnector.get(),
                              &PowerSupplySCPI::errorOpen, this,
                              &LabPowerController::deviceError);
@@ -56,7 +54,25 @@ void LabPowerController::connectDevice()
                              &PowerSupplySCPI::statusReady, this,
                              &LabPowerController::receiveStatus);
 
-            this->powerSupplyConnector->startPowerSupplyBackgroundThread();
+            this->powerSupplyWorkerThread =
+                std::unique_ptr<QThread>(new QThread());
+
+            this->powerSupplyConnector->moveToThread(
+                this->powerSupplyWorkerThread.get());
+            QObject::connect(this->powerSupplyWorkerThread.get(),
+                             &QThread::finished, []() {
+                                 qDebug() << Q_FUNC_INFO
+                                          << "Background Thread Finished Signal";
+                             });
+            QObject::connect(
+                this->powerSupplyConnector.get(),
+                &PowerSupplySCPI::backgroundThreadStopped,
+                [this]() {
+                this->powerSupplyWorkerThread->quit(); });
+            QObject::connect(this->powerSupplyWorkerThread.get(),
+                             &QThread::started, this->powerSupplyConnector.get(),
+                             &PowerSupplySCPI::startPowerSupplyBackgroundThread);
+            this->powerSupplyWorkerThread->start();
         }
     } else {
         // TODO: Notify model that no valid power supply is connected.
@@ -68,9 +84,8 @@ void LabPowerController::disconnectDevice()
     if (this->powerSupplyStatusUpdater)
         this->powerSupplyStatusUpdater->stop();
     if (this->powerSupplyConnector) {
-        if (this->powerSupplyStatusUpdater) {
-            // this->powerSupplyStatusUpdater->
-        }
+        this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
+        this->powerSupplyWorkerThread->wait();
         this->powerSupplyConnector.reset(nullptr);
         this->applicationModel->setDeviceConnected(false);
     }

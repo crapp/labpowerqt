@@ -9,6 +9,7 @@
 #include <QByteArray>
 #include <QSettings>
 #include <QTimer>
+#include <QThread>
 #include <QMessageBox>
 
 #include "global.h"
@@ -71,6 +72,7 @@ private:
     std::unique_ptr<DBConnector> dbConnector;
 
     std::unique_ptr<QTimer> powerSupplyStatusUpdater;
+    std::unique_ptr<QThread> powerSupplyWorkerThread;
 };
 
 #endif // LABPOWERCONTROLLER_H

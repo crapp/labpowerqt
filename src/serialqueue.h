@@ -17,16 +17,20 @@
 #ifndef SERIALQUEUE_H
 #define SERIALQUEUE_H
 
+#include <QVariant>
+/*
+ * We need a conditional variable to signal a waiting thread
+ */
+#include <QWaitCondition>
+#include <QMutex>
+#include <QMutexLocker>
+
 #include <mutex>
 #include <memory>
 /*
  * We use a std::queue as basis for this threadsafe queue
  */
 #include <queue>
-/*
- * We need a conditional variable to signal a waiting thread
- */
-#include <condition_variable>
 
 #include "serialcommand.h"
 
@@ -44,7 +48,8 @@ public:
 private:
     std::queue<std::shared_ptr<SerialCommand>> internalQueue;
     std::mutex mtx;
-    std::condition_variable threadWakeUpCondition;
+    QMutex qmtx;
+    QWaitCondition qcondition;
 };
 
 #endif // SERIALQUEUE_H

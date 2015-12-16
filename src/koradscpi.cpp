@@ -48,11 +48,11 @@ KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
 KoradSCPI::~KoradSCPI()
 {
     // We must make sure our thread has finished PowerSupplySCPI::readWriteData
-    // before an Ibject of this class gets destroyed. The Problem is every
+    // before an Object of this class gets destroyed. The Problem is every
     // derived class must do this.
     // TODO: Document all special implementations needed by a derived class of
     // PowerSupplySCPI
-    std::lock_guard<std::mutex> lock(this->serialPortGuard);
+    QMutexLocker qlock(&this->qserialPortGuard);
 }
 
 void KoradSCPI::getIdentification()

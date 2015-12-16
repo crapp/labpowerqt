@@ -39,6 +39,8 @@ DeviceWizardConnection::DeviceWizardConnection(QWidget *parent)
     gridl->addWidget(this->txt, 1, 0, 1, 2);
     this->txt->setPlainText("Idle");
 
+    this->t = std::unique_ptr<QThread>(new QThread());
+
     QObject::connect(this->startTest, &QPushButton::clicked, this,
                      &DeviceWizardConnection::testConnection);
 
@@ -61,6 +63,10 @@ bool DeviceWizardConnection::isComplete() const
 void DeviceWizardConnection::testConnection()
 {
     this->startTest->setDisabled(true);
+    if (this->t->isRunning()) {
+        qDebug() << Q_FUNC_INFO << "Thread has been terminated";
+        this->t->terminate();
+    }
 
     this->txt->clear();
     QString statustext =
@@ -77,14 +83,22 @@ void DeviceWizardConnection::testConnection()
     this->txt->appendPlainText("Using " + field("protocolText").toString() +
                                " protocol");
 
+    this->powerSupplyConnector->moveToThread(this->t.get());
+
     QObject::connect(this->powerSupplyConnector.get(),
                      &PowerSupplySCPI::requestFinished, this,
                      &DeviceWizardConnection::dataAvailable);
     QObject::connect(this->powerSupplyConnector.get(),
                      &PowerSupplySCPI::errorOpen, this,
                      &DeviceWizardConnection::deviceError);
+    QObject::connect(this->t.get(), &QThread::started,
+                     this->powerSupplyConnector.get(),
+                     &PowerSupplySCPI::startPowerSupplyBackgroundThread);
+    QObject::connect(this->powerSupplyConnector.get(),
+                     &PowerSupplySCPI::backgroundThreadStopped,
+                     [this]() { this->t->quit(); });
 
-    this->powerSupplyConnector->startPowerSupplyBackgroundThread();
+    this->t->start();
     this->powerSupplyConnector->getIdentification();
 }
 
@@ -112,6 +126,8 @@ void DeviceWizardConnection::dataAvailable(
             emit this->completeChanged();
         }
         this->startTest->setDisabled(false);
+        this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
+        this->t->wait();
     }
 }
 
@@ -124,6 +140,8 @@ void DeviceWizardConnection::deviceError(QString errorString)
         "communications "
         "protocol as well as the correct device port.");
     this->connectionSuccessfull = false;
+    this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
+    this->t->wait();
     emit this->completeChanged();
     this->startTest->setDisabled(false);
 }
