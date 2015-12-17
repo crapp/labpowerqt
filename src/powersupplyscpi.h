@@ -56,9 +56,12 @@ class PowerSupplySCPI : public QObject
     Q_OBJECT
 
 public:
-    PowerSupplySCPI(QString serialPortName, QString deviceName, int noOfChannels,
+    PowerSupplySCPI(QString serialPortName, QByteArray deviceHash, int noOfChannels,
                     int voltageAccuracy, int currentAccuracy,
-                    QObject *parent = 0);
+                    QSerialPort::BaudRate brate,
+                    QSerialPort::FlowControl flowctl,
+                    QSerialPort::DataBits dbits, QSerialPort::Parity parity,
+                    QSerialPort::StopBits sbits, QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
@@ -73,7 +76,7 @@ public:
      * @brief Every Device has a device name.
      * @return
      */
-    QString getDeviceName();
+    QByteArray getDeviceHash();
     virtual void getIdentification() = 0;
     virtual void getStatus() = 0;
     virtual void changeChannel(int channel) = 0;
@@ -121,17 +124,17 @@ protected:
     SerialQueue serQueue;
 
     QString serialPortName;
-    QString deviceName;
-    QSerialPort::BaudRate port_baudraute = QSerialPort::BaudRate::Baud9600;
-    QSerialPort::FlowControl port_flowControl =
-        QSerialPort::FlowControl::NoFlowControl;
-    QSerialPort::DataBits port_databits = QSerialPort::DataBits::Data8;
-    QSerialPort::Parity port_parity = QSerialPort::Parity::NoParity;
-    QSerialPort::StopBits port_stopbits = QSerialPort::StopBits::OneStop;
+    QByteArray deviceHash;
 
     int noOfChannels;
     int voltageAccuracy;
     int currentAccuracy;
+
+    QSerialPort::BaudRate port_baudraute;
+    QSerialPort::FlowControl port_flowControl;
+    QSerialPort::DataBits port_databits;
+    QSerialPort::Parity port_parity;
+    QSerialPort::StopBits port_stopbits;
 
     /**
      * @brief canCalculateWattage Devices that can measure actual current but not power can calculate power usage.

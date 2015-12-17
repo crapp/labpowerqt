@@ -2,13 +2,16 @@
 
 namespace powcon = PowerSupplySCPI_constants;
 
-PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QString deviceName,
-                                 int noOfChannels, int voltageAccuracy,
-                                 int currentAccuracy, QObject *parent)
+PowerSupplySCPI::PowerSupplySCPI(
+    QString serialPortName, QByteArray deviceHash, int noOfChannels,
+    int voltageAccuracy, int currentAccuracy, QSerialPort::BaudRate brate,
+    QSerialPort::FlowControl flowctl, QSerialPort::DataBits dbits,
+    QSerialPort::Parity parity, QSerialPort::StopBits sbits, QObject *parent)
     : serialPortName(std::move(serialPortName)),
-      deviceName(std::move(deviceName)), noOfChannels(noOfChannels),
+      deviceHash(std::move(deviceHash)), noOfChannels(noOfChannels),
       voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
-      QObject(parent)
+      port_baudraute(brate), port_flowControl(flowctl), port_databits(dbits),
+      port_parity(parity), port_stopbits(sbits), QObject(parent)
 {
     this->serialPort = nullptr;
     this->canCalculateWattage = false;
@@ -30,7 +33,7 @@ void PowerSupplySCPI::stopPowerSupplyBackgroundThread()
 
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
 
-QString PowerSupplySCPI::getDeviceName() { return this->deviceName; }
+QByteArray PowerSupplySCPI::getDeviceHash() { return this->deviceHash; }
 
 void PowerSupplySCPI::threadFunc()
 {

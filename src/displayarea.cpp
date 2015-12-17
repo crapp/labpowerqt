@@ -119,7 +119,10 @@ void DisplayArea::setupChannels()
     this->labelConnect->setClickable(false);
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
+    qDebug() << settings.allKeys();
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    qDebug() << settings.allKeys();
+
     if (settings.contains(setcon::DEVICE_PORT)) {
         // if there is a device we must enable the connect button.
         this->labelConnect->setClickable(true);
@@ -412,6 +415,7 @@ void DisplayArea::setupUI()
     this->labelOVPSet = new ClickableLabel();
     this->labelOVPSet->setText("Off");
     this->labelOVPSet->setNoReturnValue(true);
+    this->labelOVPSet->setMinimumWidth(20);
     frameOVP->layout()->addWidget(this->labelOVPSet);
     this->frameFooter->layout()->addWidget(frameOVP);
     QObject::connect(this->labelOVPSet, &ClickableLabel::doubleClickNoValue,
@@ -426,6 +430,7 @@ void DisplayArea::setupUI()
     this->labelOCPSet = new ClickableLabel();
     this->labelOCPSet->setText("Off");
     this->labelOCPSet->setNoReturnValue(true);
+    this->labelOCPSet->setMinimumWidth(20);
     frameOCP->layout()->addWidget(this->labelOCPSet);
     this->frameFooter->layout()->addWidget(frameOCP);
     QObject::connect(this->labelOCPSet, &ClickableLabel::doubleClickNoValue,
@@ -440,6 +445,7 @@ void DisplayArea::setupUI()
     this->labelOTPSet = new ClickableLabel();
     this->labelOTPSet->setText("Off");
     this->labelOTPSet->setNoReturnValue(true);
+    this->labelOTPSet->setMinimumWidth(20);
     frameOTP->layout()->addWidget(this->labelOTPSet);
     this->frameFooter->layout()->addWidget(frameOTP);
     QObject::connect(this->labelOTPSet, &ClickableLabel::doubleClickNoValue,

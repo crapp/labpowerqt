@@ -21,17 +21,18 @@ namespace powcon = PowerSupplySCPI_constants;
 namespace korcon = KoradSCPI_constants;
 namespace statuscon = PowerSupplyStatus_constants;
 
-KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
-                     int noOfChannels, int voltageAccuracy, int currentAccuracy)
-    : PowerSupplySCPI(std::move(serialPortName), std::move(deviceName),
-                      noOfChannels, voltageAccuracy, currentAccuracy)
+KoradSCPI::KoradSCPI(QString serialPortName, QByteArray deviceHash,
+                     int noOfChannels, int voltageAccuracy, int currentAccuracy,
+                     QSerialPort::BaudRate brate,
+                     QSerialPort::FlowControl flowctl,
+                     QSerialPort::DataBits dbits, QSerialPort::Parity parity,
+                     QSerialPort::StopBits sbits)
+    : PowerSupplySCPI(std::move(serialPortName), std::move(deviceHash),
+                      noOfChannels, voltageAccuracy, currentAccuracy, brate,
+                      flowctl, dbits, parity, sbits)
 {
     this->canCalculateWattage = true;
-    this->port_baudraute = QSerialPort::BaudRate::Baud9600;
-    this->port_flowControl = QSerialPort::FlowControl::NoFlowControl;
-    this->port_databits = QSerialPort::DataBits::Data8;
-    this->port_parity = QSerialPort::Parity::NoParity;
-    this->port_stopbits = QSerialPort::StopBits::OneStop;
+
     this->ovp = false;
     this->ocp = false;
 
@@ -260,7 +261,8 @@ QByteArray KoradSCPI::prepareCommand(const std::shared_ptr<SerialCommand> &com)
 {
     // First job create the command
     powcon::COMMANDS command = static_cast<powcon::COMMANDS>(com->getCommand());
-    if (command == powcon::COMMANDS::GETOVP || command == powcon::COMMANDS::GETOCP)
+    if (command == powcon::COMMANDS::GETOVP ||
+        command == powcon::COMMANDS::GETOCP)
         return "";
     QString commandString = korcon::SERIALCOMMANDMAP.at(command);
     /*

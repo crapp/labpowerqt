@@ -80,7 +80,7 @@ void DeviceWizardOptions::specBox()
     channels->setMinimum(1);
     channels->setMaximum(2);
     channels->setValue(1);
-    layout->addWidget(channels, 1, 0);
+    layout->addWidget(channels, 1, 0, 1, 3);
 
     QLabel *voltageLabel = new QLabel("Voltage Range");
     layout->addWidget(voltageLabel, 2, 0, 1, 2);
@@ -94,7 +94,7 @@ void DeviceWizardOptions::specBox()
     voltLow->setSingleStep(0.1);
     voltLow->setValue(0.0);
     voltLow->setSuffix("V");
-    layout->addWidget(voltLow, 1, 0);
+    layout->addWidget(voltLow, 3, 0);
     QDoubleSpinBox *voltHigh = new QDoubleSpinBox();
     voltHigh->setMinimum(0);
     voltHigh->setMaximum(100);
@@ -102,14 +102,14 @@ void DeviceWizardOptions::specBox()
     voltHigh->setSingleStep(0.1);
     voltHigh->setValue(31.0);
     voltHigh->setSuffix("V");
-    layout->addWidget(voltHigh, 1, 1);
+    layout->addWidget(voltHigh, 3, 1);
     QComboBox *voltAccCombo = new QComboBox();
     voltAccCombo->addItems({"1V", "100mV", "10mV", "1mV"});
     voltAccCombo->setCurrentIndex(2); // 10mV default
-    layout->addWidget(voltAccCombo, 1, 2);
+    layout->addWidget(voltAccCombo, 3, 2);
 
     QLabel *currentLabel = new QLabel("Current Range");
-    layout->addWidget(currentLabel, 3, 0, 1, 2);
+    layout->addWidget(currentLabel, 4, 0, 1, 2);
     QDoubleSpinBox *currentLow = new QDoubleSpinBox();
     currentLow->setMinimum(0);
     currentLow->setMaximum(10);
@@ -117,7 +117,7 @@ void DeviceWizardOptions::specBox()
     currentLow->setSingleStep(0.1);
     currentLow->setValue(0.0);
     currentLow->setSuffix("A");
-    layout->addWidget(currentLow, 3, 0);
+    layout->addWidget(currentLow, 5, 0);
     QDoubleSpinBox *currentHigh = new QDoubleSpinBox();
     currentHigh->setMinimum(0);
     currentHigh->setMaximum(10);
@@ -125,11 +125,11 @@ void DeviceWizardOptions::specBox()
     currentHigh->setSingleStep(0.1);
     currentHigh->setValue(5.1);
     currentHigh->setSuffix("A");
-    layout->addWidget(currentHigh, 3, 1);
+    layout->addWidget(currentHigh, 5, 1);
     QComboBox *currentAccCombo = new QComboBox();
     currentAccCombo->addItems({"1A", "100mA", "10mA", "1mA"});
     currentAccCombo->setCurrentIndex(3); // 1mA default
-    layout->addWidget(currentAccCombo, 3, 2);
+    layout->addWidget(currentAccCombo, 5, 2);
 
     registerField("channel", channels);
     registerField("voltLow", voltLow, "value", "valueChanged");
@@ -153,6 +153,57 @@ void DeviceWizardOptions::comBox()
         "Choose the port to which your device is connected");
     gbCom->layout()->addWidget(this->comPort);
 
+    QGridLayout *baudFlowDBits = new QGridLayout();
+    dynamic_cast<QVBoxLayout *>(gbCom->layout())->addLayout(baudFlowDBits);
+
+    QLabel *baudLabel = new QLabel("Baud Rate");
+    QComboBox *baudBox = new QComboBox();
+    baudBox->addItems(
+        {"1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200"});
+    baudBox->setCurrentText("9600");
+    baudFlowDBits->addWidget(baudLabel, 0, 0);
+    baudFlowDBits->addWidget(baudBox, 1, 0);
+
+    QLabel *flowctlLabel = new QLabel("Flow Control");
+    QComboBox *flowctlBox = new QComboBox();
+    flowctlBox->addItems(
+        {"No flow control", "Hardware flow control", "Software flow control"});
+    flowctlBox->setCurrentIndex(0);
+    baudFlowDBits->addWidget(flowctlLabel, 0, 1);
+    baudFlowDBits->addWidget(flowctlBox, 1, 1);
+
+    QLabel *dbitsLabel = new QLabel("Data Bits");
+    QComboBox *dbitsBox = new QComboBox();
+    dbitsBox->addItems({"5", "6", "7", "8"});
+    dbitsBox->setCurrentText("8");
+    baudFlowDBits->addWidget(dbitsLabel, 0, 2);
+    baudFlowDBits->addWidget(dbitsBox, 1, 2);
+
+    QLabel *parityLabel = new QLabel("Parity");
+    QComboBox *parityBox = new QComboBox();
+    parityBox->addItem("No Parity", 0);
+    parityBox->addItem("Even Parity", 2);
+    parityBox->addItem("Odd Parity", 3);
+    parityBox->addItem("Space Parity", 4);
+    parityBox->addItem("Mark Parity", 5);
+    parityBox->setCurrentIndex(0);
+    baudFlowDBits->addWidget(parityLabel, 2, 0);
+    baudFlowDBits->addWidget(parityBox, 3, 0);
+
+    QLabel *stopLabel = new QLabel("Stop Bits");
+    QComboBox *stopBox = new QComboBox();
+    stopBox->addItem("1", 1);
+    stopBox->addItem("1.5", 3);
+    stopBox->addItem("2", 2);
+    stopBox->setCurrentIndex(0);
+    baudFlowDBits->addWidget(stopLabel, 2, 1);
+    baudFlowDBits->addWidget(stopBox, 3, 1);
+
     // we need the comport string not index
     registerField("comPort", this->comPort, "currentText");
+    registerField("baudBox", baudBox, "currentText");
+    registerField("flowctlBox", flowctlBox);
+    registerField("dbitsBox", dbitsBox, "currentText");
+    registerField("parityBox", parityBox, "currentData");
+    registerField("stopBox", stopBox, "currentData");
 }

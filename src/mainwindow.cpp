@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Restore saved geometry and state
     QSettings settings;
+    qDebug() << Q_FUNC_INFO << "Settings file: " << settings.fileName();
     settings.beginGroup(setcon::MAINWINDOW_GROUP);
     this->restoreGeometry(settings.value(setcon::MAINWINDOW_GEO).toByteArray());
     this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());
@@ -276,16 +277,19 @@ void MainWindow::showSettings()
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     QByteArray hash = settings.value(setcon::DEVICE_HASH).toByteArray();
+    settings.endArray();
     // release the serial port
     // this->controller->disconnectDevice();
     SettingsDialog sd;
     sd.exec();
 
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    QByteArray newHash = settings.value(setcon::DEVICE_HASH).toByteArray();
     // FIXME: In fact this hole thing here is useless. When the user changes the
     // active device in the settings dialog and a recording or whatever is
     // running it will have some nasty effects. So we need some sort signal
-    // Udate the values for the valuesDialog floating widget
-    if (settings.value(setcon::DEVICE_HASH).toByteArray() != hash) {
+    // Update the values for the valuesDialog floating widget
+    if (newHash != hash) {
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
             settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble(),

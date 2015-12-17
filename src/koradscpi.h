@@ -22,6 +22,7 @@
 #include <QString>
 
 #include "global.h"
+#include "config.h"
 #include "powersupplyscpi.h"
 
 namespace KoradSCPI_constants
@@ -45,8 +46,10 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
     {powcon::SAVESETTINGS, "SAV%1"}, // save current settings on memory position
     {powcon::SETOCP, "OCP%1"},       // switch over current protection
     {powcon::SETOVP, "OVP%1"},       // switch over voltage protection
-    {powcon::GETOVP, "OVP%1?"}, // dummy command because firmware does not support this
-    {powcon::GETOCP, "OCP%1?"}, // dummy command because firmware does not support this
+    {powcon::GETOVP,
+     "OVP%1?"}, // dummy command because firmware does not support this
+    {powcon::GETOCP,
+     "OCP%1?"}, // dummy command because firmware does not support this
     {powcon::SETDUMMY, "DUMMY"}, // just some dummy command
 };
 }
@@ -70,8 +73,11 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port could not be opened
      */
-    KoradSCPI(QString serialPortName, QString deviceName, int noOfChannels,
-              int voltageAccuracy, int currentAccuracy);
+    KoradSCPI(QString serialPortName, QByteArray deviceHash, int noOfChannels,
+              int voltageAccuracy, int currentAccuracy,
+              QSerialPort::BaudRate brate, QSerialPort::FlowControl flowctl,
+              QSerialPort::DataBits dbits, QSerialPort::Parity parity,
+              QSerialPort::StopBits sbits);
     ~KoradSCPI();
 
     // LabPowerSupply Interface

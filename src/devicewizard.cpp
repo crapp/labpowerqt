@@ -39,24 +39,48 @@ void DeviceWizard::accept()
     QCryptographicHash hash(QCryptographicHash::Algorithm::Md5);
     settings.setValue(setcon::DEVICE_NAME, field("deviceName").toString());
     hash.addData(settings.value(setcon::DEVICE_NAME).toByteArray());
+
     settings.setValue(setcon::DEVICE_PROTOCOL, field("protocol").toInt());
     hash.addData(settings.value(setcon::DEVICE_PROTOCOL).toByteArray());
+
     settings.setValue(setcon::DEVICE_PORT, field("comPort").toString());
     hash.addData(settings.value(setcon::DEVICE_PORT).toByteArray());
+
+    settings.setValue(setcon::DEVICE_PORT_BRATE, field("baudBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_BRATE).toByteArray());
+
+    settings.setValue(setcon::DEVICE_PORT_FLOW, field("flowctlBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_FLOW).toByteArray());
+
+    settings.setValue(setcon::DEVICE_PORT_DBITS, field("dbitsBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_DBITS).toByteArray());
+
+    settings.setValue(setcon::DEVICE_PORT_PARITY, field("parityBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_PARITY).toByteArray());
+
+    settings.setValue(setcon::DEVICE_PORT_SBITS, field("stopBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_SBITS).toByteArray());
+
     settings.setValue(setcon::DEVICE_CHANNELS, field("channel").toInt());
     hash.addData(settings.value(setcon::DEVICE_CHANNELS).toByteArray());
+
     settings.setValue(setcon::DEVICE_VOLTAGE_MIN, field("voltLow").toDouble());
     hash.addData(settings.value(setcon::DEVICE_VOLTAGE_MIN).toByteArray());
+
     settings.setValue(setcon::DEVICE_VOLTAGE_MAX, field("voltHigh").toDouble());
     hash.addData(settings.value(setcon::DEVICE_VOLTAGE_MAX).toByteArray());
+
     settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, field("voltAcc").toInt());
     hash.addData(settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toByteArray());
+
     settings.setValue(setcon::DEVICE_CURRENT_MIN,
                       field("currentLow").toDouble());
     hash.addData(settings.value(setcon::DEVICE_CURRENT_MIN).toByteArray());
+
     settings.setValue(setcon::DEVICE_CURRENT_MAX,
                       field("currentHigh").toDouble());
     hash.addData(settings.value(setcon::DEVICE_CURRENT_MAX).toByteArray());
+
     settings.setValue(setcon::DEVICE_CURRENT_ACCURACY,
                       field("currentAcc").toInt());
     hash.addData(settings.value(setcon::DEVICE_CURRENT_ACCURACY).toByteArray());

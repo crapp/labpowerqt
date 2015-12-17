@@ -72,12 +72,25 @@ void DeviceWizardConnection::testConnection()
     QString statustext =
         "Connecting to device on port " + field("comPort").toString();
     this->txt->appendPlainText(statustext);
+
+    QSerialPort::BaudRate brate =
+        static_cast<QSerialPort::BaudRate>(field("baudBox").toInt());
+    QSerialPort::FlowControl flowctl =
+        static_cast<QSerialPort::FlowControl>(field("flowctlBox").toInt());
+    QSerialPort::DataBits dbits =
+        static_cast<QSerialPort::DataBits>(field("dbitsBox").toInt());
+    QSerialPort::Parity parity =
+        static_cast<QSerialPort::Parity>(field("parityBox").toInt());
+    QSerialPort::StopBits sbits =
+        static_cast<QSerialPort::StopBits>(field("stopBox").toInt());
+
     if (static_cast<global_constants::PROTOCOL>(field("protocol").toInt()) ==
         global_constants::PROTOCOL::KORADV2) {
         this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(new KoradSCPI(
             std::move(field("comPort").toString()),
-            std::move(QString("WizardConnectionTest")), field("channel").toInt(),
-            field("voltAcc").toInt(), field("currentAcc").toInt()));
+            std::move(QByteArray("WizardConnectionTest")),
+            field("channel").toInt(), field("voltAcc").toInt(),
+            field("currentAcc").toInt(), brate, flowctl, dbits, parity, sbits));
     }
 
     this->txt->appendPlainText("Using " + field("protocolText").toString() +

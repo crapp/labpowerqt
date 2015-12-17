@@ -23,19 +23,29 @@ void LabPowerController::connectDevice()
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
         QString portName = settings.value(setcon::DEVICE_PORT).toString();
-        QString deviceName = settings.value(setcon::DEVICE_NAME).toString();
+        QSerialPort::BaudRate brate = static_cast<QSerialPort::BaudRate>(
+            settings.value(setcon::DEVICE_PORT_BRATE).toInt());
+        QSerialPort::FlowControl flowctl = static_cast<QSerialPort::FlowControl>(
+            settings.value(setcon::DEVICE_PORT_FLOW).toInt());
+        QSerialPort::DataBits dbits = static_cast<QSerialPort::DataBits>(
+            settings.value(setcon::DEVICE_PORT_DBITS).toInt());
+        QSerialPort::Parity parity = static_cast<QSerialPort::Parity>(
+            settings.value(setcon::DEVICE_PORT_PARITY).toInt());
+        QSerialPort::StopBits sbits = static_cast<QSerialPort::StopBits>(
+            settings.value(setcon::DEVICE_PORT_SBITS).toInt());
+        QByteArray deviceHash =
+            settings.value(setcon::DEVICE_HASH).toByteArray();
         if (!this->powerSupplyConnector ||
-            this->powerSupplyConnector->getserialPortName() != portName ||
-            this->powerSupplyConnector->getDeviceName() != deviceName) {
+            this->powerSupplyConnector->getDeviceHash() != deviceHash) {
             if (settings.value(setcon::DEVICE_PROTOCOL).toInt() ==
                 static_cast<int>(globcon::PROTOCOL::KORADV2)) {
                 this->powerSupplyConnector =
                     std::unique_ptr<KoradSCPI>(new KoradSCPI(
-                        std::move(portName), std::move(deviceName),
+                        std::move(portName), std::move(deviceHash),
                         settings.value(setcon::DEVICE_CHANNELS).toInt(),
                         settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
-                        settings.value(setcon::DEVICE_CURRENT_ACCURACY)
-                            .toInt()));
+                        settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt(),
+                        brate, flowctl, dbits, parity, sbits));
             }
             QObject::connect(this->powerSupplyConnector.get(),
                              &PowerSupplySCPI::errorOpen, this,
@@ -67,8 +77,7 @@ void LabPowerController::connectDevice()
             QObject::connect(
                 this->powerSupplyConnector.get(),
                 &PowerSupplySCPI::backgroundThreadStopped,
-                [this]() {
-                this->powerSupplyWorkerThread->quit(); });
+                [this]() { this->powerSupplyWorkerThread->quit(); });
             QObject::connect(this->powerSupplyWorkerThread.get(),
                              &QThread::started, this->powerSupplyConnector.get(),
                              &PowerSupplySCPI::startPowerSupplyBackgroundThread);
