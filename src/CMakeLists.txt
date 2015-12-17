@@ -47,9 +47,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-# Find Threads
-find_package(Threads REQUIRED)
-
 # Find the QtWidgets library. This has dependencies on QtGui and QtCore!
 find_package(Qt5Widgets 5.2 REQUIRED)
 message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
@@ -163,5 +160,4 @@ Qt5::SerialPort
 Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
-Qt5::Sql
-${CMAKE_THREAD_LIBS_INIT})
+Qt5::Sql)
