@@ -147,7 +147,6 @@ protected:
     QMutex qserialPortGuard;
 
     bool backgroundWorkerThreadRun;
-    // std::thread backgroundWorkerThread;
 
     /**
      * @brief statusCommands The commands needed to get the Power Supply status

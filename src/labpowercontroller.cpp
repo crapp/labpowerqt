@@ -94,7 +94,10 @@ void LabPowerController::disconnectDevice()
         this->powerSupplyStatusUpdater->stop();
     if (this->powerSupplyConnector) {
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-        this->powerSupplyWorkerThread->wait();
+        if  (!this->powerSupplyWorkerThread->wait(3000)) {
+            qDebug() << Q_FUNC_INFO << "Thread Timeout. Will terminate.";
+            // this->powerSupplyWorkerThread->terminate();
+        }
         this->powerSupplyConnector.reset(nullptr);
         this->applicationModel->setDeviceConnected(false);
     }

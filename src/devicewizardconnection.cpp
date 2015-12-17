@@ -64,6 +64,7 @@ void DeviceWizardConnection::testConnection()
 {
     this->startTest->setDisabled(true);
     if (this->t->isRunning()) {
+        // TODO: I don't think it is a good idea to terminate a thread.
         qDebug() << Q_FUNC_INFO << "Thread has been terminated";
         this->t->terminate();
     }
@@ -140,7 +141,9 @@ void DeviceWizardConnection::dataAvailable(
         }
         this->startTest->setDisabled(false);
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-        this->t->wait();
+        if  (!this->t->wait(3000)) {
+            qDebug() << Q_FUNC_INFO << "Thread Timeout";
+        }
     }
 }
 
@@ -154,7 +157,9 @@ void DeviceWizardConnection::deviceError(QString errorString)
         "protocol as well as the correct device port.");
     this->connectionSuccessfull = false;
     this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-    this->t->wait();
+    if  (!this->t->wait(3000)) {
+        qDebug() << Q_FUNC_INFO << "Thread Timeout";
+    }
     emit this->completeChanged();
     this->startTest->setDisabled(false);
 }

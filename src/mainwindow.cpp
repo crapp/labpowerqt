@@ -357,6 +357,8 @@ void MainWindow::deviceControl(int control, int channel)
                                           QMessageBox::StandardButton::No) ==
                     static_cast<int>(QMessageBox::StandardButton::Yes))
                     this->controller->disconnectDevice();
+            } else {
+                this->controller->disconnectDevice();
             }
         } else {
             this->controller->connectDevice();
