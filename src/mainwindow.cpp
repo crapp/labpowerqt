@@ -25,8 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    qDebug() << Q_FUNC_INFO << QThread::currentThreadId();
-
     qRegisterMetaType<std::shared_ptr<SerialCommand>>();
     qRegisterMetaType<std::shared_ptr<PowerSupplyStatus>>();
 
@@ -38,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Restore saved geometry and state
     QSettings settings;
-    qDebug() << Q_FUNC_INFO << "Settings file: " << settings.fileName();
     settings.beginGroup(setcon::MAINWINDOW_GROUP);
     this->restoreGeometry(settings.value(setcon::MAINWINDOW_GEO).toByteArray());
     this->restoreState(settings.value(setcon::MAINWINDOW_STATE).toByteArray());

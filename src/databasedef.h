@@ -22,6 +22,9 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+#include <QDir>
+#include <QFileInfo>
+
 #include <QtDebug>
 
 #include <vector>
@@ -162,18 +165,23 @@ inline void initDatabase(QString driver, QString dbFile)
 {
     if (!QSqlDatabase::database().isValid()) {
         QSqlDatabase db = QSqlDatabase::addDatabase(driver);
+        // make sure the path for the db file exists
+        QFileInfo fi(dbFile);
+        if (!QDir().mkpath(fi.absolutePath())) {
+            qDebug() << Q_FUNC_INFO << "Could not create path for db file: "
+                     << fi.absolutePath();
+        }
         db.setDatabaseName(dbFile);
-        qDebug() << Q_FUNC_INFO << db.databaseName();
+        // open creates the sqlite database file
         if (!db.open()) {
-            qDebug() << Q_FUNC_INFO
-                     << "Can not open Database. Error: " << db.lastError().text();
+            qDebug() << Q_FUNC_INFO << "Can not open Database. Error: "
+                     << db.lastError().text();
         } else {
             setDBOptimizations();
             initTables();
         }
     }
 }
-
 }
 
 #endif // DATABASEDEF_H
