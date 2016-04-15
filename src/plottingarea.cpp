@@ -29,6 +29,7 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
     this->lastAction = nullptr;
     this->dataDisplayFrameHeight = -1;
 
+    // TODO: Maybe it would be nice for the user to define the min max zoom ranges
     this->lowZoom = 60;
     this->highZoom = 3600;
 
