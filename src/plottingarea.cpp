@@ -24,11 +24,13 @@ namespace utils = global_utilities;
 PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
 {
     this->autoScroll = true;
-    this->firstStart = true;
     this->startPoint = std::chrono::system_clock::now();
     this->currentDataPointKey = std::chrono::system_clock::now();
     this->lastAction = nullptr;
     this->dataDisplayFrameHeight = -1;
+
+    this->lowZoom = 60;
+    this->highZoom = 3600;
 
     this->setupUI();
     this->setupGraph();
@@ -53,12 +55,6 @@ void PlottingArea::addData(const int &channel, const double &data,
     this->currentDataPointKey = t;
 
     this->plot->graph(index)->addData(key, data);
-
-    // TODO: What is firstStart good for? Sounds like a nasty hack :(
-    if (this->firstStart) {
-        //        this->startPoint = t;
-        this->firstStart = false;
-    }
 
     if (this->autoScroll) {
         this->plot->xAxis->setRange(key, this->plot->xAxis->range().size(),
@@ -465,6 +461,7 @@ void PlottingArea::setupUI()
             for (int i = 0; i < this->plot->graphCount(); i++) {
                 this->plot->graph(i)->clearData();
             }
+            this->startPoint = std::chrono::system_clock::now();
         }
     });
     QObject::connect(
@@ -604,6 +601,14 @@ void PlottingArea::resetGraph()
 
 void PlottingArea::setupGraphPlot(const QSettings &settings)
 {
+    if (settings.value(setcon::DEVICE_POLL_FREQ).toInt() < 1000) {
+        highZoom = 1800;
+    }
+
+    if (settings.value(setcon::DEVICE_POLL_FREQ).toInt() > 1000) {
+        highZoom = 7200;
+    }
+
     // define interactions
     this->plot->setInteractions(QCP::Interaction::iRangeDrag |
                                 QCP::Interaction::iRangeZoom |
@@ -670,11 +675,9 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
                      &PlottingArea::mouseMoveHandler);
 }
 
-void PlottingArea::yAxisRange(const QCPRange &currentXRange)
+void PlottingArea::yAxisRange(const QCPRange &currentXRange,
+                              const QSettings &settings)
 {
-    QSettings settings;
-    settings.beginGroup(setcon::DEVICE_GROUP);
-    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     YAxisHelper yax;
     YAxisBounds yaxb =
         yax.getyAxisBounds(currentXRange, this->plot,
@@ -755,15 +758,16 @@ void PlottingArea::beforeReplotHandle()
 void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
                                      const QCPRange &oldRange)
 {
-    // first set y axis range
-    this->yAxisRange(newRange);
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
 
     long newRangeUpperMS = static_cast<long>(newRange.upper * 1000);
     std::chrono::milliseconds newRangeUpperMSDuration(newRangeUpperMS);
     long newRangeLowerMS = static_cast<long>(newRange.lower * 1000);
     std::chrono::milliseconds newRangeLowerMSDuration(newRangeLowerMS);
 
-    // generate a timepoint from newRange upper
+    // generate a timepoint from newRange upper and lower
     std::chrono::system_clock::time_point tpNewUpper;
     tpNewUpper =
         tpNewUpper + std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -783,44 +787,126 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     std::chrono::duration<double> deltaSecsUpperLower =
         tpNewUpperSecs - tpNewLowerSecs;
 
+    long oldRangeUpperMS = static_cast<long>(oldRange.upper * 1000);
+    std::chrono::milliseconds oldRangeUpperMSDuration(oldRangeUpperMS);
+    long oldRangeLowerMS = static_cast<long>(oldRange.lower * 1000);
+    std::chrono::milliseconds oldRangeLowerMSDuration(oldRangeLowerMS);
+
+    // generate a timepoint from newRange upper and lower
+    std::chrono::system_clock::time_point tpOldUpper;
+    tpOldUpper =
+        tpOldUpper + std::chrono::duration_cast<std::chrono::milliseconds>(
+                         oldRangeUpperMSDuration);
+    std::chrono::system_clock::time_point tpOldLower;
+    tpOldLower =
+        tpOldLower + std::chrono::duration_cast<std::chrono::milliseconds>(
+                         oldRangeLowerMSDuration);
+    // get the upper timepoint based on seconds. to many bit flips with
+    // milliseconds precision
+    std::chrono::system_clock::time_point tpOldUpperSecs =
+        std::chrono::time_point_cast<std::chrono::seconds>(tpOldUpper);
+    std::chrono::system_clock::time_point tpOldLowerSecs =
+        std::chrono::time_point_cast<std::chrono::seconds>(tpOldLower);
+
+    // calculate delta between upper and lower
+    std::chrono::duration<double> deltaSecsOldUpperLower =
+        tpOldUpperSecs - tpOldLowerSecs;
+
     // get a seconds based timepoint from the last key that was set when data was
     // added
     std::chrono::system_clock::time_point currentDataPointKeySecs =
         std::chrono::time_point_cast<std::chrono::seconds>(
             this->currentDataPointKey);
+    auto curDataPointmsEpoch =
+        std::chrono::time_point_cast<std::chrono::milliseconds>(
+            this->currentDataPointKey)
+            .time_since_epoch();
     std::chrono::system_clock::time_point startPointSecs =
         std::chrono::time_point_cast<std::chrono::seconds>(this->startPoint);
+    auto start_msEpoch =
+        std::chrono::time_point_cast<std::chrono::milliseconds>(this->startPoint)
+            .time_since_epoch();
+
+    // check if we need to toggle autoScroll
+    if (this->autoScroll && tpNewUpperSecs < currentDataPointKeySecs) {
+        // Stop autoscroll when panning to the left
+        this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Unchecked);
+    } else if (!this->autoScroll && tpNewUpperSecs >= currentDataPointKeySecs) {
+        // Panning to the most recent x value starts autoscrolling
+        this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Checked);
+    }
 
     if (tpNewUpperSecs > currentDataPointKeySecs) {
-        this->plot->xAxis->setRange(oldRange);
+        double maxUpper = (curDataPointmsEpoch.count() / 1000.0);
+        QCPRange updatedRange(maxUpper - newRange.size(), maxUpper);
+        //        if (deltaSecsUpperLower == deltaSecsOldUpperLower)
+        //            updatedRange.lower = maxUpper - newRange.size();
+        QObject::disconnect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            0, 0);
+        this->plot->xAxis->setRange(updatedRange);
+        QObject::connect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            this, &PlottingArea::xAxisRangeChanged);
         return;
     }
 
     // don't pan to much to the left. startPoint is the lowest possible time key
     if (tpNewUpperSecs < startPointSecs) {
-        this->lastRange = oldRange;
-        this->plot->xAxis->setRange(oldRange);
+        double maxUpper = (start_msEpoch.count() / 1000.0);
+        QCPRange updatedRange(maxUpper - newRange.size(), maxUpper);
+        QObject::disconnect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            0, 0);
+        this->plot->xAxis->setRange(updatedRange);
+        QObject::connect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            this, &PlottingArea::xAxisRangeChanged);
         return;
     }
 
-    // limit zoom to 60s --> 3600s
-    if (deltaSecsUpperLower < std::chrono::duration<double>(60) ||
-        deltaSecsUpperLower > std::chrono::duration<double>(3600)) {
-        this->plot->xAxis->setRange(oldRange);
+    // limit zoom
+    if (deltaSecsUpperLower < std::chrono::duration<double>(this->lowZoom) ||
+        deltaSecsUpperLower > std::chrono::duration<double>(this->highZoom)) {
+        QObject::disconnect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            0, 0);
+        QCPRange updatedRange = oldRange;
+        if (deltaSecsOldUpperLower >
+            std::chrono::duration<double>(this->highZoom)) {
+            updatedRange.lower = (curDataPointmsEpoch.count() / 1000.0) -
+                                 static_cast<double>(this->highZoom);
+            updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
+        }
+        if (deltaSecsOldUpperLower <
+            std::chrono::duration<double>(this->highZoom)) {
+            updatedRange.lower = (start_msEpoch.count() / 1000.0) -
+                                 static_cast<double>(this->lowZoom);
+            updatedRange.upper = start_msEpoch.count() / 1000.0;
+        }
+        this->plot->xAxis->setRange(updatedRange);
+        QObject::connect(
+            this->plot->xAxis,
+            static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
+                &QCPAxis::rangeChanged),
+            this, &PlottingArea::xAxisRangeChanged);
         // TODO: Use the statusbar to inform user about minimum maximum zoom
         // level.
-        // TODO: Make these values configurable.
         return;
     }
 
-    // check if we need to toggle autoScroll
-    if (this->autoScroll && tpNewUpperSecs < currentDataPointKeySecs) {
-        // Stop autoscroll when panning to much to the left
-        this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Unchecked);
-    } else if (!this->autoScroll && tpNewUpperSecs == currentDataPointKeySecs) {
-        // Pan to the most recent x value starts autoscrolling
-        this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Checked);
-    }
+    // first set y axis range
+    // this->yAxisRange(newRange, settings);
 }
 
 void PlottingArea::mouseMoveHandler(QMouseEvent *event)
@@ -836,10 +922,11 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
     if (settings.contains(setcon::DEVICE_CHANNELS)) {
         // get the coordinate on the x axis from the event position
         double x = this->plot->xAxis->pixelToCoord(event->pos().x());
-        // calculatge a datetime object fromthe x coordinate
+        // calculate a datetime object fromthe x coordinate
         QDateTime dateTime =
             QDateTime::fromMSecsSinceEpoch(static_cast<qint64>(x * 1000));
-        this->dataDisplayDT->setText(dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+        this->dataDisplayDT->setText(
+            dateTime.toString("yyyy-MM-dd HH:mm:ss.zzz"));
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
             for (int c = 0; c < 5; c++) {

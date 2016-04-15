@@ -27,18 +27,12 @@ public:
      * @brief SerialCommand default constructor that we need to register our
      * custom Type
      */
-    SerialCommand()
-    {
-        this->command = 100;
-        this->powerSupplyChannel = 1;
-        this->value = QVariant();
-        this->commandWithReply = false;
-    }
+    SerialCommand() { this->command = 100; }
 
     SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
-                  bool withReply = false)
+                  bool withReply = false, int replyLength = 0)
         : command(command), powerSupplyChannel(channel), value(value),
-          commandWithReply(withReply)
+          commandWithReply(withReply), lengthBytesReply(replyLength)
     {
     }
 
@@ -48,12 +42,14 @@ public:
     void setValue(const QVariant &value) { this->value = value; }
 
     bool getCommandWithReply() { return this->commandWithReply; }
+    int getLengthBytesReply() { return this->lengthBytesReply; }
 
 private:
     int command;
     int powerSupplyChannel;
     QVariant value;
     bool commandWithReply;
+    int lengthBytesReply;
 };
 
 // Register our metatype. Needed to send this kind of object wrapped in a std

@@ -70,22 +70,32 @@ std::chrono::system_clock::time_point LabPowerModel::getTime()
     return this->status->getTime();
 }
 
-double LabPowerModel::getVoltage(global_constants::CHANNEL c)
+void LabPowerModel::setVoltageSet(global_constants::CHANNEL c, double val)
+{
+    this->status->setVoltageSet(std::make_pair(c, val));
+}
+
+double LabPowerModel::getVoltageSet(global_constants::CHANNEL c)
 {
     return this->status->getVoltageSet(static_cast<int>(c));
 }
 
-double LabPowerModel::getActualVoltage(global_constants::CHANNEL c)
+double LabPowerModel::getVoltage(global_constants::CHANNEL c)
 {
     return this->status->getVoltage(static_cast<int>(c));
 }
 
-double LabPowerModel::getCurrent(global_constants::CHANNEL c)
+void LabPowerModel::setCurrentSet(global_constants::CHANNEL c, double val)
+{
+    this->status->setCurrentSet(std::make_pair(c, val));
+}
+
+double LabPowerModel::getCurrentSet(global_constants::CHANNEL c)
 {
     return this->status->getCurrentSet(static_cast<int>(c));
 }
 
-double LabPowerModel::getActualCurrent(global_constants::CHANNEL c)
+double LabPowerModel::getCurrent(global_constants::CHANNEL c)
 {
     return this->status->getCurrent(static_cast<int>(c));
 }
@@ -95,9 +105,19 @@ double LabPowerModel::getWattage(global_constants::CHANNEL c)
     return this->status->getWattage(static_cast<int>(c));
 }
 
+void LabPowerModel::setOVP(bool status)
+{
+    this->status->setOvp(status);
+}
+
 bool LabPowerModel::getOVP()
 {
     return this->status->getOvp();
+}
+
+void LabPowerModel::setOCP(bool status)
+{
+    this->status->setOcp(status);
 }
 
 bool LabPowerModel::getOCP()
@@ -105,9 +125,19 @@ bool LabPowerModel::getOCP()
     return this->status->getOcp();
 }
 
+void LabPowerModel::setOTP(bool status)
+{
+    this->status->setOtp(status);
+}
+
 bool LabPowerModel::getOTP()
 {
     return this->status->getOtp();
+}
+
+long LabPowerModel::getDuration()
+{
+    return this->status->getDuration();
 }
 
 std::vector<std::shared_ptr<PowerSupplyStatus>> LabPowerModel::getBuffer()

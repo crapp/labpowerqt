@@ -25,7 +25,7 @@ TabProgram::TabProgram(QWidget *parent) : QWidget(parent)
     QLabel *niy = new QLabel("Not implemented yet...");
     niy->setAlignment(Qt::AlignmentFlag::AlignCenter);
     QFont f;
-    f.setPixelSize(50);
+    f.setPixelSize(24);
     niy->setFont(f);
 
     this->programLayout->addWidget(niy);

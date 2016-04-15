@@ -66,12 +66,12 @@ void MainWindow::dataUpdated()
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
         double voltage =
-            this->applicationModel->getVoltage(static_cast<globcon::CHANNEL>(i));
-        double actualVoltage = this->applicationModel->getActualVoltage(
+            this->applicationModel->getVoltageSet(static_cast<globcon::CHANNEL>(i));
+        double actualVoltage = this->applicationModel->getVoltage(
             static_cast<globcon::CHANNEL>(i));
         double current =
-            this->applicationModel->getCurrent(static_cast<globcon::CHANNEL>(i));
-        double actualCurrent = this->applicationModel->getActualCurrent(
+            this->applicationModel->getCurrentSet(static_cast<globcon::CHANNEL>(i));
+        double actualCurrent = this->applicationModel->getCurrent(
             static_cast<globcon::CHANNEL>(i));
         double wattage =
             this->applicationModel->getWattage(static_cast<globcon::CHANNEL>(i));
@@ -144,6 +144,8 @@ void MainWindow::dataUpdated()
                                         globcon::CONTROL::OTP, 0)
         : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
                                         globcon::CONTROL::OTP, 0);
+    this->statusBar()->showMessage(
+        QString::number(this->applicationModel->getDuration()) + "ms");
 }
 
 void MainWindow::deviceConnectionUpdated(bool connected)
@@ -263,7 +265,7 @@ void MainWindow::fileBugReport()
 void MainWindow::showAbout()
 {
     AboutMe abm;
-    abm.exec(); // show it application modal
+    abm.exec(); // show application modal
 }
 
 void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
@@ -274,9 +276,7 @@ void MainWindow::showSettings()
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     QByteArray hash = settings.value(setcon::DEVICE_HASH).toByteArray();
-    settings.endArray();
-    // release the serial port
-    // this->controller->disconnectDevice();
+    settings.endGroup();
     SettingsDialog sd;
     sd.exec();
 

@@ -39,8 +39,8 @@ class SerialQueue
 public:
     SerialQueue();
 
-    void push(const int &command, const int &channel = 1,
-              const QVariant &value = QVariant(), const bool &withReply = false);
+    void push(int command, int channel = 1, const QVariant &value = QVariant(),
+              bool withReply = false, int replyLength = 0);
     std::shared_ptr<SerialCommand> pop();
 
     bool empty();

@@ -50,15 +50,22 @@ public:
 
     std::chrono::system_clock::time_point getTime();
 
+    void setVoltageSet(global_constants::CHANNEL c, double val);
+    double getVoltageSet(global_constants::CHANNEL c);
     double getVoltage(global_constants::CHANNEL c);
-    double getActualVoltage(global_constants::CHANNEL c);
+    void setCurrentSet(global_constants::CHANNEL c, double val);
+    double getCurrentSet(global_constants::CHANNEL c);
     double getCurrent(global_constants::CHANNEL c);
-    double getActualCurrent(global_constants::CHANNEL c);
     double getWattage(global_constants::CHANNEL c);
 
+    void setOVP(bool status);
     bool getOVP();
+    void setOCP(bool status);
     bool getOCP();
+    void setOTP(bool status);
     bool getOTP();
+
+    long getDuration();
 
     std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
     int getBufferSize();

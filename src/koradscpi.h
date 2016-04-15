@@ -29,12 +29,12 @@ namespace KoradSCPI_constants
 {
 namespace powcon = PowerSupplySCPI_constants;
 const std::map<int, QString> SERIALCOMMANDMAP = {
-    {powcon::SETCURRENT, "ISET%1:%2"},     /**< Set current */
-    {powcon::GETCURRENT, "ISET%1?"},       /**< Get current that has been set */
-    {powcon::SETVOLTAGE, "VSET%1:%2"},     /**< Set voltage */
-    {powcon::GETVOLTAGE, "VSET%1?"},       /**< Get voltage that has been set */
-    {powcon::GETACTUALCURRENT, "IOUT%1?"}, /**< Get actual current */
-    {powcon::GETACTUALVOLTAGE, "VOUT%1?"}, /**< Get actual Voltage */
+    {powcon::SETCURRENTSET, "ISET%1:%2"},     /**< Set current */
+    {powcon::GETCURRENTSET, "ISET%1?"},       /**< Get current that has been set */
+    {powcon::SETVOLTAGESET, "VSET%1:%2"},     /**< Set voltage */
+    {powcon::GETVOLTAGESET, "VSET%1?"},       /**< Get voltage that has been set */
+    {powcon::GETCURRENT, "IOUT%1?"}, /**< Get actual current */
+    {powcon::GETVOLTAGE, "VOUT%1?"}, /**< Get actual Voltage */
     {powcon::SETCHANNELTRACKING,
      "TRACK%1"}, /**< Selects the operation mode: independent, trackingseries,
                     or tracking parallel. */
@@ -51,6 +51,14 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
     {powcon::GETOCP,
      "OCP%1?"}, // dummy command because firmware does not support this
     {powcon::SETDUMMY, "DUMMY"}, // just some dummy command
+};
+const std::map<int, int> SERIALCOMMANDBUFLENGTH = {
+    {powcon::GETVOLTAGESET, 5},       /**< Get voltage that has been set */
+    {powcon::GETVOLTAGE, 5}, /**< Get actual Voltage */
+    {powcon::GETCURRENTSET, 5},
+    {powcon::GETCURRENT, 5}, /**< Get actual current */
+    {powcon::GETSTATUS, 50},       // request status
+    {powcon::GETIDN, 50}           // get device identification strin
 };
 }
 
@@ -77,7 +85,7 @@ public:
               int voltageAccuracy, int currentAccuracy,
               QSerialPort::BaudRate brate, QSerialPort::FlowControl flowctl,
               QSerialPort::DataBits dbits, QSerialPort::Parity parity,
-              QSerialPort::StopBits sbits);
+              QSerialPort::StopBits sbits, int portTimeOut);
     ~KoradSCPI();
 
     // LabPowerSupply Interface
@@ -85,7 +93,11 @@ public:
     void getStatus();
     void changeChannel(int channel);
     void setVoltage(int channel, double value);
+    void getVoltage(int channel);
+    void getActualVoltage(int channel);
     void setCurrent(int channel, double value);
+    void getCurrent(int channel);
+    void getActualCurrent(int channel);
     void setOCP(bool status);
     void setOVP(bool status);
     /**
@@ -106,9 +118,12 @@ signals:
 
 private:
     // LabPowerSupply Interface
-    QByteArray prepareCommand(const std::shared_ptr<SerialCommand> &com);
-    void processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
-                               const std::shared_ptr<SerialCommand> &com);
+    QByteArray
+    prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com);
+    std::vector<std::shared_ptr<SerialCommand>> prepareStatusCommands();
+    void processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
+                         const std::shared_ptr<SerialCommand> &com);
+    void updateNewPStatus(const std::shared_ptr<PowerSupplyStatus> &status);
     void calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status);
 
     // No way to query the status of over voltage and over surrent protection so

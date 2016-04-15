@@ -87,11 +87,12 @@ void DeviceWizardConnection::testConnection()
 
     if (static_cast<global_constants::PROTOCOL>(field("protocol").toInt()) ==
         global_constants::PROTOCOL::KORADV2) {
-        this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(new KoradSCPI(
-            std::move(field("comPort").toString()),
-            std::move(QByteArray("WizardConnectionTest")),
-            field("channel").toInt(), field("voltAcc").toInt(),
-            field("currentAcc").toInt(), brate, flowctl, dbits, parity, sbits));
+        this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(
+            new KoradSCPI(std::move(field("comPort").toString()),
+                          std::move(QByteArray("WizardConnectionTest")),
+                          field("channel").toInt(), field("voltAcc").toInt(),
+                          field("currentAcc").toInt(), brate, flowctl, dbits,
+                          parity, sbits, field("sportTimeout").toInt()));
     }
 
     this->txt->appendPlainText("Using " + field("protocolText").toString() +
@@ -141,7 +142,7 @@ void DeviceWizardConnection::dataAvailable(
         }
         this->startTest->setDisabled(false);
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-        if  (!this->t->wait(3000)) {
+        if (!this->t->wait(3000)) {
             qDebug() << Q_FUNC_INFO << "Thread Timeout";
         }
     }
@@ -157,7 +158,7 @@ void DeviceWizardConnection::deviceError(QString errorString)
         "protocol as well as the correct device port.");
     this->connectionSuccessfull = false;
     this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-    if  (!this->t->wait(3000)) {
+    if (!this->t->wait(3000)) {
         qDebug() << Q_FUNC_INFO << "Thread Timeout";
     }
     emit this->completeChanged();

@@ -61,6 +61,9 @@ void DeviceWizard::accept()
     settings.setValue(setcon::DEVICE_PORT_SBITS, field("stopBox").toInt());
     hash.addData(settings.value(setcon::DEVICE_PORT_SBITS).toByteArray());
 
+    settings.setValue(setcon::DEVICE_PORT_TIMEOUT, field("sportTimeout").toInt());
+    hash.addData(settings.value(setcon::DEVICE_PORT_TIMEOUT).toByteArray());
+
     settings.setValue(setcon::DEVICE_CHANNELS, field("channel").toInt());
     hash.addData(settings.value(setcon::DEVICE_CHANNELS).toByteArray());
 
@@ -72,6 +75,9 @@ void DeviceWizard::accept()
 
     settings.setValue(setcon::DEVICE_VOLTAGE_ACCURACY, field("voltAcc").toInt());
     hash.addData(settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toByteArray());
+
+    settings.setValue(setcon::DEVICE_POLL_FREQ, field("pollFreqBox").toInt());
+    hash.addData(settings.value(setcon::DEVICE_POLL_FREQ).toByteArray());
 
     settings.setValue(setcon::DEVICE_CURRENT_MIN,
                       field("currentLow").toDouble());

@@ -35,6 +35,7 @@ void LabPowerController::connectDevice()
             settings.value(setcon::DEVICE_PORT_SBITS).toInt());
         QByteArray deviceHash =
             settings.value(setcon::DEVICE_HASH).toByteArray();
+        int portTimeOut = settings.value(setcon::DEVICE_PORT_TIMEOUT).toInt();
         if (!this->powerSupplyConnector ||
             this->powerSupplyConnector->getDeviceHash() != deviceHash) {
             if (settings.value(setcon::DEVICE_PROTOCOL).toInt() ==
@@ -45,7 +46,7 @@ void LabPowerController::connectDevice()
                         settings.value(setcon::DEVICE_CHANNELS).toInt(),
                         settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt(),
                         settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt(),
-                        brate, flowctl, dbits, parity, sbits));
+                        brate, flowctl, dbits, parity, sbits, portTimeOut));
             }
             QObject::connect(this->powerSupplyConnector.get(),
                              &PowerSupplySCPI::errorOpen, this,
@@ -94,7 +95,7 @@ void LabPowerController::disconnectDevice()
         this->powerSupplyStatusUpdater->stop();
     if (this->powerSupplyConnector) {
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
-        if  (!this->powerSupplyWorkerThread->wait(3000)) {
+        if (!this->powerSupplyWorkerThread->wait(3000)) {
             qDebug() << Q_FUNC_INFO << "Thread Timeout. Will terminate.";
             // this->powerSupplyWorkerThread->terminate();
         }
@@ -122,12 +123,23 @@ void LabPowerController::deviceConnected()
     // Check identification
     this->getIdentification();
 
+    QSettings settings;
+    settings.beginGroup(setcon::DEVICE_GROUP);
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    // Get set voltage and set current
+    for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
+        this->powerSupplyConnector->getVoltage(i);
+        this->powerSupplyConnector->getCurrent(i);
+    }
+    // TODO: Add other getValue calls here like getOVP, getOCP...
+
     // Start our background updater
     this->powerSupplyStatusUpdater = std::unique_ptr<QTimer>(new QTimer());
     QObject::connect(this->powerSupplyStatusUpdater.get(), SIGNAL(timeout()),
                      this, SLOT(getStatus()));
-    // TODO: Make the interval configurable. Determine a sane minimum.
-    this->powerSupplyStatusUpdater->setInterval(1000);
+
+    this->powerSupplyStatusUpdater->setInterval(
+        settings.value(setcon::DEVICE_POLL_FREQ, 1000).toInt());
     this->powerSupplyStatusUpdater->start();
 }
 
@@ -139,6 +151,7 @@ void LabPowerController::deviceReadWriteError(const QString &errorString)
 
 void LabPowerController::setVoltage(int channel, double value)
 {
+
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setVoltage(channel, value);
 }
@@ -205,6 +218,14 @@ void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
     case powcon::COMMANDS::GETIDN:
         this->applicationModel->setDeviceIdentification(
             com->getValue().toString());
+        break;
+    case powcon::COMMANDS::GETVOLTAGESET:
+        this->powerSupplyConnector->setVoltage(com->getPowerSupplyChannel(),
+                                               com->getValue().toDouble());
+        break;
+    case powcon::COMMANDS::GETCURRENTSET:
+        this->powerSupplyConnector->setCurrent(com->getPowerSupplyChannel(),
+                                               com->getValue().toDouble());
         break;
     default:
         break;

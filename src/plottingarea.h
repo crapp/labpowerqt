@@ -117,12 +117,14 @@ private:
 
     QCheckBox *cbGeneralAutoscrl; /**< need to keep a pointer to this one*/
 
-    bool firstStart;
     bool autoScroll;
     std::chrono::system_clock::time_point startPoint;
     std::chrono::system_clock::time_point currentDataPointKey;
 
     QCPRange lastRange;
+
+    int lowZoom;
+    int highZoom;
 
     /**
      * @brief Setup the basic UI
@@ -142,7 +144,7 @@ private:
      * @brief Update the y-axis range
      * @param currentXRange
      */
-    void yAxisRange(const QCPRange &currentXRange);
+    void yAxisRange(const QCPRange &currentXRange, const QSettings &settings);
     void yAxisVisibility();
 
 private slots:

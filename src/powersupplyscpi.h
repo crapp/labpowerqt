@@ -22,12 +22,12 @@
 namespace PowerSupplySCPI_constants
 {
 enum COMMANDS {
-    SETCURRENT = 1,
+    SETCURRENTSET = 1,
+    GETCURRENTSET,
+    SETVOLTAGESET,
+    GETVOLTAGESET,
     GETCURRENT,
-    SETVOLTAGE,
     GETVOLTAGE,
-    GETACTUALCURRENT,
-    GETACTUALVOLTAGE,
     GETOPMODE, /**< CC or CV mode */
     SETCHANNELTRACKING,
     GETCHANNELTRACKING,
@@ -56,12 +56,12 @@ class PowerSupplySCPI : public QObject
     Q_OBJECT
 
 public:
-    PowerSupplySCPI(QString serialPortName, QByteArray deviceHash, int noOfChannels,
-                    int voltageAccuracy, int currentAccuracy,
+    PowerSupplySCPI(QString serialPortName, QByteArray deviceHash,
+                    int noOfChannels, int voltageAccuracy, int currentAccuracy,
                     QSerialPort::BaudRate brate,
                     QSerialPort::FlowControl flowctl,
                     QSerialPort::DataBits dbits, QSerialPort::Parity parity,
-                    QSerialPort::StopBits sbits, QObject *parent = 0);
+                    QSerialPort::StopBits sbits, int portTimeOut, QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
@@ -81,7 +81,11 @@ public:
     virtual void getStatus() = 0;
     virtual void changeChannel(int channel) = 0;
     virtual void setVoltage(int channel, double value) = 0;
+    virtual void getVoltage(int channel) = 0;
+    virtual void getActualVoltage(int channel) = 0;
     virtual void setCurrent(int channel, double value) = 0;
+    virtual void getCurrent(int channel) = 0;
+    virtual void getActualCurrent(int channel) = 0;
     virtual void setOCP(bool status) = 0;
     virtual void setOVP(bool status) = 0;
     // TODO Not sure if this actually supported by any device.
@@ -136,6 +140,8 @@ protected:
     QSerialPort::Parity port_parity;
     QSerialPort::StopBits port_stopbits;
 
+    int portTimeOut;
+
     /**
      * @brief canCalculateWattage Devices that can measure actual current but not power can calculate power usage.
      */
@@ -153,15 +159,20 @@ protected:
      */
     std::vector<PowerSupplySCPI_constants::COMMANDS> statusCommands;
 
+    std::shared_ptr<PowerSupplyStatus> powStatus;
+
     void threadFunc();
 
     virtual void readWriteData(std::shared_ptr<SerialCommand> com);
     virtual QByteArray
-    prepareCommand(const std::shared_ptr<SerialCommand> &com) = 0;
-    virtual std::vector<std::shared_ptr<SerialCommand>> prepareStatusCommands();
+    prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com) = 0;
+    virtual std::vector<std::shared_ptr<SerialCommand>>
+    prepareStatusCommands() = 0;
     virtual void
-    processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
-                          const std::shared_ptr<SerialCommand> &com) = 0;
+    processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
+                    const std::shared_ptr<SerialCommand> &com) = 0;
+    virtual void
+    updateNewPStatus(const std::shared_ptr<PowerSupplyStatus> &status) = 0;
     virtual void
     calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status) = 0;
 

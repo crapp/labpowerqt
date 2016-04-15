@@ -41,6 +41,7 @@ const char *const DEVICE_PORT_FLOW = "flowctl";
 const char *const DEVICE_PORT_DBITS = "databits";
 const char *const DEVICE_PORT_PARITY = "parity";
 const char *const DEVICE_PORT_SBITS = "stopbits";
+const char *const DEVICE_PORT_TIMEOUT = "timeout";
 const char *const DEVICE_CHANNELS = "channels";
 const char *const DEVICE_CURRENT_MIN = "current_min";
 const char *const DEVICE_CURRENT_MAX = "current_max";
@@ -48,6 +49,7 @@ const char *const DEVICE_CURRENT_ACCURACY = "current_accuracy";
 const char *const DEVICE_VOLTAGE_MIN = "voltage_min";
 const char *const DEVICE_VOLTAGE_MAX = "voltage_max";
 const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
+const char *const DEVICE_POLL_FREQ = "poll_freq";
 // plot
 const char *const PLOT_GROUP = "plot";
 const char *const PLOT_SHOW_DATA = "show_data";

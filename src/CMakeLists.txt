@@ -154,6 +154,8 @@ add_executable(labpowerqt
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
+add_definitions(-DQT_NO_DEBUG_OUTPUT -DQT_NO_WARNING_OUTPUT)
+
 target_link_libraries(labpowerqt
 Qt5::Widgets
 Qt5::SerialPort

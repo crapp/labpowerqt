@@ -6,15 +6,19 @@ PowerSupplySCPI::PowerSupplySCPI(
     QString serialPortName, QByteArray deviceHash, int noOfChannels,
     int voltageAccuracy, int currentAccuracy, QSerialPort::BaudRate brate,
     QSerialPort::FlowControl flowctl, QSerialPort::DataBits dbits,
-    QSerialPort::Parity parity, QSerialPort::StopBits sbits, QObject *parent)
+    QSerialPort::Parity parity, QSerialPort::StopBits sbits, int portTimeOut,
+    QObject *parent)
     : serialPortName(std::move(serialPortName)),
       deviceHash(std::move(deviceHash)), noOfChannels(noOfChannels),
       voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
       port_baudraute(brate), port_flowControl(flowctl), port_databits(dbits),
-      port_parity(parity), port_stopbits(sbits), QObject(parent)
+      port_parity(parity), port_stopbits(sbits), portTimeOut(portTimeOut),
+      QObject(parent)
 {
     this->serialPort = nullptr;
     this->canCalculateWattage = false;
+
+    this->powStatus = std::make_shared<PowerSupplyStatus>();
 }
 
 PowerSupplySCPI::~PowerSupplySCPI() {}
@@ -78,7 +82,6 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     // most of all not error prone.
 
     QMutexLocker qlock(&this->qserialPortGuard);
-    std::shared_ptr<PowerSupplyStatus> status = nullptr;
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
 
     if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
@@ -90,40 +93,45 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     if (com->getCommand() == powcon::GETSTATUS) {
         commands = this->prepareStatusCommands();
-        status = std::make_shared<PowerSupplyStatus>();
     }
 
     // TODO: The Timeout values for serial port operations are critical. Maybe
     // they need to be configurable
     for (auto &c : commands) {
-        QByteArray commandByte = this->prepareCommand(c);
+        QByteArray commandByte = this->prepareCommandByteArray(c);
         bool waitForBytes = true;
-        if (this->serialPort->write(commandByte) != -1) {
+        this->serialPort->clear(QSerialPort::Direction::AllDirections);
+        if (this->serialPort->write(commandByte, commandByte.length()) != -1) {
             // wait for for bytes to be written
-            if (commandByte != "")
-                waitForBytes = this->serialPort->waitForBytesWritten(1000);
+            if (commandByte != "") {
+                waitForBytes =
+                    this->serialPort->waitForBytesWritten(this->portTimeOut);
+                // this->thread()->msleep(10);
+            }
         }
 
         if (waitForBytes) {
             // is this command with a feedback?
             if (c->getCommandWithReply()) {
-                QByteArray reply;
+                QByteArray reply = "0";
                 if (commandByte != "") {
                     // wait until port is ready to read
-                    this->serialPort->waitForReadyRead(1000);
-                    reply = this->serialPort->readAll();
-                    while (this->serialPort->waitForReadyRead(10)) {
-                        reply += this->serialPort->readAll();
+                    this->serialPort->waitForReadyRead(2000);
+                    if (serialPort->bytesAvailable())
+                        reply.clear();
+                    while (serialPort->bytesAvailable()) {
+                        reply.append(this->serialPort->readAll());
+                        this->serialPort->waitForReadyRead(this->portTimeOut);
                     }
+                    //                    while
+                    //                    (this->serialPort->waitForReadyRead(1))
+                    //                    {
+                    //                        reply +=
+                    //                        this->serialPort->readAll();
+                    //                    }
                 }
-                c->setValue(QVariant(reply));
-
-                if (status != nullptr) {
-                    this->processStatusCommands(status, c);
-                } else {
-                    // send our com object with the signal
-                    emit this->requestFinished(c);
-                }
+                c->setValue(reply);
+                this->processCommands(this->powStatus, c);
             }
         } else {
             qDebug() << Q_FUNC_INFO
@@ -142,34 +150,18 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
              << "ms";
 
-    if (status != nullptr) {
-        status->setTime(std::move(std::chrono::system_clock::now()));
+    if (com->getCommand() == powcon::GETSTATUS) {
+        this->powStatus->setDuration(duration);
+        this->powStatus->setTime(std::move(std::chrono::system_clock::now()));
         // calculate wattage
         if (this->canCalculateWattage)
-            this->calculateWattage(status);
-        emit this->statusReady(status);
+            this->calculateWattage(this->powStatus);
+        emit this->statusReady(this->powStatus);
+        std::shared_ptr<PowerSupplyStatus> newStatus =
+            std::make_shared<PowerSupplyStatus>();
+        this->updateNewPStatus(newStatus);
+        this->powStatus = newStatus;
+    } else {
+        emit this->requestFinished(com);
     }
-}
-
-std::vector<std::shared_ptr<SerialCommand>>
-PowerSupplySCPI::prepareStatusCommands()
-{
-    std::vector<std::shared_ptr<SerialCommand>> comVec;
-    for (const auto &c : this->statusCommands) {
-        if (c == powcon::COMMANDS::GETACTUALVOLTAGE ||
-            c == powcon::COMMANDS::GETACTUALCURRENT ||
-            c == powcon::COMMANDS::GETVOLTAGE || powcon::COMMANDS::GETCURRENT) {
-            for (int i = 1; i <= this->noOfChannels; i++) {
-                std::shared_ptr<SerialCommand> com =
-                    std::make_shared<SerialCommand>(static_cast<int>(c), i,
-                                                    QVariant(), true);
-                comVec.push_back(com);
-            }
-        } else {
-            std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-                static_cast<int>(c), 1, QVariant(), true);
-            comVec.push_back(com);
-        }
-    }
-    return comVec;
 }

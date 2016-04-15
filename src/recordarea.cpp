@@ -47,7 +47,7 @@ void RecordArea::setupUI()
     this->recordName->setToolTip("Set a name for the current recording");
     QDateTime dt = QDateTime::currentDateTime();
     this->recordName->setText(QString("recording_") +
-                              dt.toString("yyyy-MM-dd_HH:MM"));
+                              dt.toString("yyyy-MM-dd_HH:mm"));
     recordBoxLayout->addWidget(this->recordName, 1, 0, 1, 2);
 
     QObject::connect(this->recordToggle, &SwitchButton::toggled, this,

@@ -199,6 +199,35 @@ void DeviceWizardOptions::comBox()
     baudFlowDBits->addWidget(stopLabel, 2, 1);
     baudFlowDBits->addWidget(stopBox, 3, 1);
 
+    QLabel *pollingFreqLabel = new QLabel("Polling frequency");
+    QComboBox *pollFreqBox = new QComboBox();
+    pollFreqBox->setToolTip("Polling Frequency in Hertz");
+    pollFreqBox->addItem("10 Hz", 100);
+    pollFreqBox->addItem("5 Hz", 200);
+    pollFreqBox->addItem("2 Hz", 500);
+    pollFreqBox->addItem("1 Hz", 1000);
+    pollFreqBox->addItem("0.5 Hz", 2000);
+    pollFreqBox->addItem("0.2 Hz", 5000);
+    pollFreqBox->addItem("0.1 Hz", 10000);
+    pollFreqBox->setCurrentIndex(1);
+    baudFlowDBits->addWidget(pollingFreqLabel, 4, 0);
+    baudFlowDBits->addWidget(pollFreqBox, 5, 0);
+
+    QLabel *sportTimeoutLabel = new QLabel("Serial port timeout");
+    QSpinBox *sportTimeout = new QSpinBox();
+    sportTimeout->setMinimum(1);
+    sportTimeout->setMaximum(10000);
+    sportTimeout->setSuffix("ms");
+    sportTimeout->setValue(10);
+    sportTimeout->setToolTip("Time in Milliseconds the Serialport will wait "
+                             "for an answer from the device. Tuning this option "
+                             "might improve communication resulting in a higher "
+                             "polling frequency. If this value is to low you "
+                             "will encounter partial or complete data loss on "
+                             "the serial port connection.");
+    baudFlowDBits->addWidget(sportTimeoutLabel, 4, 1);
+    baudFlowDBits->addWidget(sportTimeout, 5, 1);
+
     // we need the comport string not index
     registerField("comPort", this->comPort, "currentText");
     registerField("baudBox", baudBox, "currentText");
@@ -206,4 +235,6 @@ void DeviceWizardOptions::comBox()
     registerField("dbitsBox", dbitsBox, "currentText");
     registerField("parityBox", parityBox, "currentData");
     registerField("stopBox", stopBox, "currentData");
+    registerField("pollFreqBox", pollFreqBox, "currentData");
+    registerField("sportTimeout", sportTimeout);
 }

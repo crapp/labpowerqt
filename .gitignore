@@ -85,7 +85,20 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 
+
+### Python ###
+## Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+
 # Custom #
 
+.agignore
+.lvimrc
+.ycm_extra_conf.py
+
+korad.py
 build/
 database/
