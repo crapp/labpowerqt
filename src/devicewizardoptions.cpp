@@ -219,11 +219,11 @@ void DeviceWizardOptions::comBox()
     sportTimeout->setMaximum(10000);
     sportTimeout->setSuffix("ms");
     sportTimeout->setValue(10);
-    sportTimeout->setToolTip("Time in Milliseconds the Serialport will wait "
-                             "for an answer from the device. Tuning this option "
-                             "might improve communication resulting in a higher "
-                             "polling frequency. If this value is to low you "
-                             "will encounter partial or complete data loss on "
+    sportTimeout->setToolTip("Time in Milliseconds the Serialport will wait \n"
+                             "for an answer from the device. Tuning this option \n"
+                             "might improve communication resulting in a higher \n"
+                             "polling frequency. If this value is to low you \n"
+                             "will encounter partial or complete data loss on \n"
                              "the serial port connection.");
     baudFlowDBits->addWidget(sportTimeoutLabel, 4, 1);
     baudFlowDBits->addWidget(sportTimeout, 5, 1);

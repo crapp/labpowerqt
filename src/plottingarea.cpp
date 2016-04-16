@@ -83,7 +83,7 @@ void PlottingArea::setupGraph()
 
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-            // trhe box that controls the visibility of the graphs
+            // the box that controls the visibility of the graphs
             QGroupBox *graphVisibilityBox =
                 new QGroupBox("Channel " + QString::number(i));
             graphVisibilityBox->setLayout(new QHBoxLayout());
@@ -891,9 +891,9 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
         }
         if (deltaSecsOldUpperLower <
             std::chrono::duration<double>(this->highZoom)) {
-            updatedRange.lower = (start_msEpoch.count() / 1000.0) -
+            updatedRange.lower = (curDataPointmsEpoch.count() / 1000.0) -
                                  static_cast<double>(this->lowZoom);
-            updatedRange.upper = start_msEpoch.count() / 1000.0;
+            updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
         }
         this->plot->xAxis->setRange(updatedRange);
         QObject::connect(

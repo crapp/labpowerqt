@@ -144,8 +144,8 @@ void MainWindow::dataUpdated()
                                         globcon::CONTROL::OTP, 0)
         : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
                                         globcon::CONTROL::OTP, 0);
-    this->statusBar()->showMessage(
-        QString::number(this->applicationModel->getDuration()) + "ms");
+    //this->statusBar()->showMessage(
+        //QString::number(this->applicationModel->getDuration()) + "ms");
 }
 
 void MainWindow::deviceConnectionUpdated(bool connected)

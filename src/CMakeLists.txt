@@ -24,7 +24,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND ${MSVC_VERSION} LESS 1900)
     message(
-        # MSVC 1900 has the best C++11 support so far. So, warn if you try to
+        # MSVC 1900 has the best C++11 support so far. So, fatal_error if you try to
         # use anything else.
       FATAL_ERROR
       "LabPowerQt does not support compiling on Windows with "

@@ -9,10 +9,16 @@ PowerSupplySCPI::PowerSupplySCPI(
     QSerialPort::Parity parity, QSerialPort::StopBits sbits, int portTimeOut,
     QObject *parent)
     : serialPortName(std::move(serialPortName)),
-      deviceHash(std::move(deviceHash)), noOfChannels(noOfChannels),
-      voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
-      port_baudraute(brate), port_flowControl(flowctl), port_databits(dbits),
-      port_parity(parity), port_stopbits(sbits), portTimeOut(portTimeOut),
+      deviceHash(std::move(deviceHash)),
+      noOfChannels(noOfChannels),
+      voltageAccuracy(voltageAccuracy),
+      currentAccuracy(currentAccuracy),
+      port_baudraute(brate),
+      port_flowControl(flowctl),
+      port_databits(dbits),
+      port_parity(parity),
+      port_stopbits(sbits),
+      portTimeOut(portTimeOut),
       QObject(parent)
 {
     this->serialPort = nullptr;
@@ -22,7 +28,6 @@ PowerSupplySCPI::PowerSupplySCPI(
 }
 
 PowerSupplySCPI::~PowerSupplySCPI() {}
-
 void PowerSupplySCPI::startPowerSupplyBackgroundThread()
 {
     this->backgroundWorkerThreadRun = true;
@@ -36,9 +41,7 @@ void PowerSupplySCPI::stopPowerSupplyBackgroundThread()
 }
 
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
-
 QByteArray PowerSupplySCPI::getDeviceHash() { return this->deviceHash; }
-
 void PowerSupplySCPI::threadFunc()
 {
     this->serialPort = new QSerialPort(this->serialPortName);
@@ -106,7 +109,6 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
             if (commandByte != "") {
                 waitForBytes =
                     this->serialPort->waitForBytesWritten(this->portTimeOut);
-                // this->thread()->msleep(10);
             }
         }
 

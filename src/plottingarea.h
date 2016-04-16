@@ -53,7 +53,6 @@ public slots:
     void addData(const int &channel, const double &data,
                  const std::chrono::system_clock::time_point &t,
                  const global_constants::DATATYPE &type);
-    // TODO: trigger this slot when settings have been changed.
     void setupGraph();
 
 private:
