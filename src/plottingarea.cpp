@@ -29,7 +29,8 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
     this->lastAction = nullptr;
     this->dataDisplayFrameHeight = -1;
 
-    // TODO: Maybe it would be nice for the user to define the min max zoom ranges
+    // TODO: Maybe it would be nice for the user to define the min max zoom
+    // ranges
     this->lowZoom = 60;
     this->highZoom = 3600;
 
@@ -76,7 +77,6 @@ void PlottingArea::setupGraph()
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     if (settings.contains(setcon::DEVICE_PORT)) {
-
         this->setupGraphPlot(settings);
 
         int graphIndex = 0;
@@ -330,7 +330,9 @@ void PlottingArea::setupGraph()
                     graphLineStyle->setCurrentIndex(
                         settings.value(lskey, 1).toInt());
                 }
+                // by default all lines have a width of two
                 graphLineThickness->setValue(settings.value(linekey, 2).toInt());
+
                 settings.endGroup();
                 settings.beginGroup(setcon::DEVICE_GROUP);
                 settings.beginGroup(
@@ -386,8 +388,9 @@ void PlottingArea::setupUI()
     QObject::connect(this->cbGeneralAutoscrl, &QCheckBox::stateChanged, this,
                      &PlottingArea::generalCBCheckState);
     QCheckBox *dataDisplayArea = new QCheckBox("Show data under Plot");
-    dataDisplayArea->setToolTip("Activate this option to show the data at the "
-                                "mouse cursor position under the plot.");
+    dataDisplayArea->setToolTip(
+        "Activate this option to show the data at the "
+        "mouse cursor position under the plot.");
     dataDisplayArea->setChecked(true);
     generalCBLayout->addWidget(dataDisplayArea);
     QCheckBox *generalShowGrid = new QCheckBox("Show Grid");
@@ -424,36 +427,37 @@ void PlottingArea::setupUI()
     maxHeightAniDisplay->setPropertyName("maximumHeight");
     this->animationGroupDataDisplay->addAnimation(maxHeightAniDisplay);
 
-    QObject::connect(dataDisplayArea, &QCheckBox::stateChanged, [this](
-                                                                    int state) {
-        QSettings settings;
-        settings.beginGroup(setcon::PLOT_GROUP);
-        settings.setValue(setcon::PLOT_SHOW_DATA, state);
-        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-            QVariant oldStartValue =
+    QObject::connect(
+        dataDisplayArea, &QCheckBox::stateChanged, [this](int state) {
+            QSettings settings;
+            settings.beginGroup(setcon::PLOT_GROUP);
+            settings.setValue(setcon::PLOT_SHOW_DATA, state);
+            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+                QVariant oldStartValue =
+                    dynamic_cast<QPropertyAnimation *>(
+                        this->animationGroupDataDisplay->animationAt(0))
+                        ->startValue();
                 dynamic_cast<QPropertyAnimation *>(
                     this->animationGroupDataDisplay->animationAt(0))
-                    ->startValue();
-            dynamic_cast<QPropertyAnimation *>(
-                this->animationGroupDataDisplay->animationAt(0))
-                ->setStartValue(0);
-            dynamic_cast<QPropertyAnimation *>(
-                this->animationGroupDataDisplay->animationAt(0))
-                ->setEndValue(oldStartValue);
-            this->animationGroupDataDisplay->start();
-        } else {
-            if (this->dataDisplayFrameHeight == -1) {
-                this->dataDisplayFrameHeight = this->dataDisplayFrame->height();
+                    ->setStartValue(0);
+                dynamic_cast<QPropertyAnimation *>(
+                    this->animationGroupDataDisplay->animationAt(0))
+                    ->setEndValue(oldStartValue);
+                this->animationGroupDataDisplay->start();
+            } else {
+                if (this->dataDisplayFrameHeight == -1) {
+                    this->dataDisplayFrameHeight =
+                        this->dataDisplayFrame->height();
+                }
+                dynamic_cast<QPropertyAnimation *>(
+                    this->animationGroupDataDisplay->animationAt(0))
+                    ->setStartValue(this->dataDisplayFrameHeight);
+                dynamic_cast<QPropertyAnimation *>(
+                    this->animationGroupDataDisplay->animationAt(0))
+                    ->setEndValue(0);
+                this->animationGroupDataDisplay->start();
             }
-            dynamic_cast<QPropertyAnimation *>(
-                this->animationGroupDataDisplay->animationAt(0))
-                ->setStartValue(this->dataDisplayFrameHeight);
-            dynamic_cast<QPropertyAnimation *>(
-                this->animationGroupDataDisplay->animationAt(0))
-                ->setEndValue(0);
-            this->animationGroupDataDisplay->start();
-        }
-    });
+        });
     QObject::connect(generalDiscardData, &QPushButton::clicked, [this]() {
         if (QMessageBox::question(
                 this, "Discard Data",
@@ -663,6 +667,10 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
                      .count();
     // initial range
     this->plot->xAxis->setRange(msecs / 1000.0, 300, Qt::AlignRight);
+
+    this->zoomLevel = new QCPItemText(this->plot);
+    this->zoomLevel->setText("Hier soll was stehen");
+    this->plot->addItem(this->zoomLevel);
 
     QObject::connect(
         this->plot->xAxis,
@@ -890,7 +898,7 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
             updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
         }
         if (deltaSecsOldUpperLower <
-            std::chrono::duration<double>(this->highZoom)) {
+            std::chrono::duration<double>(this->lowZoom)) {
             updatedRange.lower = (curDataPointmsEpoch.count() / 1000.0) -
                                  static_cast<double>(this->lowZoom);
             updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
@@ -907,7 +915,7 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     }
 
     // first set y axis range
-    // this->yAxisRange(newRange, settings);
+    this->yAxisRange(newRange, settings);
 }
 
 void PlottingArea::mouseMoveHandler(QMouseEvent *event)

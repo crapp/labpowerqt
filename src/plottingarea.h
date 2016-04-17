@@ -87,7 +87,9 @@ private:
     QCPAxis *wattageAxis;
     QPen xAxisGridPen;
     QPen yAxisGridPen;
+    QCPItemText *zoomLevel;
 
+    // Toolbar containing actions to show different sections in controlStack
     QToolBar *controlBar;
     QAction *actionGeneral;
     QAction *actionData;
@@ -95,6 +97,7 @@ private:
     QAction *lastAction; /**< last action that was triggered */
     std::unique_ptr<QParallelAnimationGroup> animationGroupControl;
 
+    // Stack widget containing control sections for plotting area
     QStackedWidget *controlStack;
     QWidget *controlGeneral;
     QScrollArea *controlGeneralScroll;
@@ -158,4 +161,4 @@ private slots:
     void generalCBCheckState(int state);
 };
 
-#endif // PLOTTINGAREA_H
+#endif  // PLOTTINGAREA_H
