@@ -18,6 +18,8 @@ matrix:
       compiler: clang
       osx_image: xcode7.3
 
+# use this to install linux specific dependencies and different compilers based on
+# environmental variables. 
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
@@ -32,13 +34,14 @@ before_install:
       if [[ "${COMPILER}" == "g++-5" ]]; then
         sudo apt-get install g++-5 -y
       fi
-      if [[ "${COMPILER}" == "clang-3.7" ]]; then
+      if [[ "${COMPILER}" == "clang++-3.7" ]]; then
         sudo apt-get install clang-3.7 -y
       fi
       sudo apt-get install mesa-common-dev qt56base qt56quickcontrols qt56serialport -y
       export PRE_PATH=/opt/qt56
     fi
 
+# get cmake eiter from cmake.org or use homebrew
 install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
@@ -54,6 +57,7 @@ install:
       export PRE_PATH=$(brew --prefix qt5)
     fi
 
+# generate make files and compile the application
 script:
   - |
     cd ${TRAVIS_BUILD_DIR}
