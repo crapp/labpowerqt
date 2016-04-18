@@ -22,6 +22,7 @@ before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+      sudo apt-add-repository ppa:beineri/opt-qt56 -y
       sudo sh -c "echo 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.7 main' >> /etc/apt/sources.list"
       wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
       sudo apt-get update -qq
@@ -34,6 +35,7 @@ before_install:
       if [[ "${COMPILER}" == "clang-3.7" ]]; then
         sudo apt-get install clang-3.7 -y
       fi
+      sudo apt-get install qt56 -y
     fi
 
 install:
@@ -55,7 +57,8 @@ script:
     cd ${TRAVIS_BUILD_DIR}
     mkdir build
     cd build
-    cmake -DCMAKE_CXX_COMPILER=$COMPILER ../ && make
+    cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_PREFIX_PATH="/opt/qt56" ../
+    make
 
 # blacklist
 branches:
