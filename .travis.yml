@@ -35,7 +35,7 @@ before_install:
       if [[ "${COMPILER}" == "clang-3.7" ]]; then
         sudo apt-get install clang-3.7 -y
       fi
-      sudo apt-get install qt56 -y
+      sudo apt-get install qt56-meta -y
     fi
 
 install:
