@@ -35,14 +35,15 @@ before_install:
       if [[ "${COMPILER}" == "clang-3.7" ]]; then
         sudo apt-get install clang-3.7 -y
       fi
-      sudo apt-get install qt56-meta -y
+      sudo apt-get install mesa-common-dev qt56base qt56quickcontrols qt56serialport -y
+      export PRE_PATH=/opt/qt56
     fi
 
 install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="https://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.sh"
-      CMAKE_INSTALLER="cmake-3.4.3-Linux-x86_64.sh"
+      CMAKE_URL="https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.sh"
+      CMAKE_INSTALLER="cmake-3.5.2-Linux-x86_64.sh"
       wget --no-check-certificate --quiet -O ${CMAKE_INSTALLER} - ${CMAKE_URL}
       sh ${CMAKE_INSTALLER} --prefix=$HOME --exclude-subdir
     else
@@ -50,6 +51,7 @@ install:
       brew uninstall --force cmake
       brew install cmake
       brew install qt5
+      export PRE_PATH=$(brew --prefix qt5)
     fi
 
 script:
@@ -57,8 +59,8 @@ script:
     cd ${TRAVIS_BUILD_DIR}
     mkdir build
     cd build
-    cmake -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_PREFIX_PATH="/opt/qt56" ../
-    make
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_PREFIX_PATH=$PRE_PATH ../
+    make -j 2
 
 # blacklist
 branches:
