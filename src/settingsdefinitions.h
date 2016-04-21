@@ -52,9 +52,11 @@ const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
 const char *const DEVICE_POLL_FREQ = "poll_freq";
 // plot
 const char *const PLOT_GROUP = "plot";
+const char *const PLOT_ENABLED = "enabled";
 const char *const PLOT_SHOW_DATA = "show_data";
 const char *const PLOT_SHOW_GRID = "show_grid";
 const char *const PLOT_SHOW_LEGEND = "show_legend";
+const char *const PLOT_SHOW_TIMESCALE = "show_legend";
 const char *const PLOT_GRAPH_VISIBLE = "graph_%1_visible";
 const char *const PLOT_GRAPH_COLOR = "graph_%1_color";
 const char *const PLOT_GRAPH_LS = "graph_%1_ls";
@@ -65,4 +67,4 @@ const char *const RECORD_SQLPATH = "sqlpath";
 const char *const RECORD_TBLPRE = "tblprefix";
 const char *const RECORD_BUFFER = "buffersize";
 }
-#endif // SETTINGSDEFINITIONS_H
+#endif  // SETTINGSDEFINITIONS_H

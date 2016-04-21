@@ -119,7 +119,9 @@ private:
     std::map<global_constants::CHANNEL,
              std::map<global_constants::DATATYPE, QLabel *>> dataDisplayLabels;
 
-    QCheckBox *cbGeneralAutoscrl; /**< need to keep a pointer to this one*/
+    QCheckBox *cbGeneralPlot;        /**< Activate data plotting */
+    QCheckBox *generalShowTimescale; /**< Show x-axis timescale */
+    QCheckBox *cbGeneralAutoscrl;    /**< need to keep a pointer to this one*/
 
     bool autoScroll;
     std::chrono::system_clock::time_point startPoint;
@@ -150,19 +152,6 @@ private:
      */
     void yAxisRange(const QCPRange &currentXRange, const QSettings &settings);
     void yAxisVisibility();
-
-    /**
-     * @brief Calculate hours, minutes and seconds from a QCPRange
-     *
-     * @param currentRange
-     * @param hms
-     *
-     * @details
-     *
-     * This method is used visualize the current time scale for the x axis
-     */
-    void rangeToAxisZoomLvl(const QCPRange &currentRange,
-                            std::tuple<int, int, int> &hms);
 
 private slots:
 
