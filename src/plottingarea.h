@@ -87,6 +87,8 @@ private:
     QCPAxis *wattageAxis;
     QPen xAxisGridPen;
     QPen yAxisGridPen;
+    // Items to show zoom level
+    QCPItemPixmap *zoomMagPic;
     QCPItemText *zoomLevel;
 
     // Toolbar containing actions to show different sections in controlStack
@@ -148,6 +150,19 @@ private:
      */
     void yAxisRange(const QCPRange &currentXRange, const QSettings &settings);
     void yAxisVisibility();
+
+    /**
+     * @brief Calculate hours, minutes and seconds from a QCPRange
+     *
+     * @param currentRange
+     * @param hms
+     *
+     * @details
+     *
+     * This method is used visualize the current time scale for the x axis
+     */
+    void rangeToAxisZoomLvl(const QCPRange &currentRange,
+                            std::tuple<int, int, int> &hms);
 
 private slots:
 

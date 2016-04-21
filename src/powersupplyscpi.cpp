@@ -149,8 +149,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     long duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
             .count();
-    qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
-             << "ms";
+    // qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " <<
+    // duration
+    //<< "ms";
 
     if (com->getCommand() == powcon::GETSTATUS) {
         this->powStatus->setDuration(duration);

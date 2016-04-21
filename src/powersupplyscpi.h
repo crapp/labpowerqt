@@ -1,3 +1,19 @@
+// labpowerqt is a Gui application to control programmable lab power supplies
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #ifndef POWERSUPPLYSCPI_H
 #define POWERSUPPLYSCPI_H
 
@@ -61,7 +77,8 @@ public:
                     QSerialPort::BaudRate brate,
                     QSerialPort::FlowControl flowctl,
                     QSerialPort::DataBits dbits, QSerialPort::Parity parity,
-                    QSerialPort::StopBits sbits, int portTimeOut, QObject *parent = 0);
+                    QSerialPort::StopBits sbits, int portTimeOut,
+                    QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
     void startPowerSupplyBackgroundThread();
@@ -164,17 +181,17 @@ protected:
     void threadFunc();
 
     virtual void readWriteData(std::shared_ptr<SerialCommand> com);
-    virtual QByteArray
-    prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com) = 0;
+    virtual QByteArray prepareCommandByteArray(
+        const std::shared_ptr<SerialCommand> &com) = 0;
     virtual std::vector<std::shared_ptr<SerialCommand>>
     prepareStatusCommands() = 0;
-    virtual void
-    processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
-                    const std::shared_ptr<SerialCommand> &com) = 0;
-    virtual void
-    updateNewPStatus(const std::shared_ptr<PowerSupplyStatus> &status) = 0;
-    virtual void
-    calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status) = 0;
+    virtual void processCommands(
+        const std::shared_ptr<PowerSupplyStatus> &status,
+        const std::shared_ptr<SerialCommand> &com) = 0;
+    virtual void updateNewPStatus(
+        const std::shared_ptr<PowerSupplyStatus> &status) = 0;
+    virtual void calculateWattage(
+        const std::shared_ptr<PowerSupplyStatus> &status) = 0;
 
 protected slots:
     /**
@@ -183,4 +200,4 @@ protected slots:
     virtual void deviceInitialization() = 0;
 };
 
-#endif // POWERSUPPLYSCPI_H
+#endif  // POWERSUPPLYSCPI_H

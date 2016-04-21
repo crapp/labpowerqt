@@ -29,36 +29,36 @@ namespace KoradSCPI_constants
 {
 namespace powcon = PowerSupplySCPI_constants;
 const std::map<int, QString> SERIALCOMMANDMAP = {
-    {powcon::SETCURRENTSET, "ISET%1:%2"},     /**< Set current */
-    {powcon::GETCURRENTSET, "ISET%1?"},       /**< Get current that has been set */
-    {powcon::SETVOLTAGESET, "VSET%1:%2"},     /**< Set voltage */
-    {powcon::GETVOLTAGESET, "VSET%1?"},       /**< Get voltage that has been set */
-    {powcon::GETCURRENT, "IOUT%1?"}, /**< Get actual current */
-    {powcon::GETVOLTAGE, "VOUT%1?"}, /**< Get actual Voltage */
-    {powcon::SETCHANNELTRACKING,
-     "TRACK%1"}, /**< Selects the operation mode: independent, trackingseries,
-                    or tracking parallel. */
-    {powcon::SETBEEP, "BEEP%1"},         // turn beep on or off
-    {powcon::SETOUT, "OUT%1"},           // turn output on or off
-    {powcon::GETSTATUS, "STATUS?"},      // request status
-    {powcon::GETIDN, "*IDN?"},           // get device identification string
-    {powcon::GETSAVEDSETTINGS, "RCL%1"}, // set device to memorized settings
-    {powcon::SAVESETTINGS, "SAV%1"}, // save current settings on memory position
-    {powcon::SETOCP, "OCP%1"},       // switch over current protection
-    {powcon::SETOVP, "OVP%1"},       // switch over voltage protection
+    {powcon::SETCURRENTSET, "ISET%1:%2"}, /**< Set current */
+    {powcon::GETCURRENTSET, "ISET%1?"},   /**< Get current that has been set */
+    {powcon::SETVOLTAGESET, "VSET%1:%2"}, /**< Set voltage */
+    {powcon::GETVOLTAGESET, "VSET%1?"},   /**< Get voltage that has been set */
+    {powcon::GETCURRENT, "IOUT%1?"},      /**< Get actual current */
+    {powcon::GETVOLTAGE, "VOUT%1?"},      /**< Get actual Voltage */
+    {powcon::SETCHANNELTRACKING, "TRACK%1"}, /**< Selects the operation mode:
+                                            independent, trackingseries, or
+                                            tracking parallel. */
+    {powcon::SETBEEP, "BEEP%1"},             // turn beep on or off
+    {powcon::SETOUT, "OUT%1"},               // turn output on or off
+    {powcon::GETSTATUS, "STATUS?"},          // request status
+    {powcon::GETIDN, "*IDN?"},               // get device identification string
+    {powcon::GETSAVEDSETTINGS, "RCL%1"},     // set device to memorized settings
+    {powcon::SAVESETTINGS, "SAV%1"},  // save current settings on memory position
+    {powcon::SETOCP, "OCP%1"},        // switch over current protection
+    {powcon::SETOVP, "OVP%1"},        // switch over voltage protection
     {powcon::GETOVP,
-     "OVP%1?"}, // dummy command because firmware does not support this
+     "OVP%1?"},  // dummy command because firmware does not support this
     {powcon::GETOCP,
-     "OCP%1?"}, // dummy command because firmware does not support this
-    {powcon::SETDUMMY, "DUMMY"}, // just some dummy command
+     "OCP%1?"},  // dummy command because firmware does not support this
+    {powcon::SETDUMMY, "DUMMY"},  // just some dummy command
 };
 const std::map<int, int> SERIALCOMMANDBUFLENGTH = {
-    {powcon::GETVOLTAGESET, 5},       /**< Get voltage that has been set */
-    {powcon::GETVOLTAGE, 5}, /**< Get actual Voltage */
+    {powcon::GETVOLTAGESET, 5}, /**< Get voltage that has been set */
+    {powcon::GETVOLTAGE, 5},    /**< Get actual Voltage */
     {powcon::GETCURRENTSET, 5},
-    {powcon::GETCURRENT, 5}, /**< Get actual current */
-    {powcon::GETSTATUS, 50},       // request status
-    {powcon::GETIDN, 50}           // get device identification strin
+    {powcon::GETCURRENT, 5},  /**< Get actual current */
+    {powcon::GETSTATUS, 50},  // request status
+    {powcon::GETIDN, 50}      // get device identification strin
 };
 }
 
@@ -72,7 +72,6 @@ const std::map<int, int> SERIALCOMMANDBUFLENGTH = {
  */
 class KoradSCPI : public PowerSupplySCPI
 {
-
     Q_OBJECT
 
 public:
@@ -118,8 +117,8 @@ signals:
 
 private:
     // LabPowerSupply Interface
-    QByteArray
-    prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com);
+    QByteArray prepareCommandByteArray(
+        const std::shared_ptr<SerialCommand> &com);
     std::vector<std::shared_ptr<SerialCommand>> prepareStatusCommands();
     void processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
                          const std::shared_ptr<SerialCommand> &com);
@@ -138,4 +137,4 @@ private slots:
     void deviceInitialization();
 };
 
-#endif // KORADSCPI_H
+#endif  // KORADSCPI_H

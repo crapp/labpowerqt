@@ -668,9 +668,25 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     // initial range
     this->plot->xAxis->setRange(msecs / 1000.0, 300, Qt::AlignRight);
 
+    // add an icon and a Text item to the plot where can display the current zoom
+    // level.
+    this->zoomMagPic = new QCPItemPixmap(this->plot);
+    this->plot->addItem(this->zoomMagPic);
+    this->zoomMagPic->setPixmap(QPixmap(":/icons/magnifying_glass16.png"));
+    this->zoomMagPic->setScaled(false, Qt::AspectRatioMode::KeepAspectRatio);
+    this->zoomMagPic->topLeft->setType(QCPItemPosition::ptViewportRatio);
+    this->zoomMagPic->topLeft->setCoords(0.89, 0.96);
+    this->zoomMagPic->setClipToAxisRect(false);
+
     this->zoomLevel = new QCPItemText(this->plot);
-    this->zoomLevel->setText("Hier soll was stehen");
     this->plot->addItem(this->zoomLevel);
+    this->zoomLevel->setTextAlignment(Qt::AlignmentFlag::AlignLeft);
+    this->zoomLevel->setText("5m");
+    this->zoomLevel->position->setParentAnchor(
+        this->zoomMagPic->anchor("right"));
+    this->zoomLevel->position->setCoords(30, 0);
+    this->zoomLevel->setClipToAxisRect(false);
+    // this->zoomLevel->setVisible(false);
 
     QObject::connect(
         this->plot->xAxis,
@@ -759,6 +775,20 @@ void PlottingArea::yAxisVisibility()
     this->plot->replot();
 }
 
+void PlottingArea::rangeToAxisZoomLvl(const QCPRange &currentRange,
+                                      std::tuple<int, int, int> &hms)
+{
+    // calculate hours minutes seconds from QCPRange
+    double range = currentRange.upper - currentRange.lower;
+    int hours = static_cast<int>(std::floor(range / 3600));
+    int minutes = static_cast<int>(std::floor((range - hours * 3600) / 60));
+    int seconds =
+        static_cast<int>(std::floor(range - (hours * 3600 + minutes * 60)));
+    std::get<0>(hms) = hours;
+    std::get<1>(hms) = minutes;
+    std::get<2>(hms) = seconds;
+}
+
 void PlottingArea::beforeReplotHandle()
 {
     // qDebug() << Q_FUNC_INFO << "before replot";
@@ -843,6 +873,37 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     } else if (!this->autoScroll && tpNewUpperSecs >= currentDataPointKeySecs) {
         // Panning to the most recent x value starts autoscrolling
         this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Checked);
+    }
+
+    // Update x axis time scale feedback if delta is not equal
+    if (deltaSecsUpperLower < deltaSecsOldUpperLower - std::chrono::seconds(5) ||
+        deltaSecsUpperLower > deltaSecsOldUpperLower + std::chrono::seconds(5)) {
+        // qDebug() << Q_FUNC_INFO << "Delta not equal, updating visual
+        // feedback";
+        QString zoomTxt;
+        auto hours =
+            std::chrono::duration_cast<std::chrono::hours>(deltaSecsUpperLower)
+                .count();
+        auto minutes =
+            std::chrono::duration_cast<std::chrono::minutes>(
+                deltaSecsUpperLower - std::chrono::seconds(hours * 3600))
+                .count();
+        auto seconds =
+            std::chrono::duration_cast<std::chrono::seconds>(
+                deltaSecsUpperLower - std::chrono::seconds(hours * 3600) -
+                std::chrono::seconds(minutes * 60))
+                .count();
+        if (hours > 0) {
+            zoomTxt = QString::number(hours) + "h ";
+        }
+        if (minutes > 0) {
+            zoomTxt = zoomTxt + QString::number(minutes) + "m ";
+        }
+        if (seconds > 0) {
+            zoomTxt = zoomTxt + QString::number(seconds) + "s";
+        }
+
+        this->zoomLevel->setText(zoomTxt);
     }
 
     if (tpNewUpperSecs > currentDataPointKeySecs) {

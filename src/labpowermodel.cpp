@@ -25,7 +25,6 @@ LabPowerModel::LabPowerModel()
 }
 
 bool LabPowerModel::getDeviceConnected() { return this->deviceConnected; }
-
 void LabPowerModel::setDeviceConnected(bool connected)
 {
     this->deviceConnected = connected;
@@ -44,14 +43,10 @@ void LabPowerModel::setDeviceIdentification(QString id)
 }
 
 bool LabPowerModel::getDeviceLocked() { return this->status->getLocked(); }
-
 bool LabPowerModel::getDeviceMute() { return this->status->getBeeper(); }
-
 bool LabPowerModel::getOutput(global_constants::CHANNEL c)
 {
     try {
-        qDebug() << "Channel output state: "
-                 << this->status->getChannelOutput(static_cast<int>(c));
         return this->status->getChannelOutput(static_cast<int>(c));
     } catch (const std::out_of_range &ex) {
         qDebug() << Q_FUNC_INFO << ex.what();
@@ -105,41 +100,13 @@ double LabPowerModel::getWattage(global_constants::CHANNEL c)
     return this->status->getWattage(static_cast<int>(c));
 }
 
-void LabPowerModel::setOVP(bool status)
-{
-    this->status->setOvp(status);
-}
-
-bool LabPowerModel::getOVP()
-{
-    return this->status->getOvp();
-}
-
-void LabPowerModel::setOCP(bool status)
-{
-    this->status->setOcp(status);
-}
-
-bool LabPowerModel::getOCP()
-{
-    return this->status->getOcp();
-}
-
-void LabPowerModel::setOTP(bool status)
-{
-    this->status->setOtp(status);
-}
-
-bool LabPowerModel::getOTP()
-{
-    return this->status->getOtp();
-}
-
-long LabPowerModel::getDuration()
-{
-    return this->status->getDuration();
-}
-
+void LabPowerModel::setOVP(bool status) { this->status->setOvp(status); }
+bool LabPowerModel::getOVP() { return this->status->getOvp(); }
+void LabPowerModel::setOCP(bool status) { this->status->setOcp(status); }
+bool LabPowerModel::getOCP() { return this->status->getOcp(); }
+void LabPowerModel::setOTP(bool status) { this->status->setOtp(status); }
+bool LabPowerModel::getOTP() { return this->status->getOtp(); }
+long LabPowerModel::getDuration() { return this->status->getDuration(); }
 std::vector<std::shared_ptr<PowerSupplyStatus>> LabPowerModel::getBuffer()
 {
     return this->statusBuffer;
@@ -151,9 +118,7 @@ int LabPowerModel::getBufferSize()
 }
 
 bool LabPowerModel::getRecord() { return this->record; }
-
 void LabPowerModel::setRecord(bool status) { this->record = status; }
-
 void LabPowerModel::updatePowerSupplyStatus(
     std::shared_ptr<PowerSupplyStatus> status)
 {

@@ -64,7 +64,6 @@ void KoradSCPI::getStatus()
 }
 
 void KoradSCPI::changeChannel(ATTR_UNUSED int channel) {}
-
 void KoradSCPI::setVoltage(int channel, double value)
 {
     this->powStatus->setVoltageSet(std::make_pair(channel, value));
@@ -132,9 +131,7 @@ void KoradSCPI::setOVP(bool status)
 }
 
 void KoradSCPI::setOTP(ATTR_UNUSED bool status) {}
-
 void KoradSCPI::setLocked(ATTR_UNUSED bool status) {}
-
 void KoradSCPI::setBeep(bool status)
 {
     QVariant val = 0;
@@ -218,7 +215,6 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETCURRENTSET) {
-
         QString val = com->getValue().toString();
 
         // qDebug() << Q_FUNC_INFO << "Current: " << val;
@@ -289,8 +285,8 @@ void KoradSCPI::deviceInitialization()
     // this->setOVP(false);
 }
 
-QByteArray
-KoradSCPI::prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com)
+QByteArray KoradSCPI::prepareCommandByteArray(
+    const std::shared_ptr<SerialCommand> &com)
 {
     // First job create the command
     powcon::COMMANDS command = static_cast<powcon::COMMANDS>(com->getCommand());
@@ -316,7 +312,7 @@ KoradSCPI::prepareCommandByteArray(const std::shared_ptr<SerialCommand> &com)
         }
     }
 
-    qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
+    //    qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
 
     QByteArray commandByte = commandString.toLocal8Bit();
     return commandByte;

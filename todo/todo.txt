@@ -1,0 +1,10 @@
+(A) 2016-04-19 Fix bug related to non visible graphs when application is started
+(B) 2016-04-19 Plot section in settings is empty. Find some meaningful things to configure there or remove it.
+(B) 2016-04-19 Add possibility to disable y axes auto range
+(B) 2016-04-19 Control area single click - double click
+(A) 2016-04-19 Implement programming area
+(C) 2016-04-19 Make it possible to visualize recorded data
+(C) 2016-04-19 Use recorded data to program the device
+(A) 2016-04-19 Make devices editable using the device wizard
+(C) 2016-04-19 Visual feedback for current zoom level
+

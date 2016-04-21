@@ -26,4 +26,4 @@ simple icon [license agreement](http://simpleicon.com/license-agreement/)
 * [noun_123853_cc.svg](https://thenounproject.com/icon/123853/) (Trash) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
 * [noun_131359_cc.svg](https://thenounproject.com/icon/131359/) (Close/Cancel) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
 * [noun_131285_cc.svg](https://thenounproject.com/icon/131285/) (Checkmark) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)
-
+* [noun_47265_cc.svg](https://thenounproject.com/icon/47265/) (Magnifying Glass by Milky) - License [http://creativecommons.org/licenses/by/3.0/us/](http://creativecommons.org/licenses/by/3.0/us/)

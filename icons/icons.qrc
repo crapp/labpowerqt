@@ -32,5 +32,7 @@
         <file>trash32.png</file>
         <file>cancel_close_16.png</file>
         <file>checkmark_16.png</file>
+        <file>magnifying_glass32.png</file>
+        <file>magnifying_glass16.png</file>
     </qresource>
 </RCC>
