@@ -86,7 +86,7 @@ QListView::item {
       <item row="0" column="1">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="pageGeneral">
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -294,31 +294,6 @@ QListView::item {
         </widget>
         <widget class="QWidget" name="pageRecord">
          <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QGroupBox" name="groupBoxRecord">
-            <property name="title">
-             <string>Record</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6">
-             <item>
-              <widget class="QCheckBox" name="checkBoxRecordDefault">
-               <property name="toolTip">
-                <string>IF this option is checked data will be recorded by default</string>
-               </property>
-               <property name="text">
-                <string>Record data by default</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
           <item>
            <widget class="QGroupBox" name="groupBoxRecordDatabase">
             <property name="title">

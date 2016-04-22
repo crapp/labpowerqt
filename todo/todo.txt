@@ -1,5 +1,5 @@
 (A) 2016-04-19 Fix bug related to non visible graphs when application is started
-(B) 2016-04-19 Plot section in settings is empty. Find some meaningful things to configure there or remove it.
+x 2016-04-22 2016-04-19 Plot section in settings is empty. Find some meaningful things to configure there or remove it.
 (C) 2016-04-19 Add possibility to disable y axes auto range
 (B) 2016-04-19 Control area single click - double click
 (A) 2016-04-19 Implement programming area
@@ -9,7 +9,7 @@
 x 2016-04-21 2016-04-19 Visual feedback for current zoom level
 (A) 2016-04-22 The use of QSettings should be minimized. It would be better to store most of it in memory and only reload settings if user changed something.
 (A) 2016-04-22 Restore default settings. Restore all settings or only active section?
-(A) 2016-04-22 Remove "Record data by default" option. Makes no sense
+x 2016-04-22 2016-04-22 Remove "Record data by default" option. Makes no sense
 (C) 2016-04-22 Make it possible for the user to provide column separator for csv export
 (B) 2016-04-22 Some major refactoring should be done with some gui classes like plottingarea
 (B) 2016-04-22 Move from camel case to snake case code style
