@@ -18,6 +18,7 @@
 #include "plottingarea.h"
 
 namespace setcon = settings_constants;
+namespace setdef = settings_default;
 namespace globcon = global_constants;
 namespace utils = global_utilities;
 
@@ -984,8 +985,14 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
 
     QSettings zoomSets;
     zoomSets.beginGroup(setcon::PLOT_GROUP);
-    double zoomMin = zoomSets.value(setcon::PLOT_ZOOM_MIN, 60).toDouble();
-    double zoomMax = zoomSets.value(setcon::PLOT_ZOOM_MAX, 60).toDouble();
+    double zoomMin =
+        zoomSets.value(setcon::PLOT_ZOOM_MIN,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+            .toDouble();
+    double zoomMax =
+        zoomSets.value(setcon::PLOT_ZOOM_MAX,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+            .toDouble();
     // limit zoom
     if (deltaSecsUpperLower < std::chrono::duration<double>(zoomMin) ||
         deltaSecsUpperLower > std::chrono::duration<double>(zoomMax)) {

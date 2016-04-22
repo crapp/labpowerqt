@@ -14,6 +14,7 @@
 
 #include "global.h"
 #include "settingsdefinitions.h"
+#include "settingsdefault.h"
 
 #include "koradscpi.h"
 #include "serialcommand.h"
@@ -75,4 +76,4 @@ private:
     std::unique_ptr<QThread> powerSupplyWorkerThread;
 };
 
-#endif // LABPOWERCONTROLLER_H
+#endif  // LABPOWERCONTROLLER_H

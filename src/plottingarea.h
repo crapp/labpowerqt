@@ -38,6 +38,7 @@
 #include "qcustomplot.h"
 #include "global.h"
 #include "settingsdefinitions.h"
+#include "settingsdefault.h"
 #include "yaxishelper.h"
 
 class PlottingArea : public QWidget

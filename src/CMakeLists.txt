@@ -99,6 +99,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefault.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabcontrol.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.h

@@ -35,6 +35,7 @@
 
 #include <config.h>
 #include "settingsdefinitions.h"
+#include "settingsdefault.h"
 #include "global.h"
 #include "labpowercontroller.h"
 #include "labpowermodel.h"
@@ -63,7 +64,6 @@ public slots:
     void deviceIDUpdated();
 
 private:
-
     Ui::MainWindow *ui;
 
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
@@ -94,8 +94,7 @@ private slots:
 
     void tabWidgetChangedIndex(int index);
 
-    void displayWidgetDoubleResult(double val, int dt,
-                                   int channel);
+    void displayWidgetDoubleResult(double val, int dt, int channel);
     void deviceControl(int control, int channel);
     void recordToggle(bool status, QString name);
 
@@ -104,4 +103,4 @@ protected:
     void closeEvent(QCloseEvent *event);
 };
 
-#endif // MAINWINDOW_H
+#endif  // MAINWINDOW_H

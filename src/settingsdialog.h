@@ -39,6 +39,7 @@
 #include <memory>
 
 #include "settingsdefinitions.h"
+#include "settingsdefault.h"
 #include "databasedef.h"
 #include "devicewizard.h"
 
@@ -59,6 +60,7 @@ private:
     Ui::SettingsDialog *ui;
 
     QListWidgetItem *lastItem;
+    QString defaultSqlFile; /**< Path to default data location on users system */
 
     void initGeneral();
     void initDevice();
@@ -67,6 +69,7 @@ private:
     void setupSettingsList();
     bool checkSettingsChanged(QListWidgetItem *lastItem);
     void saveSettings(int currentRow);
+    void restoreSettings(int currentRow);
 
 private slots:
     void settingCategoryChanged(int currentRow);

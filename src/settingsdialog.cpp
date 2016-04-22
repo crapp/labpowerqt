@@ -18,6 +18,7 @@
 #include "ui_settingsdialog.h"
 
 namespace setcon = settings_constants;
+namespace setdef = settings_default;
 namespace dbutil = database_utils;
 
 SettingsDialog::SettingsDialog(QWidget *parent)
@@ -29,6 +30,10 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // dynamically set width for listWidget
     ui->listWidgetSettings->setMinimumWidth(
         ui->listWidgetSettings->sizeHintForColumn(0));
+
+    this->defaultSqlFile =
+        QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        QDir::separator() + "labpowerqt.sqlite";
 
     this->initGeneral();
     this->initDevice();
@@ -130,9 +135,13 @@ void SettingsDialog::initGeneral()
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
     ui->checkBoxGeneralAskExit->setChecked(
-        settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool());
+        settings.value(setcon::GENERAL_EXIT,
+                       setdef::general_defaults.at(setcon::GENERAL_EXIT))
+            .toBool());
     ui->checkBoxGeneralAskBeforeDis->setChecked(
-        settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool());
+        settings.value(setcon::GENERAL_DISC,
+                       setdef::general_defaults.at(setcon::GENERAL_DISC))
+            .toBool());
 }
 
 void SettingsDialog::initDevice() { this->devicesComboBoxUpdate(); }
@@ -141,24 +150,26 @@ void SettingsDialog::initPlot()
     QSettings settings;
     settings.beginGroup(setcon::PLOT_GROUP);
     ui->spinBoxPlotZoomMin->setValue(
-        settings.value(setcon::PLOT_ZOOM_MIN, 60).toInt());
+        settings.value(setcon::PLOT_ZOOM_MIN,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+            .toInt());
     ui->spinBoxPlotZoomMax->setValue(
-        settings.value(setcon::PLOT_ZOOM_MAX, 1800).toInt());
+        settings.value(setcon::PLOT_ZOOM_MAX,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+            .toInt());
 }
 void SettingsDialog::initRecord()
 {
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
-    QString defaultSqlFile =
-        QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
-        QDir::separator() + "labpowerqt.sqlite";
-    // ui->checkBoxRecordDefault->setChecked(settings.value(setcon::r))
     ui->lineEditSqlitePath->setText(
-        settings.value(setcon::RECORD_SQLPATH, defaultSqlFile).toString());
+        settings.value(setcon::RECORD_SQLPATH, this->defaultSqlFile).toString());
     ui->lineEditRecordTablePrefix->setText(
-        settings.value(setcon::RECORD_TBLPRE).toString());
+        settings.value(setcon::RECORD_TBLPRE, "").toString());
     ui->spinBoxRecordBuffer->setValue(
-        settings.value(setcon::RECORD_BUFFER, 60).toInt());
+        settings.value(setcon::RECORD_BUFFER,
+                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
+            .toInt());
 }
 
 void SettingsDialog::setupSettingsList()
@@ -188,11 +199,15 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
         settings.beginGroup(setcon::GENERAL_GROUP);
         if (settings.contains(setcon::GENERAL_DISC)) {
             if (!ui->checkBoxGeneralAskExit->isChecked() ==
-                settings.value(setcon::GENERAL_EXIT, QVariant(true)).toBool()) {
+                settings.value(setcon::GENERAL_EXIT,
+                               setdef::general_defaults.at(setcon::GENERAL_EXIT))
+                    .toBool()) {
                 somethingChanged = true;
             }
             if (!ui->checkBoxGeneralAskBeforeDis->isChecked() ==
-                settings.value(setcon::GENERAL_DISC, QVariant(false)).toBool()) {
+                settings.value(setcon::GENERAL_DISC,
+                               setdef::general_defaults.at(setcon::GENERAL_DISC))
+                    .toBool()) {
                 somethingChanged = true;
             }
         }
@@ -207,11 +222,15 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
     case 2:
         settings.beginGroup(setcon::PLOT_GROUP);
         if (ui->spinBoxPlotZoomMin->value() !=
-            settings.value(setcon::PLOT_ZOOM_MIN).toInt()) {
+            settings.value(setcon::PLOT_ZOOM_MIN,
+                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+                .toInt()) {
             somethingChanged = true;
         }
         if (ui->spinBoxPlotZoomMax->value() !=
-            settings.value(setcon::PLOT_ZOOM_MAX).toInt()) {
+            settings.value(setcon::PLOT_ZOOM_MAX,
+                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+                .toInt()) {
             somethingChanged = true;
         }
         break;
@@ -227,7 +246,10 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                 somethingChanged = true;
             }
             if (ui->spinBoxRecordBuffer->value() !=
-                settings.value(setcon::RECORD_BUFFER).toInt()) {
+                settings.value(
+                            setcon::RECORD_BUFFER,
+                            setdef::general_defaults.at(setcon::RECORD_BUFFER))
+                    .toInt()) {
                 somethingChanged = true;
             }
         }
@@ -295,6 +317,30 @@ void SettingsDialog::saveSettings(int currentRow)
     }
 }
 
+void SettingsDialog::restoreSettings(int currentRow)
+{
+    if (currentRow == 0) {
+        ui->checkBoxGeneralAskExit->setChecked(
+            setdef::general_defaults.at(setcon::GENERAL_EXIT).toBool());
+        ui->checkBoxGeneralAskBeforeDis->setChecked(
+            setdef::general_defaults.at(setcon::GENERAL_DISC).toBool());
+    }
+    if (currentRow == 1) {
+        // nothing to reset here
+    }
+    if (currentRow == 2) {
+        ui->spinBoxPlotZoomMin->setValue(
+            setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN).toInt());
+        ui->spinBoxPlotZoomMax->setValue(
+            setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX).toInt());
+    }
+    if (currentRow == 3) {
+        ui->lineEditSqlitePath->setText(this->defaultSqlFile);
+        ui->lineEditRecordTablePrefix->setText("");
+        ui->spinBoxRecordBuffer->setValue(
+            setdef::general_defaults.at(setcon::RECORD_BUFFER).toInt());
+    }
+}
 void SettingsDialog::settingCategoryChanged(int currentRow)
 {
     if (this->checkSettingsChanged(this->lastItem)) {
@@ -344,6 +390,9 @@ void SettingsDialog::buttonBoxClicked(QAbstractButton *button)
         for (int i = 0; i <= 3; i++) {
             this->saveSettings(i);
         }
+        break;
+    case QDialogButtonBox::ButtonRole::ResetRole:
+        this->restoreSettings(ui->stackedWidget->currentIndex());
         break;
     default:
         break;

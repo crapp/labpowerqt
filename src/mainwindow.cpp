@@ -19,6 +19,7 @@
 
 namespace globcon = global_constants;
 namespace setcon = settings_constants;
+namespace setdef = settings_default;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -58,21 +59,20 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() { delete ui; }
-
 void MainWindow::dataUpdated()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
-        double voltage =
-            this->applicationModel->getVoltageSet(static_cast<globcon::CHANNEL>(i));
-        double actualVoltage = this->applicationModel->getVoltage(
+        double voltage = this->applicationModel->getVoltageSet(
             static_cast<globcon::CHANNEL>(i));
-        double current =
-            this->applicationModel->getCurrentSet(static_cast<globcon::CHANNEL>(i));
-        double actualCurrent = this->applicationModel->getCurrent(
+        double actualVoltage =
+            this->applicationModel->getVoltage(static_cast<globcon::CHANNEL>(i));
+        double current = this->applicationModel->getCurrentSet(
             static_cast<globcon::CHANNEL>(i));
+        double actualCurrent =
+            this->applicationModel->getCurrent(static_cast<globcon::CHANNEL>(i));
         double wattage =
             this->applicationModel->getWattage(static_cast<globcon::CHANNEL>(i));
 
@@ -144,8 +144,8 @@ void MainWindow::dataUpdated()
                                         globcon::CONTROL::OTP, 0)
         : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
                                         globcon::CONTROL::OTP, 0);
-    //this->statusBar()->showMessage(
-        //QString::number(this->applicationModel->getDuration()) + "ms");
+    // this->statusBar()->showMessage(
+    // QString::number(this->applicationModel->getDuration()) + "ms");
 }
 
 void MainWindow::deviceConnectionUpdated(bool connected)
@@ -265,11 +265,10 @@ void MainWindow::fileBugReport()
 void MainWindow::showAbout()
 {
     AboutMe abm;
-    abm.exec(); // show application modal
+    abm.exec();  // show application modal
 }
 
 void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
-
 void MainWindow::showSettings()
 {
     QSettings settings;
@@ -346,7 +345,9 @@ void MainWindow::deviceControl(int control, int channel)
         if (this->applicationModel->getDeviceConnected()) {
             QSettings settings;
             settings.beginGroup(setcon::GENERAL_GROUP);
-            if (settings.value(setcon::GENERAL_DISC).toBool()) {
+            if (settings.value(setcon::GENERAL_DISC,
+                               setdef::general_defaults.at(setcon::GENERAL_DISC))
+                    .toBool()) {
                 if (QMessageBox::question(this, "Disconnect Device",
                                           "Do you really want to disconnect?",
                                           QMessageBox::StandardButton::Yes |
@@ -405,7 +406,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
-    if (settings.value(setcon::GENERAL_EXIT).toBool()) {
+    if (settings.value(setcon::GENERAL_EXIT,
+                       setdef::general_defaults.at(setcon::GENERAL_EXIT))
+            .toBool()) {
         QMessageBox box;
         // TODO: Can't set parent. Messagebox transparent after this :/??
         // box.setParent(this);

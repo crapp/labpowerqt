@@ -1,6 +1,7 @@
 #include "labpowercontroller.h"
 
 namespace setcon = settings_constants;
+namespace setdef = settings_default;
 namespace powstatus = PowerSupplyStatus_constants;
 namespace powcon = PowerSupplySCPI_constants;
 namespace globcon = global_constants;
@@ -15,7 +16,6 @@ LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
 }
 
 LabPowerController::~LabPowerController() { this->disconnectDevice(); }
-
 void LabPowerController::connectDevice()
 {
     QSettings settings;
@@ -151,7 +151,6 @@ void LabPowerController::deviceReadWriteError(const QString &errorString)
 
 void LabPowerController::setVoltage(int channel, double value)
 {
-
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setVoltage(channel, value);
 }
@@ -240,7 +239,9 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
         QSettings settings;
         settings.beginGroup(setcon::RECORD_GROUP);
         if (this->applicationModel->getBufferSize() >=
-            settings.value(setcon::RECORD_BUFFER, 60).toInt()) {
+            settings.value(setcon::RECORD_BUFFER,
+                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
+                .toInt()) {
             this->dbConnector->insertMeasurement(
                 this->applicationModel->getBuffer());
             this->applicationModel->clearBuffer();
