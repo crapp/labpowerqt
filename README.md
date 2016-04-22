@@ -81,4 +81,11 @@ controls offer tooltips about what they do.
 
 The Settings can be accessed from the Main Application Window through the File Menu.
 
+## Known issues
+
+* The application does store the visibility for each graph (current, wattage ...)
+  and this state is reapplied from the settings file whenever you start labpowerqt.
+  Currently this is not working correctly with QCustomPlot and there is nothing I
+  can do about it as I believe it is because of a bug in their code.
+
 

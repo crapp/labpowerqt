@@ -119,25 +119,28 @@ private:
     std::map<global_constants::CHANNEL,
              std::map<global_constants::DATATYPE, QLabel *>> dataDisplayLabels;
 
-    QCheckBox *cbGeneralPlot;        /**< Activate data plotting */
-    QCheckBox *generalShowTimescale; /**< Show x-axis timescale */
-    QCheckBox *cbGeneralAutoscrl;    /**< need to keep a pointer to this one*/
+    QCheckBox *cbGeneralPlot; /**< Activate data plotting */
+    QCheckBox *
+        cbGeneralShowData; /**< Show data at mouse cursor position in own area under plot */
+    QCheckBox *cbGeneralShowTimescale; /**< Show x-axis timescale */
+    QCheckBox *cbGeneralAutoscrl;      /**< need to keep a pointer to this one*/
 
+    // TODO: Why do we have a separate boolean for auto scroll if there is
+    // pointer to the checkbutton that controls this behaviour?
     bool autoScroll;
     std::chrono::system_clock::time_point startPoint;
     std::chrono::system_clock::time_point currentDataPointKey;
 
-    QCPRange lastRange;
-
-    int lowZoom;
-    int highZoom;
-
     /**
-     * @brief Setup the basic UI
+     * @brief Setup the basic UI, this is only called once.
      */
     void setupUI();
     /**
      * @brief Reset all dynamically generated UI elements
+     *
+     * @details
+     *
+     * Is called whenever major things change.
      */
     void resetGraph();
 
@@ -158,6 +161,15 @@ private slots:
     // plot slots
     void beforeReplotHandle();
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
+    /**
+     * @brief Registers all mouse moves inside the plot
+     *
+     * @param event
+     *
+     * @details
+     * Currently used to show the data at mouse cursor position beneath the plot
+     * object.
+     */
     void mouseMoveHandler(QMouseEvent *event);
 
     // ui slots

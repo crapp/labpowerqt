@@ -113,10 +113,18 @@ SettingsDialog::SettingsDialog(QWidget *parent)
                 this->devicesComboBoxUpdate();
             }
         });
+
+    QObject::connect(
+        ui->spinBoxPlotZoomMin,
+        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+        &SettingsDialog::zoomMinMaxSync);
+    QObject::connect(
+        ui->spinBoxPlotZoomMax,
+        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
+        &SettingsDialog::zoomMinMaxSync);
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
-
 void SettingsDialog::initGeneral()
 {
     QSettings settings;
@@ -128,9 +136,15 @@ void SettingsDialog::initGeneral()
 }
 
 void SettingsDialog::initDevice() { this->devicesComboBoxUpdate(); }
-
-void SettingsDialog::initPlot() {}
-
+void SettingsDialog::initPlot()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::PLOT_GROUP);
+    ui->spinBoxPlotZoomMin->setValue(
+        settings.value(setcon::PLOT_ZOOM_MIN, 60).toInt());
+    ui->spinBoxPlotZoomMax->setValue(
+        settings.value(setcon::PLOT_ZOOM_MAX, 1800).toInt());
+}
 void SettingsDialog::initRecord()
 {
     QSettings settings;
@@ -170,7 +184,7 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                               QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Save);
     switch (ui->listWidgetSettings->row(lastItem)) {
-    case 0: // general section
+    case 0:  // general section
         settings.beginGroup(setcon::GENERAL_GROUP);
         if (settings.contains(setcon::GENERAL_DISC)) {
             if (!ui->checkBoxGeneralAskExit->isChecked() ==
@@ -191,6 +205,15 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
         }
         break;
     case 2:
+        settings.beginGroup(setcon::PLOT_GROUP);
+        if (ui->spinBoxPlotZoomMin->value() !=
+            settings.value(setcon::PLOT_ZOOM_MIN).toInt()) {
+            somethingChanged = true;
+        }
+        if (ui->spinBoxPlotZoomMax->value() !=
+            settings.value(setcon::PLOT_ZOOM_MAX).toInt()) {
+            somethingChanged = true;
+        }
         break;
     case 3:
         settings.beginGroup(setcon::RECORD_GROUP);
@@ -240,6 +263,11 @@ void SettingsDialog::saveSettings(int currentRow)
                           ui->comboBoxDeviceActive->currentText());
     }
     if (currentRow == 2) {
+        settings.beginGroup(setcon::PLOT_GROUP);
+        settings.setValue(setcon::PLOT_ZOOM_MIN,
+                          ui->spinBoxPlotZoomMin->value());
+        settings.setValue(setcon::PLOT_ZOOM_MAX,
+                          ui->spinBoxPlotZoomMax->value());
     };
     if (currentRow == 3) {
         settings.beginGroup(setcon::RECORD_GROUP);
@@ -285,15 +313,15 @@ void SettingsDialog::settingCategoryChanged(int currentRow)
     this->lastItem = ui->listWidgetSettings->currentItem();
 
     switch (currentRow) {
-    case 0: // general section
+    case 0:  // general section
         this->initGeneral();
         ui->stackedWidget->setCurrentIndex(0);
         break;
-    case 1: // device section
+    case 1:  // device section
         this->initDevice();
         ui->stackedWidget->setCurrentIndex(1);
         break;
-    case 2: // graph section
+    case 2:  // graph section
         this->initPlot();
         ui->stackedWidget->setCurrentIndex(2);
         break;
@@ -337,6 +365,18 @@ void SettingsDialog::devicesComboBoxUpdate()
     }
 }
 
+void SettingsDialog::zoomMinMaxSync(int value)
+{
+    int zoom_min = ui->spinBoxPlotZoomMin->value();
+    int zoom_max = ui->spinBoxPlotZoomMax->value();
+    if (zoom_max - zoom_min < 110) {
+        if (value == zoom_min) {
+            ui->spinBoxPlotZoomMax->setValue(zoom_min + 110);
+        }
+        if (value == zoom_max) {
+            ui->spinBoxPlotZoomMin->setValue(zoom_max - 110);
+        }
+    }
+}
 void SettingsDialog::accept() { this->done(1); }
-
 void SettingsDialog::reject() { this->done(0); }

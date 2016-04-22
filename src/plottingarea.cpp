@@ -29,11 +29,6 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
     this->lastAction = nullptr;
     this->dataDisplayFrameHeight = -1;
 
-    // TODO: Maybe it would be nice for the user to define the min max zoom
-    // ranges
-    this->lowZoom = 60;
-    this->highZoom = 3600;
-
     this->setupUI();
     this->setupGraph();
 }
@@ -83,6 +78,8 @@ void PlottingArea::setupGraph()
 
         int graphIndex = 0;
 
+        // Every channel of a device will get its own subsets of graphs and
+        // control widgets.
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
             // the box that controls the visibility of the graphs
@@ -316,6 +313,11 @@ void PlottingArea::setupGraph()
                 QString linekey =
                     QString(setcon::PLOT_GRAPH_LINE).arg(graphIndex);
                 QString lskey = QString(setcon::PLOT_GRAPH_LS).arg(graphIndex);
+                if (settings.value(viskey, true).toBool()) {
+                    std::cout << "visibility is true "
+                              << labelGraphProps->text().toStdString()
+                              << std::endl;
+                }
                 if (dt == globcon::DATATYPE::VOLTAGE ||
                     dt == globcon::DATATYPE::CURRENT ||
                     dt == globcon::DATATYPE::WATTAGE) {
@@ -405,12 +407,12 @@ void PlottingArea::setupUI()
     generalPlotAdjustLayout->addWidget(this->cbGeneralAutoscrl);
     QObject::connect(this->cbGeneralAutoscrl, &QCheckBox::stateChanged, this,
                      &PlottingArea::generalCBCheckState);
-    QCheckBox *dataDisplayArea = new QCheckBox("Show data under Plot");
-    dataDisplayArea->setToolTip(
+    this->cbGeneralShowData = new QCheckBox("Show data under Plot");
+    this->cbGeneralShowData->setToolTip(
         "Activate this option to show the data at the "
         "mouse cursor position under the plot.");
-    dataDisplayArea->setChecked(true);
-    generalPlotAdjustLayout->addWidget(dataDisplayArea);
+    this->cbGeneralShowData->setChecked(true);
+    generalPlotAdjustLayout->addWidget(this->cbGeneralShowData);
     QCheckBox *generalShowGrid = new QCheckBox("Show Grid");
     generalShowGrid->setChecked(true);
     generalShowGrid->setToolTip("Show Grid in Plot");
@@ -419,10 +421,10 @@ void PlottingArea::setupUI()
     generalShowLegend->setChecked(false);
     generalShowLegend->setToolTip("Show Plot Legend");
     generalPlotAdjustLayout->addWidget(generalShowLegend);
-    this->generalShowTimescale = new QCheckBox("Show Timescale");
-    this->generalShowTimescale->setChecked(true);
-    this->generalShowTimescale->setToolTip("Show timescale for the x-axis");
-    generalPlotAdjustLayout->addWidget(this->generalShowTimescale);
+    this->cbGeneralShowTimescale = new QCheckBox("Show Timescale");
+    this->cbGeneralShowTimescale->setChecked(true);
+    this->cbGeneralShowTimescale->setToolTip("Show timescale for the x-axis");
+    generalPlotAdjustLayout->addWidget(this->cbGeneralShowTimescale);
     generalPlotAdjustLayout->addStretch();
 
     QHBoxLayout *generalExportLayout = new QHBoxLayout();
@@ -458,7 +460,7 @@ void PlottingArea::setupUI()
             }
         });
     QObject::connect(
-        dataDisplayArea, &QCheckBox::stateChanged, [this](int state) {
+        this->cbGeneralShowData, &QCheckBox::stateChanged, [this](int state) {
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_DATA, state);
@@ -544,7 +546,8 @@ void PlottingArea::setupUI()
             this->plot->replot();
         });
     QObject::connect(
-        this->generalShowTimescale, &QCheckBox::stateChanged, [this](int state) {
+        this->cbGeneralShowTimescale, &QCheckBox::stateChanged,
+        [this](int state) {
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_TIMESCALE, state);
@@ -625,7 +628,7 @@ void PlottingArea::setupUI()
     settings.beginGroup(setcon::PLOT_GROUP);
     this->cbGeneralPlot->setChecked(
         settings.value(setcon::PLOT_ENABLED, true).toBool());
-    dataDisplayArea->setChecked(
+    this->cbGeneralShowData->setChecked(
         settings.value(setcon::PLOT_SHOW_DATA, true).toBool());
     generalShowGrid->setChecked(
         settings.value(setcon::PLOT_SHOW_GRID, true).toBool());
@@ -653,14 +656,6 @@ void PlottingArea::resetGraph()
 
 void PlottingArea::setupGraphPlot(const QSettings &settings)
 {
-    if (settings.value(setcon::DEVICE_POLL_FREQ).toInt() < 1000) {
-        highZoom = 1800;
-    }
-
-    if (settings.value(setcon::DEVICE_POLL_FREQ).toInt() > 1000) {
-        highZoom = 7200;
-    }
-
     // define interactions
     this->plot->setInteractions(QCP::Interaction::iRangeDrag |
                                 QCP::Interaction::iRangeZoom |
@@ -722,7 +717,7 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     this->zoomMagPic->setPixmap(QPixmap(":/icons/magnifying_glass16.png"));
     this->zoomMagPic->setScaled(false, Qt::AspectRatioMode::KeepAspectRatio);
     this->zoomMagPic->topLeft->setType(QCPItemPosition::ptViewportRatio);
-    this->zoomMagPic->topLeft->setCoords(0.89, 0.96);
+    this->zoomMagPic->topLeft->setCoords(0.87, 0.96);
     this->zoomMagPic->setClipToAxisRect(false);
 
     this->zoomLevel = new QCPItemText(this->plot);
@@ -731,7 +726,7 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     this->zoomLevel->setText("5m");
     this->zoomLevel->position->setParentAnchor(
         this->zoomMagPic->anchor("right"));
-    this->zoomLevel->position->setCoords(30, 0);
+    this->zoomLevel->position->setCoords(45, 0);
     this->zoomLevel->setClipToAxisRect(false);
     // this->zoomLevel->setVisible(false);
 
@@ -740,7 +735,7 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     // intialized yet.
     QSettings setplot;
     setplot.beginGroup(setcon::PLOT_GROUP);
-    this->generalShowTimescale->setChecked(
+    this->cbGeneralShowTimescale->setChecked(
         setplot.value(setcon::PLOT_SHOW_TIMESCALE, true).toBool());
 
     QObject::connect(
@@ -916,7 +911,8 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
         this->cbGeneralAutoscrl->setCheckState(Qt::CheckState::Checked);
     }
 
-    if (this->generalShowTimescale->isChecked()) {
+    // check if we need to update the timescale displayed for the x-axis
+    if (this->cbGeneralShowTimescale->isChecked()) {
         // Update x axis time scale feedback if delta is not equal
         if (deltaSecsUpperLower <
                 deltaSecsOldUpperLower - std::chrono::seconds(5) ||
@@ -986,25 +982,27 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
         return;
     }
 
+    QSettings zoomSets;
+    zoomSets.beginGroup(setcon::PLOT_GROUP);
+    double zoomMin = zoomSets.value(setcon::PLOT_ZOOM_MIN, 60).toDouble();
+    double zoomMax = zoomSets.value(setcon::PLOT_ZOOM_MAX, 60).toDouble();
     // limit zoom
-    if (deltaSecsUpperLower < std::chrono::duration<double>(this->lowZoom) ||
-        deltaSecsUpperLower > std::chrono::duration<double>(this->highZoom)) {
+    if (deltaSecsUpperLower < std::chrono::duration<double>(zoomMin) ||
+        deltaSecsUpperLower > std::chrono::duration<double>(zoomMax)) {
         QObject::disconnect(
             this->plot->xAxis,
             static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
                 &QCPAxis::rangeChanged),
             0, 0);
         QCPRange updatedRange = oldRange;
-        if (deltaSecsOldUpperLower >
-            std::chrono::duration<double>(this->highZoom)) {
-            updatedRange.lower = (curDataPointmsEpoch.count() / 1000.0) -
-                                 static_cast<double>(this->highZoom);
+        if (deltaSecsOldUpperLower > std::chrono::duration<double>(zoomMax)) {
+            updatedRange.lower =
+                (curDataPointmsEpoch.count() / 1000.0) - zoomMax;
             updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
         }
-        if (deltaSecsOldUpperLower <
-            std::chrono::duration<double>(this->lowZoom)) {
-            updatedRange.lower = (curDataPointmsEpoch.count() / 1000.0) -
-                                 static_cast<double>(this->lowZoom);
+        if (deltaSecsOldUpperLower < std::chrono::duration<double>(zoomMin)) {
+            updatedRange.lower =
+                (curDataPointmsEpoch.count() / 1000.0) - zoomMin;
             updatedRange.upper = curDataPointmsEpoch.count() / 1000.0;
         }
         this->plot->xAxis->setRange(updatedRange);
@@ -1013,8 +1011,6 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
             static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
                 &QCPAxis::rangeChanged),
             this, &PlottingArea::xAxisRangeChanged);
-        // TODO: Use the statusbar to inform user about minimum maximum zoom
-        // level.
         return;
     }
 
@@ -1032,7 +1028,8 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
-    if (settings.contains(setcon::DEVICE_CHANNELS)) {
+    if (this->cbGeneralPlot->isChecked() &&
+        this->cbGeneralShowData->isChecked()) {
         // get the coordinate on the x axis from the event position
         double x = this->plot->xAxis->pixelToCoord(event->pos().x());
         // calculate a datetime object fromthe x coordinate

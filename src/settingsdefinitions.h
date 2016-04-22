@@ -61,6 +61,8 @@ const char *const PLOT_GRAPH_VISIBLE = "graph_%1_visible";
 const char *const PLOT_GRAPH_COLOR = "graph_%1_color";
 const char *const PLOT_GRAPH_LS = "graph_%1_ls";
 const char *const PLOT_GRAPH_LINE = "graph_%1_line";
+const char *const PLOT_ZOOM_MIN = "zoom_min";
+const char *const PLOT_ZOOM_MAX = "zoom_max";
 // record
 const char *const RECORD_GROUP = "record";
 const char *const RECORD_SQLPATH = "sqlpath";

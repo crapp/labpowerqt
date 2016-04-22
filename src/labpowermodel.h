@@ -28,9 +28,15 @@
 #include "global.h"
 #include "powersupplystatus.h"
 
+/**
+ * @brief Class that models the state a lab power supply currently has
+ *
+ * @details
+ * This class holds all the information a device can provide. It does not store
+ * the characteristics the user provided with the device wizard.
+ */
 class LabPowerModel : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -91,7 +97,6 @@ private:
     bool deviceConnected;
     QString deviceIdentification;
     bool record;
-
 };
 
-#endif // LABPOWERMODEL_H
+#endif  // LABPOWERMODEL_H

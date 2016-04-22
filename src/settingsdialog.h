@@ -74,8 +74,15 @@ private slots:
     void buttonBoxClicked(QAbstractButton *button);
     void devicesComboBoxUpdate();
 
+    /**
+     * @brief Slot that enforces a minimum zoom range
+     *
+     * @param value
+     */
+    void zoomMinMaxSync(int value);
+
     void accept();
     void reject();
 };
 
-#endif // SETTINGSDIALOG_H
+#endif  // SETTINGSDIALOG_H
