@@ -43,14 +43,12 @@ void ClickableLabel::setClickable(bool status)
 }
 
 bool ClickableLabel::getClickable() { return this->clickable; }
-
 void ClickableLabel::setNoReturnValue(bool status)
 {
     this->noReturnValue = status;
 }
 
 bool ClickableLabel::getNoReturnValue() { return this->noReturnValue; }
-
 void ClickableLabel::initLabel()
 {
     this->setAttribute(Qt::WA_Hover, true);

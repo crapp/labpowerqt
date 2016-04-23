@@ -25,14 +25,14 @@
 #include "global.h"
 
 /**
- * @brief The ClickableLabel class provides a QLabel that registers double click events and notifies a listener
+ * @brief The ClickableLabel class provides a QLabel that registers mouse double
+ * click events and notifies a listener
  */
 class ClickableLabel : public QLabel
 {
     Q_OBJECT
 
 public:
-
     ClickableLabel(QWidget *parent = 0, Qt::WindowFlags f = 0);
     ClickableLabel(const QString &text, QWidget *parent = 0,
                    Qt::WindowFlags f = 0);
@@ -49,7 +49,6 @@ signals:
 public slots:
 
 private:
-
     QString originalStylesheet;
     bool clickable;
     bool noReturnValue;
@@ -62,4 +61,4 @@ private:
     void leaveEvent(QEvent *event);
 };
 
-#endif // CLICKABLELABEL_H
+#endif  // CLICKABLELABEL_H

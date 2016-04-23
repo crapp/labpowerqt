@@ -50,6 +50,14 @@ namespace Ui
 class MainWindow;
 }
 
+/**
+ * @brief Mainwindow class for the main window
+ *
+ * @details
+ *
+ * This class is a central place for labpowerqt. Important objects like the
+ * controller or model are instantiated here.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

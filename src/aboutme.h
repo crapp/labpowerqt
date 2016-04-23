@@ -24,6 +24,13 @@ namespace Ui
 class AboutMe;
 }
 
+/**
+ * @brief Dialog to show copyright information
+ *
+ * @details
+ *
+ * This dialog is based on a form
+ */
 class AboutMe : public QDialog
 {
     Q_OBJECT
@@ -36,4 +43,4 @@ private:
     Ui::AboutMe *ui;
 };
 
-#endif // ABOUTME_H
+#endif  // ABOUTME_H

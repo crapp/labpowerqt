@@ -31,7 +31,6 @@
 
 namespace database_constants
 {
-
 /**
  * @brief Recording infos like Device, start and stop time.
  */
@@ -83,9 +82,18 @@ const char *const TBL_CHANNEL_TS = "timestamp";
 
 namespace database_utils
 {
-
 namespace dbcon = database_constants;
 
+/**
+ * @brief SQlite perfromance optimizations
+ *
+ * @details
+ *
+ * These will be applied every time the db is opened. This can greatly improve
+ * performance for applications that write to the database very fast. There is
+ * also an internal buffer of measurement objects that will help to reduce IO
+ * activity.
+ */
 inline void setDBOptimizations()
 {
     QSqlDatabase db = QSqlDatabase::database();
@@ -100,6 +108,9 @@ inline void setDBOptimizations()
     QSqlQuery("PRAGMA synchronous = OFF", db);
 }
 
+/**
+ * @brief Init all necessary database tables
+ */
 inline void initTables()
 {
     std::vector<QSqlQuery> queryVec;
@@ -161,6 +172,16 @@ inline void initTables()
     db.commit();
 }
 
+/**
+ * @brief Open database with dbFile as File
+ *
+ * @param driver
+ * @param dbFile
+ *
+ * @details
+ *
+ * Only SQLite databases supported currently
+ */
 inline void initDatabase(QString driver, QString dbFile)
 {
     if (!QSqlDatabase::database().isValid()) {
@@ -184,4 +205,4 @@ inline void initDatabase(QString driver, QString dbFile)
 }
 }
 
-#endif // DATABASEDEF_H
+#endif  // DATABASEDEF_H

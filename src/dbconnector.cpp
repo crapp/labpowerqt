@@ -27,14 +27,13 @@ DBConnector::DBConnector()
     this->recID = -1;
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
-    dbutil::initDatabase("QSQLITE",
-                         settings.value(setcon::RECORD_SQLPATH,
-                                        QStandardPaths::writableLocation(
-                                            QStandardPaths::DataLocation) +
-                                            QDir::separator() +
-                                            QString("labpowerqt.sqlite"))
-                             .toString());
-
+    dbutil::initDatabase(
+        "QSQLITE",
+        settings.value(setcon::RECORD_SQLPATH,
+                       QStandardPaths::writableLocation(
+                           QStandardPaths::DataLocation) +
+                           QDir::separator() + QString("labpowerqt.sqlite"))
+            .toString());
 }
 
 DBConnector::~DBConnector()
@@ -149,7 +148,8 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
                                + dbcon::TBL_CHANNEL_W + ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
     // clang-format on
     insertQueryMeasurement.bindValue(0, this->recID);
-    insertQueryMeasurement.bindValue(1, QVariant()); // TODO: Not implemented yet
+    // TODO: Tracking mode not implemented yet so we can't use it here
+    insertQueryMeasurement.bindValue(1, QVariant());
     insertQueryMeasurement.bindValue(2, powStatus->getOcp());
     insertQueryMeasurement.bindValue(3, powStatus->getOvp());
     insertQueryMeasurement.bindValue(4, powStatus->getOtp());

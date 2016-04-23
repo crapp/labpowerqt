@@ -41,9 +41,15 @@
 #include "databasedef.h"
 #include "powersupplystatus.h"
 
+/**
+ * @brief Connector class between the application controller and the database
+ *
+ * @details
+ *
+ * Defines some essential helper functions
+ */
 class DBConnector : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -59,10 +65,9 @@ public slots:
     void insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus);
 
 private:
-
     long long recID;
 
     long long maxID(const QString &table, const QString &id);
 };
 
-#endif // DBCONNECTOR_H
+#endif  // DBCONNECTOR_H

@@ -61,7 +61,8 @@ void DeviceWizard::accept()
     settings.setValue(setcon::DEVICE_PORT_SBITS, field("stopBox").toInt());
     hash.addData(settings.value(setcon::DEVICE_PORT_SBITS).toByteArray());
 
-    settings.setValue(setcon::DEVICE_PORT_TIMEOUT, field("sportTimeout").toInt());
+    settings.setValue(setcon::DEVICE_PORT_TIMEOUT,
+                      field("sportTimeout").toInt());
     hash.addData(settings.value(setcon::DEVICE_PORT_TIMEOUT).toByteArray());
 
     settings.setValue(setcon::DEVICE_CHANNELS, field("channel").toInt());

@@ -29,9 +29,11 @@
 #include "devicewizardfinal.h"
 #include "settingsdefinitions.h"
 
+/**
+ * @brief Base class for the device wizard
+ */
 class DeviceWizard : public QWizard
 {
-
     Q_OBJECT
 
 public:
@@ -40,4 +42,4 @@ public:
     void accept() Q_DECL_OVERRIDE;
 };
 
-#endif // DEVICEWIZARD_H
+#endif  // DEVICEWIZARD_H
