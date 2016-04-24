@@ -112,8 +112,8 @@ void DisplayArea::dataUpdate(global_constants::MODE md, int channel)
     }
 }
 
-// The following two functions are very big. Lost of code for dynamically build
-// guis.
+// The following two functions are very big. Lots of code is necessay for
+// dynamically build guis.
 void DisplayArea::setupChannels()
 {
     this->labelConnect->setClickable(false);
@@ -127,7 +127,8 @@ void DisplayArea::setupChannels()
         // TODO: One could make this more intelligent and only create / delete
         // channels that are (no longer) needed.
 
-        // remove all channels from the frame
+        // remove all channels from the frame if there are any. Happens if the
+        // user changes the device specs or chooses another one.
         for (auto f : this->channelFramesVec) {
             utils::clearLayout(f->layout());
             this->frameChannels->layout()->removeWidget(f);
@@ -140,7 +141,6 @@ void DisplayArea::setupChannels()
         // create the frames that control one channel
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-
             std::shared_ptr<ChannelWidgets> chanw =
                 std::make_shared<ChannelWidgets>();
 
@@ -334,7 +334,6 @@ void DisplayArea::setupChannels()
 
 void DisplayArea::setupUI()
 {
-
     this->setLayout(new QGridLayout());
     this->setStyleSheet("background-color: rgb(47, 47, 47); color: " +
                         QString(globcon::GREENCOLOR) + "; \n" + " QToolTip {}");
@@ -364,11 +363,11 @@ void DisplayArea::setupUI()
     this->labelConnect->setNoReturnValue(true);
     this->labelConnect->setAlignment(Qt::AlignCenter);
     this->frameHeader->layout()->addWidget(this->labelConnect);
-    QObject::connect(
-        this->labelConnect, &ClickableLabel::doubleClickNoValue, [this]() {
-            emit this->deviceControlValueChanged(
-                static_cast<int>(globcon::CONTROL::CONNECT), 0);
-        });
+    QObject::connect(this->labelConnect, &ClickableLabel::doubleClickNoValue,
+                     [this]() {
+                         emit this->deviceControlValueChanged(
+                             static_cast<int>(globcon::CONTROL::CONNECT), 0);
+                     });
 
     this->labelSound = new ClickableLabel();
     this->labelSound->setPixmap(QPixmap(":/icons/speaker_orange.png"));
@@ -467,7 +466,6 @@ void DisplayArea::controlValuesDialog(QPoint pos, QWidget *clickedWidget,
                                       global_constants::DATATYPE dt,
                                       double currentValue)
 {
-
     // map widget cursor position to global position (top left)
     QPoint globalPos = clickedWidget->mapToGlobal(pos);
     // move the dialog to the calculated position

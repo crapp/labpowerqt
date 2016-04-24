@@ -37,10 +37,13 @@
 #include "floatingvaluesdialog.h"
 #include "labpowercontroller.h"
 
+/**
+ * @brief This struct keeps references to all Widgets necessary to control and
+ * visualize one channel
+ */
 struct ChannelWidgets {
 public:
-    ChannelWidgets(){}
-
+    ChannelWidgets() {}
     QLabel *voltageActual;
     QLabel *currentActual;
     QLabel *wattageActual;
@@ -51,15 +54,24 @@ public:
     ClickableLabel *outputSet;
 };
 
+/**
+ * @brief The Display Area class is the main widget to visualize and control lab power supplies
+ *
+ * @details
+ * The widget is able to work with single or multi channel devices. The is
+ * dynamically depending on how much channels a device has.
+ * Internally the class uses several vectors to keep track of Widgets or Widget
+ * containers like ChannelWidgets.
+ */
 class DisplayArea : public QWidget
 {
     Q_OBJECT
 public:
     explicit DisplayArea(QWidget *parent = 0);
 
-    void
-    setValuesDialog(std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
-                    std::shared_ptr<FloatingValuesDialog> valuesDialog);
+    void setValuesDialog(
+        std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
+        std::shared_ptr<FloatingValuesDialog> valuesDialog);
 
     void dataUpdate(QVariant val, global_constants::DATATYPE dt, int channel);
     void dataUpdate(QVariant val, global_constants::CONTROL ct, int channel);
@@ -110,4 +122,4 @@ private:
     void paintEvent(QPaintEvent *event);
 };
 
-#endif // DISPLAYAREA_H
+#endif  // DISPLAYAREA_H

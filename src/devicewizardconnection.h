@@ -33,6 +33,12 @@
 #include "koradscpi.h"
 #include "serialcommand.h"
 
+/**
+ * @brief This class is part of the device wizard where we test the connection
+ *
+ * @details
+ * The class mimics the behaviour of the controller class.
+ */
 class DeviceWizardConnection : public QWizardPage
 {
     Q_OBJECT
@@ -51,16 +57,38 @@ private:
     QPlainTextEdit *txt;
     QString devID;
 
-    std::unique_ptr<QThread> t;
+    std::unique_ptr<QThread>
+        t; /**< QThread that is used by the PowerSupplySCPI object to handle its queue */
 
     bool connectionSuccessfull;
 
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
 
 private slots:
+
+    /**
+     * @brief Creates a PowerSupplySCPI derived object and sends an identification command
+     */
     void testConnection();
+
+    /**
+     * @brief Method that receives the reply from the hardware device
+     *
+     * @param command
+     *
+     * @details
+     *
+     * Checks if reply is within defined parameters and the device the user
+     * provided is usable by this application
+     */
     void dataAvailable(std::shared_ptr<SerialCommand> command);
+
+    /**
+     * @brief Slot that receives error states
+     *
+     * @param errorString
+     */
     void deviceError(QString errorString);
 };
 
-#endif // DEVICEWIZARDCONNECTION_H
+#endif  // DEVICEWIZARDCONNECTION_H

@@ -13,3 +13,6 @@ x 2016-04-22 2016-04-22 Remove "Record data by default" option. Makes no sense
 (C) 2016-04-22 Make it possible for the user to provide column separator for csv export
 (B) 2016-04-22 Some major refactoring should be done with some gui classes like plottingarea
 (B) 2016-04-22 Move from camel case to snake case code style
+(A) 2016-04-24 The floating values dialog should be a bit more easy to use. How about a mode where it stays open so you can change some value very fast
+(A) 2016-04-24 Use Catch or QTest to provide some unit tests
+(A) 2016-04-24 There are some device related error cases which are not forwared to the GUI. E.g. controller thread timeout

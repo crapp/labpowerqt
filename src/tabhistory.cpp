@@ -27,13 +27,13 @@ TabHistory::TabHistory(QWidget *parent) : QWidget(parent)
     this->setLayout(this->lay);
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
-    dbutil::initDatabase("QSQLITE",
-                         settings.value(setcon::RECORD_SQLPATH,
-                                        QStandardPaths::writableLocation(
-                                            QStandardPaths::DataLocation) +
-                                            QDir::separator() +
-                                            QString("labpowerqt.sqlite"))
-                             .toString());
+    dbutil::initDatabase(
+        "QSQLITE",
+        settings.value(setcon::RECORD_SQLPATH,
+                       QStandardPaths::writableLocation(
+                           QStandardPaths::DataLocation) +
+                           QDir::separator() + QString("labpowerqt.sqlite"))
+            .toString());
 
     this->setupUI();
     this->setupConnections();

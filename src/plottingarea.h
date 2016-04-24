@@ -41,6 +41,9 @@
 #include "settingsdefault.h"
 #include "yaxishelper.h"
 
+/**
+ * @brief The PlottingArea with the QCustomPlot and other widgets to control it
+ */
 class PlottingArea : public QWidget
 {
     Q_OBJECT
@@ -51,9 +54,20 @@ signals:
 
 public slots:
 
+    /**
+     * @brief Add data to the QCustomPlot
+     *
+     * @param channel Which channel
+     * @param data
+     * @param t Measurement Time Point
+     * @param type Type of data
+     */
     void addData(const int &channel, const double &data,
                  const std::chrono::system_clock::time_point &t,
                  const global_constants::DATATYPE &type);
+    /**
+     * @brief This slot is invoked whenever the settings or the device changes
+     */
     void setupGraph();
 
 private:
@@ -155,11 +169,20 @@ private:
      * @param currentXRange
      */
     void yAxisRange(const QCPRange &currentXRange, const QSettings &settings);
+
+    /**
+     * @brief Controls the visibility of y-axes
+     *
+     * @details
+     * If there is no graph visibile for a corresponding y-axis it will be
+     * automatically hidden
+     */
     void yAxisVisibility();
 
 private slots:
 
     // plot slots
+    // TODO: Currently beforeReplotHandle is unused
     void beforeReplotHandle();
     void xAxisRangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
     /**

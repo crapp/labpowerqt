@@ -56,14 +56,14 @@ void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
 
 void FloatingValuesDialog::setCurrentValue(double value)
 {
-    // WARNING: This is highly dependend of our gui structure
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
 void FloatingValuesDialog::setCurrentValue(ATTR_UNUSED int trackingMode) {}
-
+// FIXME: The number of channels was used in a previous version of this Dialog
+// and is no longer needed afair.
 void FloatingValuesDialog::updateDeviceSpecs(
     double voltageMin, double voltageMax, uint voltagePrecision,
     double currentMin, double currentMax, uint currentPrecision,

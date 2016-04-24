@@ -23,6 +23,9 @@
 
 #include <QLabel>
 
+/**
+ * @brief Base widget for Program tab
+ */
 class TabProgram : public QWidget
 {
     Q_OBJECT
@@ -34,9 +37,7 @@ signals:
 public slots:
 
 private:
-
     QGridLayout *programLayout;
-
 };
 
-#endif // TABPROGRAM_H
+#endif  // TABPROGRAM_H

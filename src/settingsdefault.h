@@ -26,6 +26,9 @@
 
 namespace setcon = settings_constants;
 
+/**
+ * @brief Default settings values in a lookup map structure
+ */
 namespace settings_default
 {
 const std::map<const char* const, QVariant> general_defaults{

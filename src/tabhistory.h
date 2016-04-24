@@ -50,6 +50,9 @@
 
 #include "recordsqlmodel.h"
 
+/**
+ * @brief Base widget for the Recordings History tab
+ */
 class TabHistory : public QWidget
 {
     Q_OBJECT
@@ -82,4 +85,4 @@ private:
     void exportToCsv();
 };
 
-#endif // TABHISTORY_H
+#endif  // TABHISTORY_H

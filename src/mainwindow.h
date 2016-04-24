@@ -54,9 +54,9 @@ class MainWindow;
  * @brief Mainwindow class for the main window
  *
  * @details
- *
- * This class is a central place for labpowerqt. Important objects like the
- * controller or model are instantiated here.
+ * This class is the central place for labpowerqt. Important objects like the
+ * controller or model are instantiated here. The main window is controlled
+ * from here.
  */
 class MainWindow : public QMainWindow
 {
@@ -67,8 +67,21 @@ public:
     ~MainWindow();
 
 public slots:
+    /**
+     * @brief Connected to the application model, distributes new data to display
+     * and plot area
+     */
     void dataUpdated();
+    /**
+     * @brief Slot that gets called whenever the device connection changes
+     *
+     * @param connected
+     */
     void deviceConnectionUpdated(bool connected);
+    /**
+     * @brief When the id command was send to the device this slot will be invoked
+     * in response
+     */
     void deviceIDUpdated();
 
 private:
@@ -95,9 +108,15 @@ private:
     void setupControlConnections();
 
 private slots:
+    /**
+     * @brief File a bug on github.com using your default browser
+     */
     void fileBugReport();
     void showAbout();
     void showAboutQt();
+    /**
+     * @brief Open settings dialog
+     */
     void showSettings();
 
     void tabWidgetChangedIndex(int index);

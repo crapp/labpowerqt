@@ -79,8 +79,9 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 {
     // FIXME: There is a race condition if the destructor of a derived class is
     // called because we use several pure virtual methods here.
-    // Solutions: 1. Provide basic implementations in base class :(
-    // 2. Wait in derived destructor until serialPortGuard is available. This
+    // Solutions:
+    // 1. Provide basic implementations in base class :(
+    // 2. Wait in derived destructor until serialPortGuard mutex is unlocked. This
     // sounds good but every derived class needs to do this. Not convenient and
     // most of all not error prone.
 
@@ -139,8 +140,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
             qDebug() << Q_FUNC_INFO
                      << "Could not write to serial port. Error number: "
                      << this->serialPort->error();
-            ;
-            // TODO emit an error
+            emit this->errorReadWrite(QString(this->serialPort->error()));
         }
     }
 
@@ -155,7 +155,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     if (com->getCommand() == powcon::GETSTATUS) {
         this->powStatus->setDuration(duration);
-        this->powStatus->setTime(std::move(std::chrono::system_clock::now()));
+        this->powStatus->setTime(std::chrono::system_clock::now());
         // calculate wattage
         if (this->canCalculateWattage)
             this->calculateWattage(this->powStatus);

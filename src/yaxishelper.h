@@ -45,6 +45,14 @@ struct YAxisBounds {
     }
 };
 
+/**
+ * @brief Class that calculates the nounds for the different y-axes
+ *
+ * @details
+ * This helper class is used by the plottingarea to calculate the range for
+ * different y-axis. The range is dependent from the values of the graph in the
+ * current viewport of the QCustomPlot.
+ */
 class YAxisHelper
 {
 public:
@@ -57,4 +65,4 @@ private:
     std::pair<double, double> lowHighVectorValue(std::vector<double> values);
 };
 
-#endif // YAXISHELPER_H
+#endif  // YAXISHELPER_H

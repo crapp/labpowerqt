@@ -34,6 +34,9 @@
 #include "settingsdefinitions.h"
 #include "switchbutton.h"
 
+/**
+ * @brief Widget that manages recordings in the main gui
+ */
 class RecordArea : public QWidget
 {
     Q_OBJECT
@@ -58,7 +61,6 @@ public slots:
     void recordExternal(bool status, QString name);
 
 private:
-
     SwitchButton *recordToggle;
     QLineEdit *recordName;
 
@@ -67,7 +69,6 @@ private:
 private slots:
 
     void recordStateToggled(bool checked);
-
 };
 
-#endif // RECORDAREA_H
+#endif  // RECORDAREA_H

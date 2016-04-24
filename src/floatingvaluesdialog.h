@@ -54,7 +54,6 @@ struct FloatingValuesDialogData {
  */
 class FloatingValuesDialog : public QDialog
 {
-
     Q_OBJECT
 
 public:
@@ -96,4 +95,4 @@ private slots:
     void reject();
 };
 
-#endif // FLOATINGVALUESDIALOG_H
+#endif  // FLOATINGVALUESDIALOG_H

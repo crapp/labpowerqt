@@ -21,6 +21,12 @@
 #include <QVariant>
 #include <memory>
 
+/**
+ * @brief Serial command with return value
+ *
+ * @details
+ * This struct represents a serial command with the reply that was received (if any)
+ */
 struct SerialCommand {
 public:
     /**
@@ -28,22 +34,29 @@ public:
      * custom Type
      */
     SerialCommand() { this->command = 100; }
-
     SerialCommand(int command, int channel = 1, QVariant value = QVariant(),
                   bool withReply = false, int replyLength = 0)
-        : command(command), powerSupplyChannel(channel), value(value),
-          commandWithReply(withReply), lengthBytesReply(replyLength)
+        : command(command),
+          powerSupplyChannel(channel),
+          value(value),
+          commandWithReply(withReply),
+          lengthBytesReply(replyLength)
     {
     }
 
+    /**
+     * @brief Get the command that was or will be send to the hardware device
+     *
+     * @return Command as integer
+     * @details
+     * Can be cast to PowerSupplySCPI_constants::COMMANDS
+     */
     int getCommand() { return this->command; }
     int getPowerSupplyChannel() { return this->powerSupplyChannel; }
     QVariant getValue() { return this->value; }
     void setValue(const QVariant &value) { this->value = value; }
-
     bool getCommandWithReply() { return this->commandWithReply; }
     int getLengthBytesReply() { return this->lengthBytesReply; }
-
 private:
     int command;
     int powerSupplyChannel;
@@ -56,4 +69,4 @@ private:
 // smart pointer via SIGNAL/SLOT mechanism
 Q_DECLARE_METATYPE(std::shared_ptr<SerialCommand>)
 
-#endif // SERIALCOMMAND
+#endif  // SERIALCOMMAND

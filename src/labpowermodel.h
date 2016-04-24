@@ -29,11 +29,13 @@
 #include "powersupplystatus.h"
 
 /**
- * @brief Class that models the state a lab power supply currently has
+ * @brief Class that models the state of a lab power supply
  *
  * @details
  * This class holds all the information a device can provide. It does not store
  * the characteristics the user provided with the device wizard.
+ * The information will be updated by the application controller. There are
+ * several signals available that will notify potentional listeners.
  */
 class LabPowerModel : public QObject
 {
@@ -88,6 +90,9 @@ signals:
 public slots:
 
     void updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status);
+    /**
+     * @brief Clear interal buffer of PowerSupplyStatus objects
+     */
     void clearBuffer();
 
 private:

@@ -1,4 +1,4 @@
-// lab power supplies.
+// labpowerqt is a Gui application to control programmable lab power supplies
 // Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -28,9 +28,11 @@
 
 #include "settingsdefinitions.h"
 
+/**
+ * @brief Final page of the device wizard, checks if the name is unique
+ */
 class DeviceWizardFinal : public QWizardPage
 {
-
     Q_OBJECT
 
 public:
@@ -49,4 +51,4 @@ private:
     void checkDeviceName();
 };
 
-#endif // DEVICEWIZARDFINAL_H
+#endif  // DEVICEWIZARDFINAL_H

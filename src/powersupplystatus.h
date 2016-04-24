@@ -34,8 +34,10 @@ typedef std::pair<int, double> CHANNELVALUE;
 typedef std::pair<int, bool> CHANNELOUTPUT;
 }
 
+/**
+ * @brief Models the state of the hardware at a given time
+ */
 struct PowerSupplyStatus {
-
 public:
     PowerSupplyStatus()
     {
@@ -90,7 +92,6 @@ public:
         this->time = std::move(t);
     }
     std::chrono::system_clock::time_point getTime() { return this->time; }
-
     void setCurrent(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->actualCurrent.insert(value);
@@ -130,7 +131,6 @@ public:
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
     double getVoltage(int channel) { return this->actualVoltage.at(channel); }
-
     void setVoltageSet(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         QMutexLocker lock(&this->voltageSetLock);
@@ -153,7 +153,6 @@ public:
         this->wattage.insert(value);
     }
     double getWattage(int channel) { return this->wattage.at(channel); }
-
     void setChannelMode(PowerSupplyStatus_constants::CHANNELMODE mode)
     {
         this->channelMode.insert(mode);
@@ -211,4 +210,4 @@ private:
 // smart pointer via SIGNAL/SLOT mechanism
 Q_DECLARE_METATYPE(std::shared_ptr<PowerSupplyStatus>)
 
-#endif // POWERSUPPLYSTATUS
+#endif  // POWERSUPPLYSTATUS

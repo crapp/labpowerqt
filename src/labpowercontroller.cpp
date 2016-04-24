@@ -97,6 +97,7 @@ void LabPowerController::disconnectDevice()
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
         if (!this->powerSupplyWorkerThread->wait(3000)) {
             qDebug() << Q_FUNC_INFO << "Thread Timeout. Will terminate.";
+            // TODO: Maybe we should connect a signal to this a notify the user
             // this->powerSupplyWorkerThread->terminate();
         }
         this->powerSupplyConnector.reset(nullptr);
@@ -147,6 +148,7 @@ void LabPowerController::deviceReadWriteError(const QString &errorString)
 {
     qDebug() << Q_FUNC_INFO
              << "Could not open Read/write to device: " << errorString;
+    // TODO: This must be propagated to the GUI and the Model
 }
 
 void LabPowerController::setVoltage(int channel, double value)
@@ -235,6 +237,9 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
 {
     this->applicationModel->updatePowerSupplyStatus(status);
 
+    // TODO: Wouldn't it be better to let the model signal the DBConnector to
+    // fetch the buffer and write them to the database? Why has the controlller
+    // to this?
     if (this->applicationModel->getRecord()) {
         QSettings settings;
         settings.beginGroup(setcon::RECORD_GROUP);
@@ -269,6 +274,7 @@ void LabPowerController::toggleRecording(bool status, QString rname)
     if (status) {
         this->dbConnector->startRecording(std::move(rname));
     } else {
+        // make sure to write all remaining measurements to the database
         this->dbConnector->insertMeasurement(
             this->applicationModel->getBuffer());
         this->applicationModel->clearBuffer();

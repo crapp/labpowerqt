@@ -23,6 +23,17 @@
 #include "labpowermodel.h"
 #include "dbconnector.h"
 
+/**
+ * @brief The controller class of labpowerqt
+ *
+ * @details
+ *
+ * Receives commands from the MainWindow that will be relaiyed to the device
+ * Object of type PowerSupplySCPI. The status is send to the model which will
+ * in turn notify the GUI so the GUI can be updated. If the record option is on
+ * the controller will also use a Database connector object to write the
+ * Measurement Buffer to a SQLite Database
+ */
 class LabPowerController : public QObject
 {
     Q_OBJECT
@@ -30,12 +41,14 @@ public:
     // TODO: Why don't we use in the MainWindow class. Would be much better to
     // have the model only here and notify the MainWindow when the model has
     // changed. At least it would be more consistent
+    // EDIT 2016-04-24: What is this todo about?
     LabPowerController(std::shared_ptr<LabPowerModel> appModel);
     ~LabPowerController();
 
 signals:
 
 public slots:
+    // Device connection
     void connectDevice();
     void disconnectDevice();
 
@@ -65,6 +78,12 @@ public slots:
      */
     void receiveStatus(std::shared_ptr<PowerSupplyStatus> status);
 
+    /**
+     * @brief Star stop recording of Measurements
+     *
+     * @param status On/Off
+     * @param rname Recording name
+     */
     void toggleRecording(bool status, QString rname);
 
 private:

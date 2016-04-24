@@ -48,6 +48,9 @@ namespace Ui
 class SettingsDialog;
 }
 
+/**
+ * @brief The settings dialog of the application
+ */
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -60,7 +63,8 @@ private:
     Ui::SettingsDialog *ui;
 
     QListWidgetItem *lastItem;
-    QString defaultSqlFile; /**< Path to default data location on users system */
+    QString
+        defaultSqlFile; /**< Path to default database location on users system */
 
     void initGeneral();
     void initDevice();
@@ -78,7 +82,7 @@ private slots:
     void devicesComboBoxUpdate();
 
     /**
-     * @brief Slot that enforces a minimum zoom range
+     * @brief Slot that enforces a minimum zoom range for the zoom spinboxes
      *
      * @param value
      */

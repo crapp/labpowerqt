@@ -21,9 +21,15 @@
 #include <QDoubleSpinBox>
 #include <QKeyEvent>
 
+/**
+ * @brief Own Implementation of a DoubleSpinBox
+ *
+ * @details
+ * Implements a new signal that will be emitted when the enter or return keys are
+ * pressed
+ */
 class ValueDoubleSpinBox : public QDoubleSpinBox
 {
-
     Q_OBJECT
 
 public:
@@ -47,4 +53,4 @@ protected:
     }
 };
 
-#endif // VALUEDOUBLESPINBOX_H
+#endif  // VALUEDOUBLESPINBOX_H

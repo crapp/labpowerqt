@@ -28,6 +28,12 @@
 namespace KoradSCPI_constants
 {
 namespace powcon = PowerSupplySCPI_constants;
+/**
+ * @brief Map internal commands to SCPI syntax
+ *
+ * @details
+ * Every derives class of PowerSupplySCPI has to provide this map
+ */
 const std::map<int, QString> SERIALCOMMANDMAP = {
     {powcon::SETCURRENTSET, "ISET%1:%2"}, /**< Set current */
     {powcon::GETCURRENTSET, "ISET%1?"},   /**< Get current that has been set */
@@ -58,13 +64,14 @@ const std::map<int, int> SERIALCOMMANDBUFLENGTH = {
     {powcon::GETCURRENTSET, 5},
     {powcon::GETCURRENT, 5},  /**< Get actual current */
     {powcon::GETSTATUS, 50},  // request status
-    {powcon::GETIDN, 50}      // get device identification strin
+    {powcon::GETIDN, 50}      // get device identification string
 };
 }
 
 /**
- * @brief The KoradSCPI class Is implementing the SCPI Interface for Korad Power Supplies.
+ * @brief The KoradSCPI class is an Implementation of the SCPI Interface for Korad Power Supplies.
  *
+ * @details
  * Other devices like the Velleman 3005P should work with this implementation as
  * well. It is imortant to know, That the Firmware in these Devices is missing
  * some features which means there are some limitations regarding the
@@ -125,7 +132,7 @@ private:
     void updateNewPStatus(const std::shared_ptr<PowerSupplyStatus> &status);
     void calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status);
 
-    // No way to query the status of over voltage and over surrent protection so
+    // No way to query the status of over voltage and over current protection so
     // we save the status here :/ In order to get this to work properly both
     // functions have to be disabled before a connection by labpowerqt is
     // established. I know this is unreliable and bad, but you have to blame the

@@ -25,7 +25,6 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-#include <mutex>
 #include <memory>
 /*
  * We use a std::queue as basis for this threadsafe queue
@@ -34,6 +33,10 @@
 
 #include "serialcommand.h"
 
+/**
+ * @brief Threadsafe queue that holds the SerialCommands that should be used with
+ * the hardware
+ */
 class SerialQueue
 {
 public:
@@ -47,9 +50,12 @@ public:
 
 private:
     std::queue<std::shared_ptr<SerialCommand>> internalQueue;
-    std::mutex mtx;
     QMutex qmtx;
+    /**
+     * @brief This conditional variable is used by the queue to notify waiting
+     * threads that a new SerialCommand is ready to be popped.
+     */
     QWaitCondition qcondition;
 };
 
-#endif // SERIALQUEUE_H
+#endif  // SERIALQUEUE_H

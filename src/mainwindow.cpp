@@ -93,35 +93,34 @@ void MainWindow::dataUpdated()
                                        globcon::DATATYPE::WATTAGE);
 
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 voltage, 'f',
-                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
             globcon::DATATYPE::SETVOLTAGE, i);
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 actualVoltage, 'f',
-                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
             globcon::DATATYPE::VOLTAGE, i);
 
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 current, 'f',
-                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
             globcon::DATATYPE::SETCURRENT, i);
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 actualCurrent, 'f',
-                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
             globcon::DATATYPE::CURRENT, i);
 
-        ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(wattage, 'f', 3))),
-            globcon::DATATYPE::WATTAGE, i);
+        ui->widgetDisplay->dataUpdate(QVariant(QString::number(wattage, 'f', 3)),
+                                      globcon::DATATYPE::WATTAGE, i);
 
         this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
-            ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
+            ? ui->widgetDisplay->dataUpdate(QVariant("On"),
                                             globcon::CONTROL::OUTPUT, i)
-            : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
+            : ui->widgetDisplay->dataUpdate(QVariant("Off"),
                                             globcon::CONTROL::OUTPUT, i);
         this->applicationModel->getChannelMode(
             static_cast<globcon::CHANNEL>(i)) == globcon::MODE::CONSTANT_CURRENT
@@ -130,20 +129,17 @@ void MainWindow::dataUpdated()
     }
 
     this->applicationModel->getOVP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OVP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OVP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OVP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OVP,
+                                        0);
     this->applicationModel->getOCP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OCP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OCP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OCP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OCP,
+                                        0);
     this->applicationModel->getOTP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OTP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OTP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OTP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OTP,
+                                        0);
     // this->statusBar()->showMessage(
     // QString::number(this->applicationModel->getDuration()) + "ms");
 }
@@ -283,7 +279,9 @@ void MainWindow::showSettings()
     QByteArray newHash = settings.value(setcon::DEVICE_HASH).toByteArray();
     // FIXME: In fact this hole thing here is useless. When the user changes the
     // active device in the settings dialog and a recording or whatever is
-    // running it will have some nasty effects. So we need some sort signal
+    // running it will have some nasty effects. So we need some sort of signal
+    // EDIT 2016-04-24: Is this hint still relevant. Seems like the following
+    // code copes with the mentioned issues.
     // Update the values for the valuesDialog floating widget
     if (newHash != hash) {
         this->valuesDialog->updateDeviceSpecs(

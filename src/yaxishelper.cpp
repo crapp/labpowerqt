@@ -19,7 +19,6 @@
 namespace globcon = global_constants;
 
 YAxisHelper::YAxisHelper() {}
-
 YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                                         QCustomPlot *plot, int noChannels)
 {
@@ -50,6 +49,8 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                     dataMap->lowerBound(currentXRange.upper);
                 if (itend == dataMap->end())
                     itend = dataMap->end() - 1;
+                // extract all the data for the visible time frame and put it in
+                // vector
                 for (; itbegin != itend; itbegin++) {
                     graphValues.push_back((*itbegin).value);
                 }
@@ -93,11 +94,15 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
     return axb;
 }
 
-std::pair<double, double>
-YAxisHelper::lowHighVectorValue(std::vector<double> values)
+std::pair<double, double> YAxisHelper::lowHighVectorValue(
+    std::vector<double> values)
 {
+    // TODO: Wouldn't it be easier to use this method to find min max of a vector
+    // http://en.cppreference.com/w/cpp/algorithm/minmax_element
     std::pair<double, double> lowHighPair = {0, 0};
     if (!values.empty()) {
+        // TODO: Couldn't we pass the original lowHighPair as reference to this
+        // function?
         lowHighPair.first = values.at(0);
         lowHighPair.second = values.at(0);
         for (auto d : values) {

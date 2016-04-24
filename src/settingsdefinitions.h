@@ -17,6 +17,9 @@
 #ifndef SETTINGSDEFINITIONS_H
 #define SETTINGSDEFINITIONS_H
 
+/**
+ * @brief Constant keys for the QSettings object
+ */
 namespace settings_constants
 {
 const char *const MAINWINDOW_GROUP = "mainwindow";

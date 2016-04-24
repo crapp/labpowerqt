@@ -22,12 +22,16 @@
 #include <QLayout>
 #include <QLayoutItem>
 
+// Suppress attribute unused warnings on gcc
 #ifdef __GNUC__
 #define ATTR_UNUSED __attribute__((unused))
 #else
 #define ATTR_UNUSED
 #endif
 
+/**
+ * @brief Namespace for globally used constants
+ */
 namespace global_constants
 {
 enum PROTOCOL { KORADV2 };
@@ -43,6 +47,9 @@ const char *const GREENCOLOR = "#7BCF06";
 
 namespace global_utilities
 {
+/**
+ * @brief A method that recursively deletes all Widgets and Items inside a QLayout
+ */
 inline void clearLayout(QLayout *layout)
 {
     while (QLayoutItem *item = layout->takeAt(0)) {
@@ -57,4 +64,4 @@ inline void clearLayout(QLayout *layout)
 };
 }
 
-#endif // GLOBAL
+#endif  // GLOBAL

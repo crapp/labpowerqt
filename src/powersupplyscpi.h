@@ -37,6 +37,10 @@
 
 namespace PowerSupplySCPI_constants
 {
+/**
+ * @brief An enum that holds all SCPI commands this application currently
+ * understands
+ */
 enum COMMANDS {
     SETCURRENTSET = 1,
     GETCURRENTSET,
@@ -67,6 +71,9 @@ enum COMMANDS {
 };
 }
 
+/**
+ * @brief Base class for power supplies based on the SCPI protocol
+ */
 class PowerSupplySCPI : public QObject
 {
     Q_OBJECT
@@ -81,6 +88,9 @@ public:
                     QObject *parent = 0);
     virtual ~PowerSupplySCPI();
 
+    /**
+     * @brief Background Thread that checks a queue for new commands to send to the device
+     */
     void startPowerSupplyBackgroundThread();
     void stopPowerSupplyBackgroundThread();
 
@@ -105,7 +115,6 @@ public:
     virtual void getActualCurrent(int channel) = 0;
     virtual void setOCP(bool status) = 0;
     virtual void setOVP(bool status) = 0;
-    // TODO Not sure if this actually supported by any device.
     virtual void setOTP(bool status) = 0;
     virtual void setLocked(bool status) = 0;
     virtual void setBeep(bool status) = 0;
@@ -160,13 +169,16 @@ protected:
     int portTimeOut;
 
     /**
-     * @brief canCalculateWattage Devices that can measure actual current but not power can calculate power usage.
+     * @brief canCalculateWattage Devices that can measure actual current but not
+     * power can calculate power usage.
      */
     bool canCalculateWattage;
 
     // TODO: Change this raw pointer to a smart pointer
     QSerialPort *serialPort;
-    // std::mutex serialPortGuard;
+    // Unfortunately we have Qt Threads and Mutexes as QSerialPort does not like
+    // to be used with std::thread. It worked quite okay on Linux but other
+    // platforms had major problems with it.
     QMutex qserialPortGuard;
 
     bool backgroundWorkerThreadRun;
@@ -178,6 +190,13 @@ protected:
 
     std::shared_ptr<PowerSupplyStatus> powStatus;
 
+    /**
+     * @brief This method is run by a external QThread instance
+     *
+     * @details
+     * The QSerialPort has to be created inside this method as it needs to be in
+     * the same thread that accesses it later.
+     */
     void threadFunc();
 
     virtual void readWriteData(std::shared_ptr<SerialCommand> com);
@@ -195,7 +214,8 @@ protected:
 
 protected slots:
     /**
-     * @brief deviceInitialization Use this slot in derived classes to connect it with the deviceOpen signal
+     * @brief deviceInitialization Use this slot in derived classes to connect it
+     * with the deviceOpen signal
      */
     virtual void deviceInitialization() = 0;
 };

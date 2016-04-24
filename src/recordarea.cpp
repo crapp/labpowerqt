@@ -17,7 +17,6 @@
 #include "recordarea.h"
 
 RecordArea::RecordArea(QWidget *parent) : QWidget(parent) { this->setupUI(); }
-
 void RecordArea::recordExternal(bool status, QString name)
 {
     this->recordToggle->setCheckable(false);

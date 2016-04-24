@@ -1,4 +1,4 @@
-// lab power supplies.
+// labpowerqt is a Gui application to control programmable lab power supplies
 // Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
@@ -105,7 +105,7 @@ void DeviceWizardOptions::specBox()
     layout->addWidget(voltHigh, 3, 1);
     QComboBox *voltAccCombo = new QComboBox();
     voltAccCombo->addItems({"1V", "100mV", "10mV", "1mV"});
-    voltAccCombo->setCurrentIndex(2); // 10mV default
+    voltAccCombo->setCurrentIndex(2);  // 10mV default
     layout->addWidget(voltAccCombo, 3, 2);
 
     QLabel *currentLabel = new QLabel("Current Range");
@@ -128,7 +128,7 @@ void DeviceWizardOptions::specBox()
     layout->addWidget(currentHigh, 5, 1);
     QComboBox *currentAccCombo = new QComboBox();
     currentAccCombo->addItems({"1A", "100mA", "10mA", "1mA"});
-    currentAccCombo->setCurrentIndex(3); // 1mA default
+    currentAccCombo->setCurrentIndex(3);  // 1mA default
     layout->addWidget(currentAccCombo, 5, 2);
 
     registerField("channel", channels);
@@ -219,12 +219,13 @@ void DeviceWizardOptions::comBox()
     sportTimeout->setMaximum(10000);
     sportTimeout->setSuffix("ms");
     sportTimeout->setValue(10);
-    sportTimeout->setToolTip("Time in Milliseconds the Serialport will wait \n"
-                             "for an answer from the device. Tuning this option \n"
-                             "might improve communication resulting in a higher \n"
-                             "polling frequency. If this value is to low you \n"
-                             "will encounter partial or complete data loss on \n"
-                             "the serial port connection.");
+    sportTimeout->setToolTip(
+        "Time in Milliseconds the Serialport will wait \n"
+        "for an answer from the device. Tuning this option \n"
+        "might improve communication resulting in a higher \n"
+        "polling frequency. If this value is to low you \n"
+        "will encounter partial or complete data loss on \n"
+        "the serial port connection.");
     baudFlowDBits->addWidget(sportTimeoutLabel, 4, 1);
     baudFlowDBits->addWidget(sportTimeout, 5, 1);
 
