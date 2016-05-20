@@ -10,8 +10,8 @@ set (labpowerqt_VERSION_MAJOR 0)
 set (labpowerqt_VERSION_MINOR 1)
 set (labpowerqt_VERSION_PATCH 0)
 
+option (EALOGGER_EXTERNAL "Download and build ealogger" ON)
 option (SANITIZER "Use AddressSanitizer (ASan) compiler flags" OFF)
-option (QT_NO_DEBUG_OUTPUT "Disable Qt debug output" OFF)
 
 add_subdirectory(forms)
 add_subdirectory(external/qcustomplot)

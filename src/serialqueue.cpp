@@ -25,7 +25,8 @@ void SerialQueue::push(int command, int channel, const QVariant &value,
         command, channel, value, withReply, replyLength);
 
     this->internalQueue.push(com);
-    // notify thread to wake up and pop latest command
+    qlock.unlock();
+    // notify background thread to wake up and pop latest command
     this->qcondition.wakeOne();
 }
 
@@ -33,8 +34,7 @@ std::shared_ptr<SerialCommand> SerialQueue::pop()
 {
     QMutexLocker qlock(&this->qmtx);
 
-    // this unlocks our mutex and waits until our internal queue
-    // is no longer empty.
+    // this unlocks our mutex and waits if the internal queue is not empty
     if (this->internalQueue.empty())
         this->qcondition.wait(&this->qmtx);
 

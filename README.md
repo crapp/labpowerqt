@@ -19,7 +19,7 @@ issues** section.
 The following dependencies are required to run this software:
 * cmake >= 2.8.12 (On Windows you need at least version 3.3)
 * One of these Compilers:
-    * gcc >= 4.7
+    * gcc >= 4.9
     * clang >= 3.4
     * MSVC >= 14 (Visual Studio 2015)
     * MinGW
@@ -80,6 +80,12 @@ controls offer tooltips about what they do.
 ### Settings
 
 The Settings can be accessed from the Main Application Window through the File Menu.
+
+## Bugs, feature requests, ideas
+
+Please use the [github bugtracker](https://github.com/crapp/labpowerqt/issues)
+to submit bugs or feature requests
+
 
 ## Known issues
 

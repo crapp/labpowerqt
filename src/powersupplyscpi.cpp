@@ -141,6 +141,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
                      << "Could not write to serial port. Error number: "
                      << this->serialPort->error();
             emit this->errorReadWrite(QString(this->serialPort->error()));
+            return;
         }
     }
 
@@ -159,7 +160,10 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
         // calculate wattage
         if (this->canCalculateWattage)
             this->calculateWattage(this->powStatus);
+
+        // seems like we have to emit first, but why?
         emit this->statusReady(this->powStatus);
+
         std::shared_ptr<PowerSupplyStatus> newStatus =
             std::make_shared<PowerSupplyStatus>();
         this->updateNewPStatus(newStatus);
