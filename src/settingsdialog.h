@@ -64,6 +64,7 @@ private:
     QListWidgetItem *lastItem;
     QString
         defaultSqlFile; /**< Path to default database location on users system */
+    QString defaultLogDir;
 
     void initGeneral();
     void initDevice();

@@ -41,6 +41,8 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     this->defaultSqlFile =
         QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
         QDir::separator() + "labpowerqt.sqlite";
+    this->defaultLogDir =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
     this->initGeneral();
     this->initDevice();
@@ -213,10 +215,7 @@ void SettingsDialog::initLog()
                    setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
             .toInt());
     ui->lineEditLogDirectory->setText(
-        settings
-            .value(setcon::LOG_DIRECTORY,
-                   setdef::general_defaults.at(setcon::LOG_DIRECTORY))
-            .toString());
+        settings.value(setcon::LOG_DIRECTORY, this->defaultLogDir).toString());
 }
 
 void SettingsDialog::setupSettingsList()
@@ -323,9 +322,7 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
             somethingChanged = true;
         }
         if (ui->lineEditLogDirectory->text() !=
-            settings
-                .value(setcon::LOG_DIRECTORY,
-                       setdef::general_defaults.at(setcon::LOG_DIRECTORY))
+            settings.value(setcon::LOG_DIRECTORY, this->defaultLogDir)
                 .toString()) {
             somethingChanged = true;
         }
@@ -429,8 +426,7 @@ void SettingsDialog::restoreSettings(int currentRow)
     if (currentRow == 4) {
         ui->checkBoxLogEnabled->setChecked(
             setdef::general_defaults.at(setcon::LOG_ENABLED).toBool());
-        ui->lineEditLogDirectory->setText(
-            setdef::general_defaults.at(setcon::LOG_DIRECTORY).toString());
+        ui->lineEditLogDirectory->setText(this->defaultLogDir);
         ui->comboBoxLogLoglevel->setCurrentIndex(
             setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY).toInt());
     }

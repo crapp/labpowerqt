@@ -436,7 +436,31 @@ QListView::item {
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="comboBoxLogLoglevel"/>
+                <widget class="QComboBox" name="comboBoxLogLoglevel">
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Debug</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Info</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Warning</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Error</string>
+                  </property>
+                 </item>
+                </widget>
                </item>
               </layout>
              </item>
