@@ -31,6 +31,13 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     ui->listWidgetSettings->setMinimumWidth(
         ui->listWidgetSettings->sizeHintForColumn(0));
 
+    // TODO: DataLocation is deprecated but the newer constant AppDataLocation is
+    // provided from 5.4 onwards
+    if (!QDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
+             .exists()) {
+        QDir().mkdir(
+            QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    }
     this->defaultSqlFile =
         QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
         QDir::separator() + "labpowerqt.sqlite";
@@ -39,6 +46,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     this->initDevice();
     this->initPlot();
     this->initRecord();
+    this->initLog();
 
     QObject::connect(ui->listWidgetSettings, &QListWidget::currentRowChanged,
                      this, &SettingsDialog::settingCategoryChanged);
@@ -48,6 +56,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     QObject::connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton *)), this,
                      SLOT(buttonBoxClicked(QAbstractButton *)));
 
+    // select database file
     QObject::connect(ui->pushButtonSqlitePath, &QPushButton::clicked, [this]() {
         QFileInfo sqlDBFile(ui->lineEditSqlitePath->text());
         QString sqlFile = QFileDialog::getSaveFileName(
@@ -118,7 +127,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
                 this->devicesComboBoxUpdate();
             }
         });
-
+    // sync zoom values
     QObject::connect(
         ui->spinBoxPlotZoomMin,
         static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
@@ -127,6 +136,18 @@ SettingsDialog::SettingsDialog(QWidget *parent)
         ui->spinBoxPlotZoomMax,
         static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
         &SettingsDialog::zoomMinMaxSync);
+
+    // select log files directory
+    QObject::connect(
+        ui->pushButtonLogDirectory, &QPushButton::clicked, [this]() {
+            QString logfile_dir = ui->lineEditLogDirectory->text();
+            QString new_dir = QFileDialog::getExistingDirectory(
+                this, "Choose a location for the log files", logfile_dir,
+                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+            if (new_dir != "") {
+                ui->lineEditLogDirectory->setText(new_dir);
+            }
+        });
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
@@ -135,12 +156,14 @@ void SettingsDialog::initGeneral()
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
     ui->checkBoxGeneralAskExit->setChecked(
-        settings.value(setcon::GENERAL_EXIT,
-                       setdef::general_defaults.at(setcon::GENERAL_EXIT))
+        settings
+            .value(setcon::GENERAL_EXIT,
+                   setdef::general_defaults.at(setcon::GENERAL_EXIT))
             .toBool());
     ui->checkBoxGeneralAskBeforeDis->setChecked(
-        settings.value(setcon::GENERAL_DISC,
-                       setdef::general_defaults.at(setcon::GENERAL_DISC))
+        settings
+            .value(setcon::GENERAL_DISC,
+                   setdef::general_defaults.at(setcon::GENERAL_DISC))
             .toBool());
 }
 
@@ -150,12 +173,14 @@ void SettingsDialog::initPlot()
     QSettings settings;
     settings.beginGroup(setcon::PLOT_GROUP);
     ui->spinBoxPlotZoomMin->setValue(
-        settings.value(setcon::PLOT_ZOOM_MIN,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+        settings
+            .value(setcon::PLOT_ZOOM_MIN,
+                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
             .toInt());
     ui->spinBoxPlotZoomMax->setValue(
-        settings.value(setcon::PLOT_ZOOM_MAX,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+        settings
+            .value(setcon::PLOT_ZOOM_MAX,
+                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
             .toInt());
 }
 void SettingsDialog::initRecord()
@@ -167,9 +192,31 @@ void SettingsDialog::initRecord()
     ui->lineEditRecordTablePrefix->setText(
         settings.value(setcon::RECORD_TBLPRE, "").toString());
     ui->spinBoxRecordBuffer->setValue(
-        settings.value(setcon::RECORD_BUFFER,
-                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
+        settings
+            .value(setcon::RECORD_BUFFER,
+                   setdef::general_defaults.at(setcon::RECORD_BUFFER))
             .toInt());
+}
+
+void SettingsDialog::initLog()
+{
+    QSettings settings;
+    settings.beginGroup(setcon::LOG_GROUP);
+    ui->checkBoxLogEnabled->setChecked(
+        settings
+            .value(setcon::LOG_ENABLED,
+                   setdef::general_defaults.at(setcon::LOG_ENABLED))
+            .toBool());
+    ui->comboBoxLogLoglevel->setCurrentIndex(
+        settings
+            .value(setcon::LOG_MIN_SEVERITY,
+                   setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+            .toInt());
+    ui->lineEditLogDirectory->setText(
+        settings
+            .value(setcon::LOG_DIRECTORY,
+                   setdef::general_defaults.at(setcon::LOG_DIRECTORY))
+            .toString());
 }
 
 void SettingsDialog::setupSettingsList()
@@ -178,6 +225,7 @@ void SettingsDialog::setupSettingsList()
     ui->listWidgetSettings->addItem(tr("Device"));
     ui->listWidgetSettings->addItem(tr("Plot"));
     ui->listWidgetSettings->addItem(tr("Record"));
+    ui->listWidgetSettings->addItem(tr("Logging"));
     this->lastItem = ui->listWidgetSettings->item(0);
     ui->listWidgetSettings->setCurrentRow(0);
 }
@@ -199,14 +247,16 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
         settings.beginGroup(setcon::GENERAL_GROUP);
         if (settings.contains(setcon::GENERAL_DISC)) {
             if (!ui->checkBoxGeneralAskExit->isChecked() ==
-                settings.value(setcon::GENERAL_EXIT,
-                               setdef::general_defaults.at(setcon::GENERAL_EXIT))
+                settings
+                    .value(setcon::GENERAL_EXIT,
+                           setdef::general_defaults.at(setcon::GENERAL_EXIT))
                     .toBool()) {
                 somethingChanged = true;
             }
             if (!ui->checkBoxGeneralAskBeforeDis->isChecked() ==
-                settings.value(setcon::GENERAL_DISC,
-                               setdef::general_defaults.at(setcon::GENERAL_DISC))
+                settings
+                    .value(setcon::GENERAL_DISC,
+                           setdef::general_defaults.at(setcon::GENERAL_DISC))
                     .toBool()) {
                 somethingChanged = true;
             }
@@ -222,14 +272,16 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
     case 2:
         settings.beginGroup(setcon::PLOT_GROUP);
         if (ui->spinBoxPlotZoomMin->value() !=
-            settings.value(setcon::PLOT_ZOOM_MIN,
-                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+            settings
+                .value(setcon::PLOT_ZOOM_MIN,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
                 .toInt()) {
             somethingChanged = true;
         }
         if (ui->spinBoxPlotZoomMax->value() !=
-            settings.value(setcon::PLOT_ZOOM_MAX,
-                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+            settings
+                .value(setcon::PLOT_ZOOM_MAX,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
                 .toInt()) {
             somethingChanged = true;
         }
@@ -246,12 +298,36 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                 somethingChanged = true;
             }
             if (ui->spinBoxRecordBuffer->value() !=
-                settings.value(
-                            setcon::RECORD_BUFFER,
-                            setdef::general_defaults.at(setcon::RECORD_BUFFER))
+                settings
+                    .value(setcon::RECORD_BUFFER,
+                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
                     .toInt()) {
                 somethingChanged = true;
             }
+        }
+        break;
+    case 4:
+        settings.beginGroup(setcon::LOG_GROUP);
+        if (ui->checkBoxLogEnabled->isChecked() !=
+            settings
+                .value(setcon::LOG_ENABLED,
+                       setdef::general_defaults.at(setcon::LOG_ENABLED))
+                .toBool()) {
+            somethingChanged = true;
+        }
+        if (ui->comboBoxLogLoglevel->currentIndex() !=
+            settings
+                .value(setcon::LOG_MIN_SEVERITY,
+                       setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+                .toInt()) {
+            somethingChanged = true;
+        }
+        if (ui->lineEditLogDirectory->text() !=
+            settings
+                .value(setcon::LOG_DIRECTORY,
+                       setdef::general_defaults.at(setcon::LOG_DIRECTORY))
+                .toString()) {
+            somethingChanged = true;
         }
         break;
     }
@@ -315,6 +391,16 @@ void SettingsDialog::saveSettings(int currentRow)
         settings.setValue(setcon::RECORD_BUFFER,
                           ui->spinBoxRecordBuffer->value());
     }
+
+    if (currentRow == 4) {
+        settings.beginGroup(setcon::LOG_GROUP);
+        settings.setValue(setcon::LOG_ENABLED,
+                          ui->checkBoxLogEnabled->isChecked());
+        settings.setValue(setcon::LOG_DIRECTORY,
+                          ui->lineEditLogDirectory->text());
+        settings.setValue(setcon::LOG_MIN_SEVERITY,
+                          ui->comboBoxLogLoglevel->currentIndex());
+    }
 }
 
 void SettingsDialog::restoreSettings(int currentRow)
@@ -339,6 +425,14 @@ void SettingsDialog::restoreSettings(int currentRow)
         ui->lineEditRecordTablePrefix->setText("");
         ui->spinBoxRecordBuffer->setValue(
             setdef::general_defaults.at(setcon::RECORD_BUFFER).toInt());
+    }
+    if (currentRow == 4) {
+        ui->checkBoxLogEnabled->setChecked(
+            setdef::general_defaults.at(setcon::LOG_ENABLED).toBool());
+        ui->lineEditLogDirectory->setText(
+            setdef::general_defaults.at(setcon::LOG_DIRECTORY).toString());
+        ui->comboBoxLogLoglevel->setCurrentIndex(
+            setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY).toInt());
     }
 }
 void SettingsDialog::settingCategoryChanged(int currentRow)
@@ -374,6 +468,10 @@ void SettingsDialog::settingCategoryChanged(int currentRow)
     case 3:
         this->initRecord();
         ui->stackedWidget->setCurrentIndex(3);
+        break;
+    case 4:
+        this->initLog();
+        ui->stackedWidget->setCurrentIndex(4);
         break;
     default:
         break;

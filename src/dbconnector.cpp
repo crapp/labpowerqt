@@ -22,17 +22,18 @@ namespace setcon = settings_constants;
 namespace dbcon = database_constants;
 namespace dbutil = database_utils;
 
-DBConnector::DBConnector()
+DBConnector::DBConnector(std::shared_ptr<ealogger::Logger> log) : log(log)
 {
     this->recID = -1;
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
     dbutil::initDatabase(
         "QSQLITE",
-        settings.value(setcon::RECORD_SQLPATH,
-                       QStandardPaths::writableLocation(
-                           QStandardPaths::DataLocation) +
-                           QDir::separator() + QString("labpowerqt.sqlite"))
+        settings
+            .value(
+                setcon::RECORD_SQLPATH,
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                    QDir::separator() + QString("labpowerqt.sqlite"))
             .toString());
 }
 

@@ -71,5 +71,10 @@ const char *const RECORD_GROUP = "record";
 const char *const RECORD_SQLPATH = "sqlpath";
 const char *const RECORD_TBLPRE = "tblprefix";
 const char *const RECORD_BUFFER = "buffersize";
+// log
+const char *const LOG_GROUP = "logging";
+const char *const LOG_ENABLED = "enabled";
+const char *const LOG_DIRECTORY = "directory";
+const char *const LOG_MIN_SEVERITY = "severity";
 }
 #endif  // SETTINGSDEFINITIONS_H

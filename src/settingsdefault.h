@@ -17,14 +17,13 @@
 #ifndef SETTINGSDEFAULT_H
 #define SETTINGSDEFAULT_H
 
+#include <QStandardPaths>
 #include <QVariant>
 
-#include <string>
 #include <map>
+#include <string>
 
 #include "settingsdefinitions.h"
-
-namespace setcon = settings_constants;
 
 /**
  * @brief Default settings values in a lookup map structure
@@ -32,11 +31,13 @@ namespace setcon = settings_constants;
 namespace settings_default
 {
 const std::map<const char* const, QVariant> general_defaults{
-    {setcon::GENERAL_EXIT, QVariant(true)},
-    {setcon::GENERAL_DISC, QVariant(false)},
-    {setcon::PLOT_ZOOM_MIN, QVariant(60)},
-    {setcon::PLOT_ZOOM_MAX, QVariant(1800)},
-    {setcon::RECORD_BUFFER, QVariant(60)}};
+    {settings_constants::GENERAL_EXIT, QVariant(true)},
+    {settings_constants::GENERAL_DISC, QVariant(false)},
+    {settings_constants::PLOT_ZOOM_MIN, QVariant(60)},
+    {settings_constants::PLOT_ZOOM_MAX, QVariant(1800)},
+    {settings_constants::RECORD_BUFFER, QVariant(60)},
+    {settings_constants::LOG_ENABLED, QVariant(true)},
+    {settings_constants::LOG_MIN_SEVERITY, QVariant(1)}};
 }
 
 #endif /* SETTINGSDEFAULT_H */

@@ -21,25 +21,27 @@
 #include <QObject>
 
 #include <QSqlDatabase>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <QSqlError>
 
 #include <QDateTime>
 
-#include <QStandardPaths>
+#include <QDebug>
 #include <QDir>
 #include <QSettings>
-#include <QDebug>
+#include <QStandardPaths>
 
-#include <vector>
-#include <memory>
 #include <chrono>
+#include <memory>
+#include <vector>
 
-#include "global.h"
-#include "settingsdefinitions.h"
+#include <ealogger/ealogger.h>
+
 #include "databasedef.h"
+#include "global.h"
 #include "powersupplystatus.h"
+#include "settingsdefinitions.h"
 
 /**
  * @brief Connector class between the application controller and the database
@@ -53,7 +55,7 @@ class DBConnector : public QObject
     Q_OBJECT
 
 public:
-    DBConnector();
+    DBConnector(std::shared_ptr<ealogger::Logger> log);
     ~DBConnector();
 
 public slots:
@@ -65,6 +67,8 @@ public slots:
     void insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus);
 
 private:
+    std::shared_ptr<ealogger::Logger> log;
+
     long long recID;
 
     long long maxID(const QString &table, const QString &id);

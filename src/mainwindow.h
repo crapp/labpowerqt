@@ -18,32 +18,36 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSettings>
 #include <QString>
 #include <QTextStream>
-#include <QSettings>
 // QUrl and QDesktopServices to open Webbrowser (file a bug report)
-#include <QUrl>
 #include <QDesktopServices>
+#include <QDir>
 #include <QPropertyAnimation>
 #include <QSignalMapper>
+#include <QUrl>
 
 #include <QMessageBox>
 
+#include <iostream>
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
+
+#include <ealogger/ealogger.h>
 
 #include <config.h>
-#include "settingsdefinitions.h"
-#include "settingsdefault.h"
 #include "global.h"
 #include "labpowercontroller.h"
 #include "labpowermodel.h"
+#include "settingsdefault.h"
+#include "settingsdefinitions.h"
 
 #include "aboutme.h"
-#include "settingsdialog.h"
 #include "floatingvaluesdialog.h"
 #include "plottingarea.h"
+#include "settingsdialog.h"
 
 namespace Ui
 {
@@ -89,6 +93,8 @@ private:
 
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
+
+    std::shared_ptr<ealogger::Logger> log;
 
     std::unique_ptr<LabPowerController> controller;
     std::shared_ptr<LabPowerModel> applicationModel;

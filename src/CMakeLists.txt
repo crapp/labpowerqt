@@ -17,6 +17,7 @@ if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
 elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
         message(FATAL_ERROR "${PROJECT_NAME} requires clang 3.3 or greater")
+    endif()
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
     elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -39,6 +40,45 @@ if (${SANITIZER})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
+add_definitions(-DQT_NO_DEBUG_OUTPUT -DQT_NO_WARNING_OUTPUT)
+
+if (EALOGGER_EXTERNAL)
+    message(STATUS "Trying to get ealogger sources from github and compile the library")
+    include(ExternalProject)
+
+    # add ealogger as external project. this will pull the sources from github,
+    # compile them and install the library to a subfolder. as we are using a static
+    # library we can link it directly
+    ExternalProject_Add(
+        ealogger_external
+        URL https://github.com/crapp/ealogger/archive/v0.7.2.tar.gz
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/ealogger"
+        INSTALL_DIR install
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                   -DCMAKE_BUILD_TYPE=Release
+                   -DBUILD_SHARED_LIBS=OFF
+        )
+    # get the install dir
+    ExternalProject_Get_Property(ealogger_external install_dir)
+    set (EALOGGER_LIB
+        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        )
+    include_directories(
+        "${install_dir}/include"
+        )
+    set(CMAKE_THREAD_PREFER_PTHREAD ON)
+    find_package(Threads REQUIRED)
+else(EALOGGER_EXTERNAL)
+    message(STATUS "Searching for ealogger in default locations")
+    find_library(EALOGGER_LIB
+        NAMES ealogger)
+    if (EALOGGER_LIB)
+        message(STATUS "Found ealogger library")
+    else(EALOGGER_LIB)
+        message(FATAL_ERROR "ealogger library not found")
+    endif(EALOGGER_LIB)
+    # search for ealogger
+endif(EALOGGER_EXTERNAL)
 
 # Add our custom cmake search modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -156,7 +196,6 @@ add_executable(labpowerqt
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
-add_definitions(-DQT_NO_DEBUG_OUTPUT -DQT_NO_WARNING_OUTPUT)
 
 target_link_libraries(labpowerqt
 Qt5::Widgets
@@ -164,4 +203,11 @@ Qt5::SerialPort
 Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
-Qt5::Sql)
+Qt5::Sql
+${EALOGGER_LIB})
+
+# make sure dependencies are build before our main target
+if (EALOGGER_EXTERNAL)
+    add_dependencies(labpowerqt ealogger_external)
+    target_link_libraries(labpowerqt Threads::Threads)
+endif()

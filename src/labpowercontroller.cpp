@@ -6,12 +6,13 @@ namespace powstatus = PowerSupplyStatus_constants;
 namespace powcon = PowerSupplySCPI_constants;
 namespace globcon = global_constants;
 
-LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
-    : applicationModel(appModel)
+LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel,
+                                       std::shared_ptr<ealogger::Logger> log)
+    : applicationModel(appModel), log(log)
 {
     this->powerSupplyConnector = nullptr;
     this->powerSupplyStatusUpdater = nullptr;
-    this->dbConnector = std::unique_ptr<DBConnector>(new DBConnector());
+    this->dbConnector = std::unique_ptr<DBConnector>(new DBConnector(this->log));
     // this->connectDevice();
 }
 
@@ -244,8 +245,9 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
         QSettings settings;
         settings.beginGroup(setcon::RECORD_GROUP);
         if (this->applicationModel->getBufferSize() >=
-            settings.value(setcon::RECORD_BUFFER,
-                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
+            settings
+                .value(setcon::RECORD_BUFFER,
+                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
                 .toInt()) {
             this->dbConnector->insertMeasurement(
                 this->applicationModel->getBuffer());

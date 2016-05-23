@@ -17,14 +17,14 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include <QDialog>
-#include <QListWidgetItem>
-#include <QQuickView>
 #include <QAbstractButton>
+#include <QDialog>
 #include <QDialogButtonBox>
-#include <QStandardPaths>
-#include <QMessageBox>
 #include <QFileDialog>
+#include <QListWidgetItem>
+#include <QMessageBox>
+#include <QQuickView>
+#include <QStandardPaths>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
@@ -32,16 +32,15 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 
-#include <QDebug>
 #include <QSettings>
 
 #include <iostream>
 #include <memory>
 
-#include "settingsdefinitions.h"
-#include "settingsdefault.h"
 #include "databasedef.h"
 #include "devicewizard.h"
+#include "settingsdefault.h"
+#include "settingsdefinitions.h"
 
 namespace Ui
 {
@@ -70,6 +69,7 @@ private:
     void initDevice();
     void initPlot();
     void initRecord();
+    void initLog();
     void setupSettingsList();
     bool checkSettingsChanged(QListWidgetItem *lastItem);
     void saveSettings(int currentRow);

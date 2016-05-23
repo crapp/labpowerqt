@@ -44,10 +44,58 @@ MainWindow::MainWindow(QWidget *parent)
         settings.value(setcon::MAINWINDOW_ACTIVE_TAB, 0).toInt());
     settings.endGroup();
 
+    // init application logger
+    this->log = std::make_shared<ealogger::Logger>();
+    settings.beginGroup(setcon::LOG_GROUP);
+    if (settings
+            .value(setcon::LOG_ENABLED,
+                   setdef::general_defaults.at(setcon::LOG_ENABLED))
+            .toBool()) {
+        ealogger::constants::LOG_LEVEL lvl =
+            static_cast<ealogger::constants::LOG_LEVEL>(
+                settings
+                    .value(setcon::LOG_MIN_SEVERITY,
+                           setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+                    .toInt());
+        // create file name
+        QDateTime now = QDateTime::currentDateTime();
+        QDir cachedir(
+            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+        if (!cachedir.exists()) {
+            QDir().mkdir(cachedir.absolutePath());
+        }
+        QString logfile =
+            settings.value(setcon::LOG_DIRECTORY, cachedir.absolutePath())
+                .toString();
+        logfile += QString(QDir::separator()) + "labpowerqt_" +
+                   now.toString("yyyyMMdd") + ".log";
+        this->log->init_file_sink(true, lvl, "%d %s [%f:%l] %m", "%F %T",
+                                  logfile.toStdString());
+
+        this->log->eal_info(titleString.toStdString() + " is starting");
+
+        QDir logdir(
+            settings.value(setcon::LOG_DIRECTORY, cachedir.absolutePath())
+                .toString());
+        logdir.setFilter(QDir::Files | QDir::Writable);
+        logdir.setSorting(QDir::SortFlag::Name);
+        logdir.setNameFilters({"labpowerqt_*.log"});
+        QFileInfoList logfilesinfo = logdir.entryInfoList();
+        // check how many logfiles we have
+        // TODO: Make number of logfiles configurable
+        if (logfilesinfo.size() > 5) {
+            for (int i = 0; i < logfilesinfo.size() - 5; i++) {
+                this->log->eal_info("Deleting log file " +
+                                    logfilesinfo.at(i).fileName().toStdString());
+                logdir.remove(logfilesinfo.at(i).fileName());
+            }
+        }
+    }
+
     // create model and controller
     this->applicationModel = std::make_shared<LabPowerModel>();
     this->controller = std::unique_ptr<LabPowerController>(
-        new LabPowerController(this->applicationModel));
+        new LabPowerController(this->applicationModel, this->log));
 
     QObject::connect(ui->tabWidgetMainWindow, &QTabWidget::currentChanged, this,
                      &MainWindow::tabWidgetChangedIndex);
@@ -255,7 +303,8 @@ void MainWindow::setupControlConnections()
 
 void MainWindow::fileBugReport()
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/crapp/labpowerqt"));
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/crapp/labpowerqt/issues"));
 }
 
 void MainWindow::showAbout()
@@ -332,8 +381,8 @@ void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
         break;
     }
 
-    qDebug() << Q_FUNC_INFO << "Received " << val << " "
-             << "Channel: " << channel;
+    this->log->eal_debug("Received " + std::to_string(val) + " for channel " +
+                         std::to_string(channel));
 }
 
 void MainWindow::deviceControl(int control, int channel)
@@ -343,8 +392,9 @@ void MainWindow::deviceControl(int control, int channel)
         if (this->applicationModel->getDeviceConnected()) {
             QSettings settings;
             settings.beginGroup(setcon::GENERAL_GROUP);
-            if (settings.value(setcon::GENERAL_DISC,
-                               setdef::general_defaults.at(setcon::GENERAL_DISC))
+            if (settings
+                    .value(setcon::GENERAL_DISC,
+                           setdef::general_defaults.at(setcon::GENERAL_DISC))
                     .toBool()) {
                 if (QMessageBox::question(this, "Disconnect Device",
                                           "Do you really want to disconnect?",
@@ -404,8 +454,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
-    if (settings.value(setcon::GENERAL_EXIT,
-                       setdef::general_defaults.at(setcon::GENERAL_EXIT))
+    if (settings
+            .value(setcon::GENERAL_EXIT,
+                   setdef::general_defaults.at(setcon::GENERAL_EXIT))
             .toBool()) {
         QMessageBox box;
         // TODO: Can't set parent. Messagebox transparent after this :/??
@@ -425,5 +476,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue(setcon::MAINWINDOW_GEO, this->saveGeometry());
     settings.setValue(setcon::MAINWINDOW_STATE, this->saveState());
     settings.endGroup();
+
+    this->log->eal_info("labpowerqt exit");
+
     QWidget::closeEvent(event);
 }

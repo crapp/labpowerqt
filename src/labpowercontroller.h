@@ -3,25 +3,27 @@
 
 #include <memory>
 
-#include <QObject>
-#include <QDebug>
-#include <QString>
 #include <QByteArray>
-#include <QSettings>
-#include <QTimer>
-#include <QThread>
+#include <QDebug>
 #include <QMessageBox>
+#include <QObject>
+#include <QSettings>
+#include <QString>
+#include <QThread>
+#include <QTimer>
+
+#include <ealogger/ealogger.h>
 
 #include "global.h"
-#include "settingsdefinitions.h"
 #include "settingsdefault.h"
+#include "settingsdefinitions.h"
 
 #include "koradscpi.h"
-#include "serialcommand.h"
 #include "powersupplystatus.h"
+#include "serialcommand.h"
 
-#include "labpowermodel.h"
 #include "dbconnector.h"
+#include "labpowermodel.h"
 
 /**
  * @brief The controller class of labpowerqt
@@ -42,7 +44,8 @@ public:
     // have the model only here and notify the MainWindow when the model has
     // changed. At least it would be more consistent
     // EDIT 2016-04-24: What is this todo about?
-    LabPowerController(std::shared_ptr<LabPowerModel> appModel);
+    LabPowerController(std::shared_ptr<LabPowerModel> appModel,
+                       std::shared_ptr<ealogger::Logger> log);
     ~LabPowerController();
 
 signals:
@@ -89,6 +92,7 @@ public slots:
 private:
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;
+    std::shared_ptr<ealogger::Logger> log;
     std::unique_ptr<DBConnector> dbConnector;
 
     std::unique_ptr<QTimer> powerSupplyStatusUpdater;
