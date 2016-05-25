@@ -31,7 +31,7 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
     // loop through all channels
     for (int i = 1; i <= noChannels; i++) {
         for (int j = 0; j < 5; j++) {
-            globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
+            globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(j);
             // only visible graphs count
             if (!plot->graph(j)->visible())
                 continue;
@@ -60,18 +60,18 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                 lowHighPair.second = dataMap->first().value;
             }
 
-            if (dt == globcon::DATATYPE::SETVOLTAGE ||
-                dt == globcon::DATATYPE::VOLTAGE) {
+            if (dt == globcon::LPQ_DATATYPE::SETVOLTAGE ||
+                dt == globcon::LPQ_DATATYPE::VOLTAGE) {
                 voltageBounds.push_back(lowHighPair.first);
                 voltageBounds.push_back(lowHighPair.second);
             }
-            if (dt == globcon::DATATYPE::SETCURRENT ||
-                dt == globcon::DATATYPE::CURRENT) {
+            if (dt == globcon::LPQ_DATATYPE::SETCURRENT ||
+                dt == globcon::LPQ_DATATYPE::CURRENT) {
                 currentBounds.push_back(lowHighPair.first);
                 currentBounds.push_back(lowHighPair.second);
             }
-            if (dt == globcon::DATATYPE::WATTAGE ||
-                dt == globcon::DATATYPE::WATTAGE) {
+            if (dt == globcon::LPQ_DATATYPE::WATTAGE ||
+                dt == globcon::LPQ_DATATYPE::WATTAGE) {
                 wattageBounds.push_back(lowHighPair.first);
                 wattageBounds.push_back(lowHighPair.second);
             }

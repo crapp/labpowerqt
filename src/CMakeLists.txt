@@ -51,7 +51,7 @@ if (EALOGGER_EXTERNAL)
     # library we can link it directly
     ExternalProject_Add(
         ealogger_external
-        URL https://github.com/crapp/ealogger/archive/v0.7.2.tar.gz
+        URL https://github.com/crapp/ealogger/archive/v0.8.tar.gz
         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/ealogger"
         INSTALL_DIR install
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
@@ -132,6 +132,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/global.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/log_instance.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.h

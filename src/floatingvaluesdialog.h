@@ -21,14 +21,14 @@
 #include <QDialog>
 
 #include <QGridLayout>
-#include <QStackedWidget>
 #include <QLabel>
+#include <QStackedWidget>
 #include <QToolButton>
 
 #include <QDebug>
 
-#include <memory>
 #include <cmath>
+#include <memory>
 
 #include "global.h"
 #include "valuedoublespinbox.h"
@@ -67,7 +67,7 @@ signals:
 
 public slots:
 
-    void setDatatype(global_constants::DATATYPE dt);
+    void setDatatype(global_constants::LPQ_DATATYPE dt);
     void setCurrentValue(double value);
     void setCurrentValue(int trackingMode);
     void updateDeviceSpecs(double voltageMin, double voltageMax,
@@ -83,7 +83,7 @@ private:
     ValueDoubleSpinBox *voltageSpinBox;
     ValueDoubleSpinBox *currentSpinBox;
 
-    global_constants::DATATYPE dt;
+    global_constants::LPQ_DATATYPE dt;
     int sourceChannel;
 
     std::shared_ptr<FloatingValuesDialogData> data;

@@ -18,35 +18,35 @@
 #ifndef TABHISTORY_H
 #define TABHISTORY_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QAction>
 #include <QGridLayout>
-#include <QTableView>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QTableView>
 #include <QToolBar>
-#include <QAction>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include <QSqlDatabase>
-#include <QSqlTableModel>
 #include <QSqlRecord>
+#include <QSqlTableModel>
 
 #include <QSettings>
 
-#include <QMessageBox>
 #include <QFileDialog>
+#include <QMessageBox>
 
-#include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include <QStandardPaths>
 #include <QTextStream>
-#include <QDebug>
 
 #include <memory>
 
-#include "settingsdefinitions.h"
 #include "databasedef.h"
+#include "log_instance.h"
+#include "settingsdefinitions.h"
 
 #include "recordsqlmodel.h"
 

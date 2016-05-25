@@ -22,7 +22,7 @@ namespace setcon = settings_constants;
 namespace dbcon = database_constants;
 namespace dbutil = database_utils;
 
-DBConnector::DBConnector(std::shared_ptr<ealogger::Logger> log) : log(log)
+DBConnector::DBConnector()
 {
     this->recID = -1;
     QSettings settings;
@@ -74,8 +74,11 @@ void DBConnector::startRecording(QString recName)
         db.rollback();
         // TODO: Error handling and not only here
         this->recID = -1;
-        qDebug() << Q_FUNC_INFO << recInsert.lastError().text();
-        qDebug() << Q_FUNC_INFO << db.lastError().text();
+        LogInstance::get_instance().eal_error("Can not insert recorded data");
+        LogInstance::get_instance().eal_error(
+            recInsert.lastError().text().toStdString());
+        LogInstance::get_instance().eal_error(
+            db.lastError().text().toStdString());
         return;
     }
     this->recID = this->maxID(dbcon::TBL_RECORDING, dbcon::TBL_RECORDING_ID);
@@ -98,8 +101,11 @@ void DBConnector::stopRecording()
         db.commit();
     } else {
         db.rollback();
-        qDebug() << Q_FUNC_INFO << recUpdate.lastError().text();
-        qDebug() << Q_FUNC_INFO << db.lastError().text();
+        LogInstance::get_instance().eal_error("Can not update recording");
+        LogInstance::get_instance().eal_error(
+            recUpdate.lastError().text().toStdString());
+        LogInstance::get_instance().eal_error(
+            db.lastError().text().toStdString());
     }
 }
 
@@ -114,7 +120,10 @@ void DBConnector::insertMeasurement(
         this->insertMeasurement(status);
     }
     if (!db.commit()) {
-        qDebug() << Q_FUNC_INFO << db.lastError().text();
+        LogInstance::get_instance().eal_error(
+            "Can not commit insert of status buffer");
+        LogInstance::get_instance().eal_error(
+            db.lastError().text().toStdString());
         db.rollback();
     }
 }
@@ -126,6 +135,9 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+
+    ealogger::Logger &log = LogInstance::get_instance();
+
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery insertQueryMeasurement(db);
     QSqlQuery insertQueryChannel(db);
@@ -160,8 +172,8 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
                std::chrono::duration_cast<std::chrono::milliseconds>(duration)
                    .count()));
     if (!insertQueryMeasurement.exec()) {
-        qDebug() << Q_FUNC_INFO << insertQueryMeasurement.lastError().text();
-        qDebug() << Q_FUNC_INFO << db.lastError().text();
+        log.eal_error(insertQueryMeasurement.lastError().text().toStdString());
+        log.eal_error(db.lastError().text().toStdString());
     }
 
     long long maxIDMeasurement =
@@ -173,15 +185,16 @@ void DBConnector::insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus
          channel <= settings.value(setcon::DEVICE_CHANNELS).toInt(); channel++) {
         insertQueryChannel.bindValue(1, channel);
         insertQueryChannel.bindValue(2, powStatus->getChannelOutput(channel));
-        insertQueryChannel.bindValue(3, powStatus->getChannelMode(channel));
+        insertQueryChannel.bindValue(
+            3, static_cast<int>(powStatus->getChannelMode(channel)));
         insertQueryChannel.bindValue(4, powStatus->getVoltage(channel));
         insertQueryChannel.bindValue(5, powStatus->getVoltageSet(channel));
         insertQueryChannel.bindValue(6, powStatus->getCurrent(channel));
         insertQueryChannel.bindValue(7, powStatus->getCurrentSet(channel));
         insertQueryChannel.bindValue(8, powStatus->getWattage(channel));
         if (!insertQueryChannel.exec()) {
-            qDebug() << Q_FUNC_INFO << insertQueryChannel.lastError().text();
-            qDebug() << Q_FUNC_INFO << db.lastError().text();
+            log.eal_error(insertQueryChannel.lastError().text().toStdString());
+            log.eal_error(db.lastError().text().toStdString());
         }
     }
 }
@@ -195,8 +208,9 @@ long long DBConnector::maxID(const QString &table, const QString &id)
         // TODO: This is not safe. No bounds checking. Implicit cast
         return maxQuery.value(maxQuery.record().indexOf(id)).toLongLong();
     } else {
-        qDebug() << Q_FUNC_INFO << maxQuery.lastError().text();
-        qDebug() << Q_FUNC_INFO << db.lastError().text();
+        ealogger::Logger &log = LogInstance::get_instance();
+        log.eal_error(maxQuery.lastError().text().toStdString());
+        log.eal_error(db.lastError().text().toStdString());
     }
     return -1;
 }

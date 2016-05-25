@@ -2,6 +2,7 @@
 #define LABPOWERCONTROLLER_H
 
 #include <memory>
+#include <sstream>
 
 #include <QByteArray>
 #include <QDebug>
@@ -12,9 +13,8 @@
 #include <QThread>
 #include <QTimer>
 
-#include <ealogger/ealogger.h>
-
 #include "global.h"
+#include "log_instance.h"
 #include "settingsdefault.h"
 #include "settingsdefinitions.h"
 
@@ -44,8 +44,7 @@ public:
     // have the model only here and notify the MainWindow when the model has
     // changed. At least it would be more consistent
     // EDIT 2016-04-24: What is this todo about?
-    LabPowerController(std::shared_ptr<LabPowerModel> appModel,
-                       std::shared_ptr<ealogger::Logger> log);
+    LabPowerController(std::shared_ptr<LabPowerModel> appModel);
     ~LabPowerController();
 
 signals:
@@ -92,7 +91,6 @@ public slots:
 private:
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
     std::shared_ptr<LabPowerModel> applicationModel;
-    std::shared_ptr<ealogger::Logger> log;
     std::unique_ptr<DBConnector> dbConnector;
 
     std::unique_ptr<QTimer> powerSupplyStatusUpdater;

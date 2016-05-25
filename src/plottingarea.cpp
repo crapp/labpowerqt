@@ -36,7 +36,7 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
 
 void PlottingArea::addData(const int &channel, const double &data,
                            const std::chrono::system_clock::time_point &t,
-                           const global_constants::DATATYPE &type)
+                           const global_constants::LPQ_DATATYPE &type)
 {
     // FIXME: I think this method crashes when specifiying more channels than
     // actually exist
@@ -98,7 +98,7 @@ void PlottingArea::setupGraph()
             dataDisplayBox->setLayout(new QHBoxLayout());
             dataDisplayBox->layout()->setSpacing(20);
             this->dataDisplayChannels->layout()->addWidget(dataDisplayBox);
-            std::map<globcon::DATATYPE, QLabel *> chanDisplayLabels;
+            std::map<globcon::LPQ_DATATYPE, QLabel *> chanDisplayLabels;
             QGridLayout *dataDisplayVoltageGrid = new QGridLayout();
             QGridLayout *dataDisplayCurrentGrid = new QGridLayout();
             QGridLayout *dataDisplayWattageGrid = new QGridLayout();
@@ -110,7 +110,7 @@ void PlottingArea::setupGraph()
                 ->addLayout(dataDisplayWattageGrid);
 
             for (int j = 0; j < 5; j++) {
-                globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
+                globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(j);
 
                 /*
                  * For every graph we add:
@@ -151,22 +151,22 @@ void PlottingArea::setupGraph()
                 dataDisplayBox->layout()->addWidget(dataDisplayLabel);
                 dataDisplayBox->layout()->addWidget(dataDisplayLabelValue);
 
-                if (dt == globcon::DATATYPE::SETCURRENT ||
-                    dt == globcon::DATATYPE::CURRENT) {
+                if (dt == globcon::LPQ_DATATYPE::SETCURRENT ||
+                    dt == globcon::LPQ_DATATYPE::CURRENT) {
                     this->plot->addGraph(this->plot->xAxis, this->currentAxis);
-                    if (dt == globcon::DATATYPE::CURRENT) {
+                    if (dt == globcon::LPQ_DATATYPE::CURRENT) {
                         dataDisplayCurrentGrid->addWidget(dataDisplayLabel, 0,
                                                           0);
                         dataDisplayCurrentGrid->addWidget(dataDisplayLabelValue,
                                                           0, 1);
                     }
-                    if (dt == globcon::DATATYPE::SETCURRENT) {
+                    if (dt == globcon::LPQ_DATATYPE::SETCURRENT) {
                         dataDisplayCurrentGrid->addWidget(dataDisplayLabel, 1,
                                                           0);
                         dataDisplayCurrentGrid->addWidget(dataDisplayLabelValue,
                                                           1, 1);
                     }
-                } else if (dt == globcon::DATATYPE::WATTAGE) {
+                } else if (dt == globcon::LPQ_DATATYPE::WATTAGE) {
                     this->plot->addGraph(this->plot->xAxis, this->wattageAxis);
                     dataDisplayWattageGrid->addWidget(dataDisplayLabel, 0, 0);
                     dataDisplayLabel->setAlignment(Qt::AlignmentFlag::AlignTop |
@@ -175,13 +175,13 @@ void PlottingArea::setupGraph()
                                                       1);
                 } else {
                     this->plot->addGraph();
-                    if (dt == globcon::DATATYPE::VOLTAGE) {
+                    if (dt == globcon::LPQ_DATATYPE::VOLTAGE) {
                         dataDisplayVoltageGrid->addWidget(dataDisplayLabel, 0,
                                                           0);
                         dataDisplayVoltageGrid->addWidget(dataDisplayLabelValue,
                                                           0, 1);
                     }
-                    if (dt == globcon::DATATYPE::SETVOLTAGE) {
+                    if (dt == globcon::LPQ_DATATYPE::SETVOLTAGE) {
                         dataDisplayVoltageGrid->addWidget(dataDisplayLabel, 1,
                                                           0);
                         dataDisplayVoltageGrid->addWidget(dataDisplayLabelValue,
@@ -279,24 +279,24 @@ void PlottingArea::setupGraph()
                 QString colkey =
                     QString(setcon::PLOT_GRAPH_COLOR).arg(graphIndex);
                 QColor graphCol;
-                if (dt == globcon::DATATYPE::SETCURRENT ||
-                    dt == globcon::DATATYPE::CURRENT) {
-                    graphCol =
-                        QColor(settings.value(colkey,
-                                              this->currentGraphColors.at(i - 1))
-                                   .toString());
-                } else if (dt == globcon::DATATYPE::VOLTAGE ||
-                           dt == globcon::DATATYPE::SETVOLTAGE) {
-                    graphCol =
-                        QColor(settings.value(colkey,
-                                              this->voltageGraphColors.at(i - 1))
-                                   .toString());
+                if (dt == globcon::LPQ_DATATYPE::SETCURRENT ||
+                    dt == globcon::LPQ_DATATYPE::CURRENT) {
+                    graphCol = QColor(
+                        settings
+                            .value(colkey, this->currentGraphColors.at(i - 1))
+                            .toString());
+                } else if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
+                           dt == globcon::LPQ_DATATYPE::SETVOLTAGE) {
+                    graphCol = QColor(
+                        settings
+                            .value(colkey, this->voltageGraphColors.at(i - 1))
+                            .toString());
 
                 } else {
-                    graphCol =
-                        QColor(settings.value(colkey,
-                                              this->wattageGraphColors.at(i - 1))
-                                   .toString());
+                    graphCol = QColor(
+                        settings
+                            .value(colkey, this->wattageGraphColors.at(i - 1))
+                            .toString());
                 }
                 pic.fill(graphCol);
                 graphColor->setIcon(pic);
@@ -319,9 +319,9 @@ void PlottingArea::setupGraph()
                               << labelGraphProps->text().toStdString()
                               << std::endl;
                 }
-                if (dt == globcon::DATATYPE::VOLTAGE ||
-                    dt == globcon::DATATYPE::CURRENT ||
-                    dt == globcon::DATATYPE::WATTAGE) {
+                if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
+                    dt == globcon::LPQ_DATATYPE::CURRENT ||
+                    dt == globcon::LPQ_DATATYPE::WATTAGE) {
                     // these are by default visible and have a solid linestyle
                     cbVisibilitySwitch->setChecked(
                         settings.value(viskey, true).toBool());
@@ -349,7 +349,7 @@ void PlottingArea::setupGraph()
                 ->addStretch();
             dynamic_cast<QHBoxLayout *>(dataDisplayBox->layout())->addStretch();
             this->dataDisplayLabels.insert(
-                {static_cast<globcon::CHANNEL>(i), chanDisplayLabels});
+                {static_cast<globcon::LPQ_CHANNEL>(i), chanDisplayLabels});
         }
     }
     this->plot->replot();
@@ -731,6 +731,12 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     this->zoomLevel->setClipToAxisRect(false);
     // this->zoomLevel->setVisible(false);
 
+    // TODO: Tooltips are not supported at the moment. But in the forums are some
+    // good examples on how to make this work on your own.
+    // QString zoomMagLevelTooltip = "Timescale of x-Axis";
+    // this->zoomMagPic->setToolTip(zoomMagLevelTooltip);
+    // this->zoomLevel->setToolTip(zoomMagLevelTooltip);
+
     // we have to check the config for the timescale items here. when we try to
     // do this in setupUI we will face a segfault because the pointers are not
     // intialized yet.
@@ -785,15 +791,15 @@ void PlottingArea::yAxisVisibility()
         if (i != 0 && i % 5 == 0)
             channel++;
         int dtindex = i - (channel * 5);
-        globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(dtindex);
-        if (dt == globcon::DATATYPE::VOLTAGE ||
-            dt == globcon::DATATYPE::SETVOLTAGE) {
+        globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(dtindex);
+        if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
+            dt == globcon::LPQ_DATATYPE::SETVOLTAGE) {
             if (this->plot->graph(i)->visible())
                 voltage = voltage | 1;
             continue;
         }
-        if (dt == globcon::DATATYPE::CURRENT ||
-            dt == globcon::DATATYPE::SETCURRENT) {
+        if (dt == globcon::LPQ_DATATYPE::CURRENT ||
+            dt == globcon::LPQ_DATATYPE::SETCURRENT) {
             if (this->plot->graph(i)->visible())
                 current = current | 1;
             continue;
@@ -986,12 +992,14 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     QSettings zoomSets;
     zoomSets.beginGroup(setcon::PLOT_GROUP);
     double zoomMin =
-        zoomSets.value(setcon::PLOT_ZOOM_MIN,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+        zoomSets
+            .value(setcon::PLOT_ZOOM_MIN,
+                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
             .toDouble();
     double zoomMax =
-        zoomSets.value(setcon::PLOT_ZOOM_MAX,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+        zoomSets
+            .value(setcon::PLOT_ZOOM_MAX,
+                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
             .toDouble();
     // limit zoom
     if (deltaSecsUpperLower < std::chrono::duration<double>(zoomMin) ||
@@ -1021,7 +1029,7 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
         return;
     }
 
-    // first set y axis range
+    // set y axis range
     this->yAxisRange(newRange, settings);
 }
 
@@ -1048,33 +1056,34 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
              i++) {
             for (int c = 0; c < 5; c++) {
                 // which datatype is this
-                globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(c);
+                globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(c);
                 // if the graph is visible get the data
                 if (this->plot->graph(c)->visible()) {
                     QCPDataMap::Iterator setVit =
                         this->plot->graph(c)->data()->upperBound(x);
                     if (setVit != this->plot->graph(c)->data()->end()) {
                         int accuracy = 3;
-                        if (dt == globcon::VOLTAGE ||
-                            dt == globcon::SETVOLTAGE) {
+                        if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
+                            dt == globcon::LPQ_DATATYPE::SETVOLTAGE) {
                             accuracy =
                                 settings.value(setcon::DEVICE_VOLTAGE_ACCURACY)
                                     .toInt();
                         }
-                        if (dt == globcon::CURRENT ||
-                            dt == globcon::SETCURRENT) {
+                        if (dt == globcon::LPQ_DATATYPE::CURRENT ||
+                            dt == globcon::LPQ_DATATYPE::SETCURRENT) {
                             accuracy =
                                 settings.value(setcon::DEVICE_CURRENT_ACCURACY)
                                     .toInt();
                         }
-                        this->dataDisplayLabels.at(static_cast<globcon::CHANNEL>(
-                                                       i))
+                        this->dataDisplayLabels
+                            .at(static_cast<globcon::LPQ_CHANNEL>(i))
                             .at(dt)
                             ->setText(
                                 QString::number(setVit->value, 'f', accuracy));
                     }
                 } else {
-                    this->dataDisplayLabels.at(static_cast<globcon::CHANNEL>(i))
+                    this->dataDisplayLabels
+                        .at(static_cast<globcon::LPQ_CHANNEL>(i))
                         .at(dt)
                         ->setText("--");
                 }

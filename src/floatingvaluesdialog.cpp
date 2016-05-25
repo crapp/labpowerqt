@@ -33,16 +33,16 @@ void FloatingValuesDialog::setValuesDialogData(
     this->data = data;
 }
 
-void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
+void FloatingValuesDialog::setDatatype(global_constants::LPQ_DATATYPE dt)
 {
     this->dt = dt;
     // set the index of the stacked container.
     switch (dt) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->stackedContainer->setCurrentIndex(0);
         this->voltageSpinBox->setFocus();
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->stackedContainer->setCurrentIndex(1);
         this->currentSpinBox->setFocus();
         break;
@@ -141,15 +141,14 @@ void FloatingValuesDialog::createUI()
 
 void FloatingValuesDialog::accept()
 {
-    qDebug() << Q_FUNC_INFO << "Dialog was accepted";
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
     switch (dt) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->data->voltage = value;
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->data->current = value;
         break;
     default:

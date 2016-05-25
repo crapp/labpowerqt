@@ -76,5 +76,6 @@ const char *const LOG_GROUP = "logging";
 const char *const LOG_ENABLED = "enabled";
 const char *const LOG_DIRECTORY = "directory";
 const char *const LOG_MIN_SEVERITY = "severity";
+const char *const LOG_FLUSH = "flush";
 }
 #endif  // SETTINGSDEFINITIONS_H

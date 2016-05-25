@@ -44,58 +44,10 @@ MainWindow::MainWindow(QWidget *parent)
         settings.value(setcon::MAINWINDOW_ACTIVE_TAB, 0).toInt());
     settings.endGroup();
 
-    // init application logger
-    this->log = std::make_shared<ealogger::Logger>();
-    settings.beginGroup(setcon::LOG_GROUP);
-    if (settings
-            .value(setcon::LOG_ENABLED,
-                   setdef::general_defaults.at(setcon::LOG_ENABLED))
-            .toBool()) {
-        ealogger::constants::LOG_LEVEL lvl =
-            static_cast<ealogger::constants::LOG_LEVEL>(
-                settings
-                    .value(setcon::LOG_MIN_SEVERITY,
-                           setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
-                    .toInt());
-        // create file name
-        QDateTime now = QDateTime::currentDateTime();
-        QDir cachedir(
-            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-        if (!cachedir.exists()) {
-            QDir().mkdir(cachedir.absolutePath());
-        }
-        QString logfile =
-            settings.value(setcon::LOG_DIRECTORY, cachedir.absolutePath())
-                .toString();
-        logfile += QString(QDir::separator()) + "labpowerqt_" +
-                   now.toString("yyyyMMdd") + ".log";
-        this->log->init_file_sink(true, lvl, "%d %s [%f:%l] %m", "%F %T",
-                                  logfile.toStdString());
-
-        this->log->eal_info(titleString.toStdString() + " is starting");
-
-        QDir logdir(
-            settings.value(setcon::LOG_DIRECTORY, cachedir.absolutePath())
-                .toString());
-        logdir.setFilter(QDir::Files | QDir::Writable);
-        logdir.setSorting(QDir::SortFlag::Name);
-        logdir.setNameFilters({"labpowerqt_*.log"});
-        QFileInfoList logfilesinfo = logdir.entryInfoList();
-        // check how many logfiles we have
-        // TODO: Make number of logfiles configurable
-        if (logfilesinfo.size() > 5) {
-            for (int i = 0; i < logfilesinfo.size() - 5; i++) {
-                this->log->eal_info("Deleting log file " +
-                                    logfilesinfo.at(i).fileName().toStdString());
-                logdir.remove(logfilesinfo.at(i).fileName());
-            }
-        }
-    }
-
     // create model and controller
     this->applicationModel = std::make_shared<LabPowerModel>();
     this->controller = std::unique_ptr<LabPowerController>(
-        new LabPowerController(this->applicationModel, this->log));
+        new LabPowerController(this->applicationModel));
 
     QObject::connect(ui->tabWidgetMainWindow, &QTabWidget::currentChanged, this,
                      &MainWindow::tabWidgetChangedIndex);
@@ -114,80 +66,86 @@ void MainWindow::dataUpdated()
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
         double voltage = this->applicationModel->getVoltageSet(
-            static_cast<globcon::CHANNEL>(i));
-        double actualVoltage =
-            this->applicationModel->getVoltage(static_cast<globcon::CHANNEL>(i));
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double actualVoltage = this->applicationModel->getVoltage(
+            static_cast<globcon::LPQ_CHANNEL>(i));
         double current = this->applicationModel->getCurrentSet(
-            static_cast<globcon::CHANNEL>(i));
-        double actualCurrent =
-            this->applicationModel->getCurrent(static_cast<globcon::CHANNEL>(i));
-        double wattage =
-            this->applicationModel->getWattage(static_cast<globcon::CHANNEL>(i));
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double actualCurrent = this->applicationModel->getCurrent(
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double wattage = this->applicationModel->getWattage(
+            static_cast<globcon::LPQ_CHANNEL>(i));
 
         this->ui->widgetGraph->addData(i, voltage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::SETVOLTAGE);
+                                       globcon::LPQ_DATATYPE::SETVOLTAGE);
         this->ui->widgetGraph->addData(i, actualVoltage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::VOLTAGE);
+                                       globcon::LPQ_DATATYPE::VOLTAGE);
         this->ui->widgetGraph->addData(i, current,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::SETCURRENT);
+                                       globcon::LPQ_DATATYPE::SETCURRENT);
         this->ui->widgetGraph->addData(i, actualCurrent,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::CURRENT);
+                                       globcon::LPQ_DATATYPE::CURRENT);
         this->ui->widgetGraph->addData(i, wattage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::WATTAGE);
+                                       globcon::LPQ_DATATYPE::WATTAGE);
 
         ui->widgetDisplay->dataUpdate(
             QVariant(QString::number(
                 voltage, 'f',
                 settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
-            globcon::DATATYPE::SETVOLTAGE, i);
+            globcon::LPQ_DATATYPE::SETVOLTAGE, i);
         ui->widgetDisplay->dataUpdate(
             QVariant(QString::number(
                 actualVoltage, 'f',
                 settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
-            globcon::DATATYPE::VOLTAGE, i);
+            globcon::LPQ_DATATYPE::VOLTAGE, i);
 
         ui->widgetDisplay->dataUpdate(
             QVariant(QString::number(
                 current, 'f',
                 settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
-            globcon::DATATYPE::SETCURRENT, i);
+            globcon::LPQ_DATATYPE::SETCURRENT, i);
         ui->widgetDisplay->dataUpdate(
             QVariant(QString::number(
                 actualCurrent, 'f',
                 settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
-            globcon::DATATYPE::CURRENT, i);
+            globcon::LPQ_DATATYPE::CURRENT, i);
 
         ui->widgetDisplay->dataUpdate(QVariant(QString::number(wattage, 'f', 3)),
-                                      globcon::DATATYPE::WATTAGE, i);
+                                      globcon::LPQ_DATATYPE::WATTAGE, i);
 
-        this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
+        this->applicationModel->getOutput(static_cast<globcon::LPQ_CHANNEL>(i))
             ? ui->widgetDisplay->dataUpdate(QVariant("On"),
-                                            globcon::CONTROL::OUTPUT, i)
+                                            globcon::LPQ_CONTROL::OUTPUT, i)
             : ui->widgetDisplay->dataUpdate(QVariant("Off"),
-                                            globcon::CONTROL::OUTPUT, i);
-        this->applicationModel->getChannelMode(
-            static_cast<globcon::CHANNEL>(i)) == globcon::MODE::CONSTANT_CURRENT
-            ? ui->widgetDisplay->dataUpdate(globcon::CONSTANT_CURRENT, i)
-            : ui->widgetDisplay->dataUpdate(globcon::CONSTANT_VOLTAGE, i);
+                                            globcon::LPQ_CONTROL::OUTPUT, i);
+
+        this->applicationModel->getChannelMode(static_cast<globcon::LPQ_CHANNEL>(
+            i)) == globcon::LPQ_MODE::CONSTANT_CURRENT
+            ? ui->widgetDisplay->dataUpdate(globcon::LPQ_MODE::CONSTANT_CURRENT,
+                                            i)
+            : ui->widgetDisplay->dataUpdate(globcon::LPQ_MODE::CONSTANT_VOLTAGE,
+                                            i);
     }
 
     this->applicationModel->getOVP()
-        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OVP, 0)
-        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OVP,
-                                        0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OVP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OVP, 0);
     this->applicationModel->getOCP()
-        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OCP, 0)
-        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OCP,
-                                        0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OCP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OCP, 0);
     this->applicationModel->getOTP()
-        ? ui->widgetDisplay->dataUpdate(QVariant("On"), globcon::CONTROL::OTP, 0)
-        : ui->widgetDisplay->dataUpdate(QVariant("Off"), globcon::CONTROL::OTP,
-                                        0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OTP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OTP, 0);
     // this->statusBar()->showMessage(
     // QString::number(this->applicationModel->getDuration()) + "ms");
 }
@@ -195,11 +153,13 @@ void MainWindow::dataUpdated()
 void MainWindow::deviceConnectionUpdated(bool connected)
 {
     if (connected) {
-        ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
+        ui->widgetDisplay->dataUpdate(connected, globcon::LPQ_CONTROL::CONNECT,
+                                      0);
         this->statusBar()->showMessage("Connected");
     } else {
         this->statusBar()->showMessage("Disconnected");
-        ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
+        ui->widgetDisplay->dataUpdate(connected, globcon::LPQ_CONTROL::CONNECT,
+                                      0);
     }
 }
 
@@ -207,7 +167,7 @@ void MainWindow::deviceIDUpdated()
 {
     ui->widgetDisplay->dataUpdate(
         this->applicationModel->getDeviceIdentification(),
-        globcon::CONTROL::DEVICEID, 0);
+        globcon::LPQ_CONTROL::DEVICEID, 0);
 }
 
 void MainWindow::setupMenuBarActions()
@@ -370,25 +330,25 @@ void MainWindow::tabWidgetChangedIndex(int index)
 
 void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 {
-    switch (static_cast<globcon::DATATYPE>(dt)) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    switch (static_cast<globcon::LPQ_DATATYPE>(dt)) {
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->controller->setVoltage(channel, val);
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->controller->setCurrent(channel, val);
         break;
     default:
         break;
     }
-
-    this->log->eal_debug("Received " + std::to_string(val) + " for channel " +
-                         std::to_string(channel));
+    LogInstance::get_instance().eal_debug("Received " + std::to_string(val) +
+                                          " for channel " +
+                                          std::to_string(channel));
 }
 
 void MainWindow::deviceControl(int control, int channel)
 {
-    switch (static_cast<globcon::CONTROL>(control)) {
-    case globcon::CONTROL::CONNECT: {
+    switch (static_cast<globcon::LPQ_CONTROL>(control)) {
+    case globcon::LPQ_CONTROL::CONNECT: {
         if (this->applicationModel->getDeviceConnected()) {
             QSettings settings;
             settings.beginGroup(setcon::GENERAL_GROUP);
@@ -411,31 +371,32 @@ void MainWindow::deviceControl(int control, int channel)
         }
         break;
     }
-    case globcon::CONTROL::SOUND:
+    case globcon::LPQ_CONTROL::SOUND:
         this->applicationModel->getDeviceMute()
             ? this->controller->setAudio(false)
             : this->controller->setAudio(true);
         break;
-    case globcon::CONTROL::LOCK:
+    case globcon::LPQ_CONTROL::LOCK:
         this->applicationModel->getDeviceLocked()
             ? this->controller->setLock(false)
             : this->controller->setLock(true);
         break;
-    case globcon::CONTROL::OUTPUT:
-        this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(channel))
+    case globcon::LPQ_CONTROL::OUTPUT:
+        this->applicationModel->getOutput(
+            static_cast<globcon::LPQ_CHANNEL>(channel))
             ? this->controller->setOutput(channel - 1, false)
             : this->controller->setOutput(channel - 1, true);
         break;
     // TODO OCP, OVP, OTP controls missing. Also missing in model and controller.
-    case globcon::CONTROL::OVP:
+    case globcon::LPQ_CONTROL::OVP:
         this->applicationModel->getOVP() ? this->controller->setOVP(false)
                                          : this->controller->setOVP(true);
         break;
-    case globcon::CONTROL::OCP:
+    case globcon::LPQ_CONTROL::OCP:
         this->applicationModel->getOCP() ? this->controller->setOCP(false)
                                          : this->controller->setOCP(true);
         break;
-    case globcon::CONTROL::OTP:
+    case globcon::LPQ_CONTROL::OTP:
         this->applicationModel->getOTP() ? this->controller->setOTP(false)
                                          : this->controller->setOTP(true);
         break;
@@ -477,7 +438,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue(setcon::MAINWINDOW_STATE, this->saveState());
     settings.endGroup();
 
-    this->log->eal_info("labpowerqt exit");
+    LogInstance::get_instance().eal_info("labpowerqt exit");
 
     QWidget::closeEvent(event);
 }
+
+void MainWindow::showEvent(QShowEvent *ev) { QMainWindow::showEvent(ev); }

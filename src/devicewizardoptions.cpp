@@ -57,7 +57,8 @@ void DeviceWizardOptions::protocolBox()
     this->layout()->addWidget(protoBox);
 
     this->protoCombo = new QComboBox;
-    this->protoCombo->addItem("Korad SCPI V2", globcon::PROTOCOL::KORADV2);
+    this->protoCombo->addItem("Korad SCPI V2",
+                              static_cast<int>(globcon::LPQ_PROTOCOL::KORADV2));
     this->protoCombo->setCurrentIndex(0);
 
     protoBox->layout()->addWidget(this->protoCombo);

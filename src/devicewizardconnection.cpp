@@ -64,7 +64,7 @@ void DeviceWizardConnection::testConnection()
     this->startTest->setDisabled(true);
     if (this->t->isRunning()) {
         // TODO: I don't think it is a good idea to terminate a thread
-        qDebug() << Q_FUNC_INFO << "Thread has been terminated";
+        LogInstance::get_instance().eal_warn("Thread has been terminated");
         this->t->terminate();
     }
 
@@ -84,8 +84,8 @@ void DeviceWizardConnection::testConnection()
     QSerialPort::StopBits sbits =
         static_cast<QSerialPort::StopBits>(field("stopBox").toInt());
 
-    if (static_cast<global_constants::PROTOCOL>(field("protocol").toInt()) ==
-        global_constants::PROTOCOL::KORADV2) {
+    if (static_cast<global_constants::LPQ_PROTOCOL>(field("protocol").toInt()) ==
+        global_constants::LPQ_PROTOCOL::KORADV2) {
         this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(new KoradSCPI(
             field("comPort").toString(), QByteArray("WizardConnectionTest"),
             field("channel").toInt(), field("voltAcc").toInt(),
@@ -143,7 +143,8 @@ void DeviceWizardConnection::dataAvailable(
         this->startTest->setDisabled(false);
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
         if (!this->t->wait(3000)) {
-            qDebug() << Q_FUNC_INFO << "Thread Timeout";
+            LogInstance::get_instance().eal_warn(
+                "Thread timeout while waiting for data");
         }
     }
 }
@@ -159,7 +160,8 @@ void DeviceWizardConnection::deviceError(QString errorString)
     this->connectionSuccessfull = false;
     this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
     if (!this->t->wait(3000)) {
-        qDebug() << Q_FUNC_INFO << "Thread Timeout";
+        LogInstance::get_instance().eal_warn(
+            "Thread timeout while waiting for device object");
     }
     emit this->completeChanged();
     this->startTest->setDisabled(false);

@@ -18,27 +18,27 @@
 #ifndef PLOTTINGAREA_H
 #define PLOTTINGAREA_H
 
-#include <QWidget>
 #include <QColor>
-#include <QScrollArea>
 #include <QColorDialog>
-#include <QPushButton>
 #include <QDateTime>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QWidget>
 
 #include <QFileDialog>
 
 #include <QDebug>
 
-#include <vector>
 #include <chrono>
+#include <iostream>
 #include <map>
 #include <memory>
-#include <iostream>
+#include <vector>
 
-#include "qcustomplot.h"
 #include "global.h"
-#include "settingsdefinitions.h"
+#include "qcustomplot.h"
 #include "settingsdefault.h"
+#include "settingsdefinitions.h"
 #include "yaxishelper.h"
 
 /**
@@ -64,7 +64,7 @@ public slots:
      */
     void addData(const int &channel, const double &data,
                  const std::chrono::system_clock::time_point &t,
-                 const global_constants::DATATYPE &type);
+                 const global_constants::LPQ_DATATYPE &type);
     /**
      * @brief This slot is invoked whenever the settings or the device changes
      */
@@ -79,19 +79,19 @@ private:
         QColor(Qt::GlobalColor::green),
         QColor(Qt::GlobalColor::green).lighter()};
 
-    const std::map<global_constants::DATATYPE, QString> datatypeStrings = {
-        {global_constants::DATATYPE::SETVOLTAGE, "Set Voltage"},
-        {global_constants::DATATYPE::VOLTAGE, "Voltage"},
-        {global_constants::DATATYPE::SETCURRENT, "Set Current"},
-        {global_constants::DATATYPE::CURRENT, "Current"},
-        {global_constants::DATATYPE::WATTAGE, "Wattage"}};
+    const std::map<global_constants::LPQ_DATATYPE, QString> datatypeStrings = {
+        {global_constants::LPQ_DATATYPE::SETVOLTAGE, "Set Voltage"},
+        {global_constants::LPQ_DATATYPE::VOLTAGE, "Voltage"},
+        {global_constants::LPQ_DATATYPE::SETCURRENT, "Set Current"},
+        {global_constants::LPQ_DATATYPE::CURRENT, "Current"},
+        {global_constants::LPQ_DATATYPE::WATTAGE, "Wattage"}};
 
-    const std::map<global_constants::DATATYPE, QString> graphNames = {
-        {global_constants::DATATYPE::SETVOLTAGE, "Set Voltage CH%1"},
-        {global_constants::DATATYPE::VOLTAGE, "Voltage CH%1"},
-        {global_constants::DATATYPE::SETCURRENT, "Set Current CH%1"},
-        {global_constants::DATATYPE::CURRENT, "Current CH%1"},
-        {global_constants::DATATYPE::WATTAGE, "Wattage CH%1"}};
+    const std::map<global_constants::LPQ_DATATYPE, QString> graphNames = {
+        {global_constants::LPQ_DATATYPE::SETVOLTAGE, "Set Voltage CH%1"},
+        {global_constants::LPQ_DATATYPE::VOLTAGE, "Voltage CH%1"},
+        {global_constants::LPQ_DATATYPE::SETCURRENT, "Set Current CH%1"},
+        {global_constants::LPQ_DATATYPE::CURRENT, "Current CH%1"},
+        {global_constants::LPQ_DATATYPE::WATTAGE, "Wattage CH%1"}};
 
     /**
      * @brief The plot widget
@@ -131,8 +131,9 @@ private:
     // datetime label
     QLabel *dataDisplayDT;
     // 2d map for the data display labels for each channel
-    std::map<global_constants::CHANNEL,
-             std::map<global_constants::DATATYPE, QLabel *>> dataDisplayLabels;
+    std::map<global_constants::LPQ_CHANNEL,
+             std::map<global_constants::LPQ_DATATYPE, QLabel *>>
+        dataDisplayLabels;
 
     QCheckBox *cbGeneralPlot; /**< Activate data plotting */
     QCheckBox *

@@ -18,9 +18,9 @@
 #ifndef GLOBAL
 #define GLOBAL
 
-#include <QWidget>
 #include <QLayout>
 #include <QLayoutItem>
+#include <QWidget>
 
 // Suppress attribute unused warnings on gcc
 #ifdef __GNUC__
@@ -34,12 +34,27 @@
  */
 namespace global_constants
 {
-enum PROTOCOL { KORADV2 };
-enum CHANNEL { CHANNEL1 = 1, CHANNEL2, CHANNEL3, CHANNEL4 };
-enum MODE { CONSTANT_CURRENT, CONSTANT_VOLTAGE };
-enum TRACKING { INDEPENDENT, SERIES, PARALELL };
-enum DATATYPE { SETVOLTAGE, VOLTAGE, SETCURRENT, CURRENT, WATTAGE };
-enum CONTROL { CONNECT, OCP, OVP, OTP, OUTPUT, SOUND, LOCK, DEVICEID };
+enum class LPQ_PROTOCOL { KORADV2 = 0 };
+enum class LPQ_CHANNEL { CHANNEL1 = 1, CHANNEL2, CHANNEL3, CHANNEL4 };
+enum class LPQ_MODE { CONSTANT_CURRENT = 0, CONSTANT_VOLTAGE };
+enum class LPQ_TRACKING { INDEPENDENT = 0, SERIES, PARALELL };
+enum class LPQ_DATATYPE {
+    SETVOLTAGE = 0,
+    VOLTAGE,
+    SETCURRENT,
+    CURRENT,
+    WATTAGE
+};
+enum class LPQ_CONTROL {
+    CONNECT = 0,
+    OCP,
+    OVP,
+    OTP,
+    OUTPUT,
+    SOUND,
+    LOCK,
+    DEVICEID
+};
 
 const char *const ORANGECOLOR = "#FF7E00";
 const char *const GREENCOLOR = "#7BCF06";

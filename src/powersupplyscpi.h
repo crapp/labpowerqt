@@ -17,23 +17,23 @@
 #ifndef POWERSUPPLYSCPI_H
 #define POWERSUPPLYSCPI_H
 
-#include <thread>
-#include <mutex>
-#include <memory>
-#include <vector>
 #include <chrono>
 #include <exception>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <vector>
 
-#include <QObject>
 #include <QByteArray>
-#include <QtSerialPort/QtSerialPort>
-#include <QString>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QObject>
+#include <QString>
+#include <QtSerialPort/QtSerialPort>
 
-#include "serialqueue.h"
-#include "serialcommand.h"
 #include "powersupplystatus.h"
+#include "serialcommand.h"
+#include "serialqueue.h"
 
 namespace PowerSupplySCPI_constants
 {
@@ -118,7 +118,7 @@ public:
     virtual void setOTP(bool status) = 0;
     virtual void setLocked(bool status) = 0;
     virtual void setBeep(bool status) = 0;
-    virtual void setTracking(global_constants::TRACKING trMode) = 0;
+    virtual void setTracking(global_constants::LPQ_TRACKING trMode) = 0;
     virtual void setOutput(int channel, bool status) = 0;
 
 signals:

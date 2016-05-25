@@ -17,20 +17,19 @@
 #ifndef DEVICEWIZARDCONNECTION_H
 #define DEVICEWIZARDCONNECTION_H
 
+#include <QGridLayout>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QThread>
+#include <QVBoxLayout>
 #include <QWidget>
 #include <QWizardPage>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QPlainTextEdit>
-#include <QThread>
-
-#include <QDebug>
 
 #include <memory>
 
 #include "global.h"
 #include "koradscpi.h"
+#include "log_instance.h"
 #include "serialcommand.h"
 
 /**

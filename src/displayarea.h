@@ -18,24 +18,24 @@
 #ifndef DISPLAYAREA_H
 #define DISPLAYAREA_H
 
-#include <QWidget>
+#include <QFrame>
 #include <QGridLayout>
 #include <QHBoxLayout>
-#include <QFrame>
 #include <QLabel>
-#include <QPixmap>
 #include <QPainter>
-#include <QStyleOption>
+#include <QPixmap>
 #include <QSettings>
+#include <QStyleOption>
+#include <QWidget>
 
 #include <memory>
 #include <vector>
 
-#include "global.h"
-#include "settingsdefinitions.h"
 #include "clickablelabel.h"
 #include "floatingvaluesdialog.h"
+#include "global.h"
 #include "labpowercontroller.h"
+#include "settingsdefinitions.h"
 
 /**
  * @brief This struct keeps references to all Widgets necessary to control and
@@ -73,9 +73,10 @@ public:
         std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
         std::shared_ptr<FloatingValuesDialog> valuesDialog);
 
-    void dataUpdate(QVariant val, global_constants::DATATYPE dt, int channel);
-    void dataUpdate(QVariant val, global_constants::CONTROL ct, int channel);
-    void dataUpdate(global_constants::MODE md, int channel);
+    void dataUpdate(QVariant val, global_constants::LPQ_DATATYPE dt,
+                    int channel);
+    void dataUpdate(QVariant val, global_constants::LPQ_CONTROL ct, int channel);
+    void dataUpdate(global_constants::LPQ_MODE md, int channel);
 
 signals:
 
@@ -112,7 +113,8 @@ private:
 
     void setupUI();
     void controlValuesDialog(QPoint pos, QWidget *clickedWidget,
-                             global_constants::DATATYPE dt, double currentValue);
+                             global_constants::LPQ_DATATYPE dt,
+                             double currentValue);
     void controlStateEnabled(bool state);
 
     /**

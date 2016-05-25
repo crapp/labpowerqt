@@ -41,6 +41,7 @@
 #include "global.h"
 #include "labpowercontroller.h"
 #include "labpowermodel.h"
+#include "log_instance.h"
 #include "settingsdefault.h"
 #include "settingsdefinitions.h"
 
@@ -94,8 +95,6 @@ private:
     std::unique_ptr<QPropertyAnimation> showVoltCurrentSpinner;
     std::unique_ptr<QPropertyAnimation> hideVoltCurrentSpinner;
 
-    std::shared_ptr<ealogger::Logger> log;
-
     std::unique_ptr<LabPowerController> controller;
     std::shared_ptr<LabPowerModel> applicationModel;
 
@@ -134,6 +133,7 @@ private slots:
     // QWidget interface
 protected:
     void closeEvent(QCloseEvent *event);
+    void showEvent(QShowEvent *ev);
 };
 
 #endif  // MAINWINDOW_H

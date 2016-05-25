@@ -17,12 +17,12 @@
 #ifndef KORADSCPI_H
 #define KORADSCPI_H
 
-#include <QObject>
 #include <QDebug>
+#include <QObject>
 #include <QString>
 
-#include "global.h"
 #include "config.h"
+#include "global.h"
 #include "powersupplyscpi.h"
 
 namespace KoradSCPI_constants
@@ -117,7 +117,7 @@ public:
      */
     void setLocked(bool status);
     void setBeep(bool status);
-    void setTracking(global_constants::TRACKING trMode);
+    void setTracking(global_constants::LPQ_TRACKING trMode);
     void setOutput(int channel, bool status);
 
 signals:

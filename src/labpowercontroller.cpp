@@ -6,13 +6,12 @@ namespace powstatus = PowerSupplyStatus_constants;
 namespace powcon = PowerSupplySCPI_constants;
 namespace globcon = global_constants;
 
-LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel,
-                                       std::shared_ptr<ealogger::Logger> log)
-    : applicationModel(appModel), log(log)
+LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
+    : applicationModel(appModel)
 {
     this->powerSupplyConnector = nullptr;
     this->powerSupplyStatusUpdater = nullptr;
-    this->dbConnector = std::unique_ptr<DBConnector>(new DBConnector(this->log));
+    this->dbConnector = std::unique_ptr<DBConnector>(new DBConnector());
     // this->connectDevice();
 }
 
@@ -40,7 +39,7 @@ void LabPowerController::connectDevice()
         if (!this->powerSupplyConnector ||
             this->powerSupplyConnector->getDeviceHash() != deviceHash) {
             if (settings.value(setcon::DEVICE_PROTOCOL).toInt() ==
-                static_cast<int>(globcon::PROTOCOL::KORADV2)) {
+                static_cast<int>(globcon::LPQ_PROTOCOL::KORADV2)) {
                 this->powerSupplyConnector =
                     std::unique_ptr<KoradSCPI>(new KoradSCPI(
                         std::move(portName), std::move(deviceHash),
@@ -73,8 +72,8 @@ void LabPowerController::connectDevice()
                 this->powerSupplyWorkerThread.get());
             QObject::connect(this->powerSupplyWorkerThread.get(),
                              &QThread::finished, []() {
-                                 qDebug() << Q_FUNC_INFO
-                                          << "Background Thread Finished Signal";
+                                 LogInstance::get_instance().eal_debug(
+                                     "Background Thread Finished Signal");
                              });
             QObject::connect(
                 this->powerSupplyConnector.get(),
@@ -97,8 +96,10 @@ void LabPowerController::disconnectDevice()
     if (this->powerSupplyConnector) {
         this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
         if (!this->powerSupplyWorkerThread->wait(3000)) {
-            qDebug() << Q_FUNC_INFO << "Thread Timeout. Will terminate.";
-            // TODO: Maybe we should connect a signal to this a notify the user
+            LogInstance::get_instance().eal_warn(
+                "Thread Timeout. Will terminate.");
+            // TODO: Maybe we should connect a signal to this to notify the user
+            // TODO: Why is terminating the thread commented out?
             // this->powerSupplyWorkerThread->terminate();
         }
         this->powerSupplyConnector.reset(nullptr);
@@ -108,7 +109,8 @@ void LabPowerController::disconnectDevice()
 
 void LabPowerController::deviceError(const QString &errorString)
 {
-    qDebug() << Q_FUNC_INFO << "Could not open device: " << errorString;
+    LogInstance::get_instance().eal_error("Could not open device: " +
+                                          errorString.toStdString());
     this->disconnectDevice();
     QMessageBox box;
     box.setIcon(QMessageBox::Icon::Critical);
@@ -147,8 +149,8 @@ void LabPowerController::deviceConnected()
 
 void LabPowerController::deviceReadWriteError(const QString &errorString)
 {
-    qDebug() << Q_FUNC_INFO
-             << "Could not open Read/write to device: " << errorString;
+    LogInstance::get_instance().eal_error(
+        "Could not read from or write to device: " + errorString.toStdString());
     // TODO: This must be propagated to the GUI and the Model
 }
 
@@ -198,7 +200,7 @@ void LabPowerController::setTrackingMode(int mode)
 {
     if (this->powerSupplyConnector)
         this->powerSupplyConnector->setTracking(
-            static_cast<globcon::TRACKING>(mode));
+            static_cast<globcon::LPQ_TRACKING>(mode));
 }
 
 void LabPowerController::getIdentification()
@@ -215,7 +217,8 @@ void LabPowerController::getStatus()
 
 void LabPowerController::receiveData(std::shared_ptr<SerialCommand> com)
 {
-    qDebug() << Q_FUNC_INFO << "com: " << com->getValue();
+    LogInstance::get_instance().eal_debug(
+        "Sending command: " + com->getValue().toString().toStdString());
     switch (static_cast<powcon::COMMANDS>(com->getCommand())) {
     case powcon::COMMANDS::GETIDN:
         this->applicationModel->setDeviceIdentification(
@@ -254,20 +257,9 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
             this->applicationModel->clearBuffer();
         }
     }
-    /*qDebug() << Q_FUNC_INFO << "PowerSupply Status: ";
-    qDebug() << Q_FUNC_INFO << "Beeper: " << status->getBeeper();
-    qDebug() << Q_FUNC_INFO << "Locked: " << status->getLocked();
-    qDebug() << Q_FUNC_INFO
-             << "Channel Output1: " << status->getChannelOutput(1);
-    qDebug() << Q_FUNC_INFO << "Channel Mode1: " << status->getChannelMode(1);
-    qDebug() << Q_FUNC_INFO
-             << "Actual Current1: " << status->getActualCurrent(1);
-    qDebug() << Q_FUNC_INFO
-             << "Actual Voltage1: " << status->getActualVoltage(1);
-    qDebug() << Q_FUNC_INFO
-             << "Adjusted Current1: " << status->getAdjustedCurrent(1);
-    qDebug() << Q_FUNC_INFO
-             << "Adjusted Voltage1: " << status->getAdjustedVoltage(1);*/
+    std::stringstream ss;
+    ss << status;
+    LogInstance::get_instance().eal_debug(ss.str());
 }
 
 void LabPowerController::toggleRecording(bool status, QString rname)

@@ -27,7 +27,6 @@
 
 #include <QDateTime>
 
-#include <QDebug>
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
@@ -36,10 +35,9 @@
 #include <memory>
 #include <vector>
 
-#include <ealogger/ealogger.h>
-
 #include "databasedef.h"
 #include "global.h"
+#include "log_instance.h"
 #include "powersupplystatus.h"
 #include "settingsdefinitions.h"
 
@@ -55,7 +53,7 @@ class DBConnector : public QObject
     Q_OBJECT
 
 public:
-    DBConnector(std::shared_ptr<ealogger::Logger> log);
+    DBConnector();
     ~DBConnector();
 
 public slots:
@@ -67,8 +65,6 @@ public slots:
     void insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus);
 
 private:
-    std::shared_ptr<ealogger::Logger> log;
-
     long long recID;
 
     long long maxID(const QString &table, const QString &id);

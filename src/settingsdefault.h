@@ -37,7 +37,8 @@ const std::map<const char* const, QVariant> general_defaults{
     {settings_constants::PLOT_ZOOM_MAX, QVariant(1800)},
     {settings_constants::RECORD_BUFFER, QVariant(60)},
     {settings_constants::LOG_ENABLED, QVariant(true)},
-    {settings_constants::LOG_MIN_SEVERITY, QVariant(1)}};
+    {settings_constants::LOG_MIN_SEVERITY, QVariant(1)},
+    {settings_constants::LOG_FLUSH, QVariant(false)}};
 }
 
 #endif /* SETTINGSDEFAULT_H */

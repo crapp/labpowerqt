@@ -88,6 +88,12 @@ SettingsDialog::SettingsDialog(QWidget *parent)
                         "\n";
             overview +=
                 "Port: " + settings.value(setcon::DEVICE_PORT).toString() + "\n";
+            overview += "Poll frequency: " +
+                        settings.value(setcon::DEVICE_POLL_FREQ).toString() +
+                        "ms" + "\n";
+            overview += "Timeout: " +
+                        settings.value(setcon::DEVICE_PORT_TIMEOUT).toString() +
+                        "ms" + "\n";
             overview +=
                 "Voltage Range: " +
                 QString::number(
@@ -216,6 +222,11 @@ void SettingsDialog::initLog()
             .toInt());
     ui->lineEditLogDirectory->setText(
         settings.value(setcon::LOG_DIRECTORY, this->defaultLogDir).toString());
+    ui->checkBoxLogFlush->setChecked(
+        settings
+            .value(setcon::LOG_FLUSH,
+                   setdef::general_defaults.at(setcon::LOG_FLUSH))
+            .toBool());
 }
 
 void SettingsDialog::setupSettingsList()
@@ -326,6 +337,13 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                 .toString()) {
             somethingChanged = true;
         }
+        if (ui->checkBoxLogFlush->isChecked() !=
+            settings
+                .value(setcon::LOG_FLUSH,
+                       setdef::general_defaults.at(setcon::LOG_FLUSH))
+                .toBool()) {
+            somethingChanged = true;
+        };
         break;
     }
 
@@ -397,6 +415,7 @@ void SettingsDialog::saveSettings(int currentRow)
                           ui->lineEditLogDirectory->text());
         settings.setValue(setcon::LOG_MIN_SEVERITY,
                           ui->comboBoxLogLoglevel->currentIndex());
+        settings.setValue(setcon::LOG_FLUSH, ui->checkBoxLogFlush->isChecked());
     }
 }
 
@@ -429,6 +448,8 @@ void SettingsDialog::restoreSettings(int currentRow)
         ui->lineEditLogDirectory->setText(this->defaultLogDir);
         ui->comboBoxLogLoglevel->setCurrentIndex(
             setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY).toInt());
+        ui->checkBoxLogFlush->setChecked(
+            setdef::general_defaults.at(setcon::LOG_FLUSH).toBool());
     }
 }
 void SettingsDialog::settingCategoryChanged(int currentRow)

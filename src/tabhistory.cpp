@@ -29,10 +29,11 @@ TabHistory::TabHistory(QWidget *parent) : QWidget(parent)
     settings.beginGroup(setcon::RECORD_GROUP);
     dbutil::initDatabase(
         "QSQLITE",
-        settings.value(setcon::RECORD_SQLPATH,
-                       QStandardPaths::writableLocation(
-                           QStandardPaths::DataLocation) +
-                           QDir::separator() + QString("labpowerqt.sqlite"))
+        settings
+            .value(
+                setcon::RECORD_SQLPATH,
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                    QDir::separator() + QString("labpowerqt.sqlite"))
             .toString());
 
     this->setupUI();
@@ -122,12 +123,14 @@ void TabHistory::deleteRecordings()
 
 void TabHistory::exportToCsv()
 {
+    ealogger::Logger &log = LogInstance::get_instance();
     QModelIndexList selectedRows =
         this->tblView->selectionModel()->selectedRows();
     QString csvFile = QFileDialog::getSaveFileName(
         this, "Export Recordings",
         QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
         "CSV (*.csv)");
+    log.eal_info("Exporting data to csv file " + csvFile.toStdString());
     if (csvFile != "") {
         QFile csvf(csvFile);
         csvf.open(QFile::OpenModeFlag::WriteOnly | QFile::OpenModeFlag::Text);
@@ -166,9 +169,9 @@ void TabHistory::exportToCsv()
                                     + "INNER JOIN " + dbcon::TBL_MEASUREMENT + " AS m \n"
                                     + "ON c." + dbcon::TBL_CHANNEL_MES + " = m." + dbcon::TBL_MEASUREMENT_ID + "\n"
                                     + "WHERE m." + dbcon::TBL_MEASUREMENT_REC + " = ?")) {
-                qDebug() << Q_FUNC_INFO << getMeasurements.lastError().text();
+                log.eal_error(getMeasurements.lastError().text().toStdString());
             }
-            qDebug() << Q_FUNC_INFO << getMeasurements.executedQuery();
+            log.eal_debug(getMeasurements.executedQuery().toStdString());
             // clang-format on
             getMeasurements.bindValue(0, recId);
             if (getMeasurements.exec()) {

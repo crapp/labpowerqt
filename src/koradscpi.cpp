@@ -141,7 +141,7 @@ void KoradSCPI::setBeep(bool status)
     this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETBEEP), 0, val);
 }
 
-void KoradSCPI::setTracking(ATTR_UNUSED globcon::TRACKING trMode)
+void KoradSCPI::setTracking(ATTR_UNUSED globcon::LPQ_TRACKING trMode)
 {
     // TODO: Implement Tracking in Korad SCPI Class.
 }
@@ -174,7 +174,7 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
         QByteArray val = com->getValue().toByteArray();
         // qDebug() << Q_FUNC_INFO << "Status byte: " << val[0];
         // Unfortunately Korad SCPI does not seem to be able to determine
-        // between different channels regarding ouput setting.
+        // between different channels regarding output setting.
         if (val[0] & (1 << 6)) {
             for (int i = 1; i <= this->noOfChannels; i++) {
                 status->setChannelOutput(std::make_pair(i, true));
@@ -195,17 +195,17 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
 
         if (val[0] & (1 << 1)) {
             status->setChannelMode(
-                std::make_pair(2, globcon::MODE::CONSTANT_VOLTAGE));
+                std::make_pair(2, globcon::LPQ_MODE::CONSTANT_VOLTAGE));
         } else {
             status->setChannelMode(
-                std::make_pair(2, globcon::MODE::CONSTANT_CURRENT));
+                std::make_pair(2, globcon::LPQ_MODE::CONSTANT_CURRENT));
         }
         if (val[0] & (1 << 0)) {
             status->setChannelMode(
-                std::make_pair(1, globcon::MODE::CONSTANT_VOLTAGE));
+                std::make_pair(1, globcon::LPQ_MODE::CONSTANT_VOLTAGE));
         } else {
             status->setChannelMode(
-                std::make_pair(1, globcon::MODE::CONSTANT_CURRENT));
+                std::make_pair(1, globcon::LPQ_MODE::CONSTANT_CURRENT));
         }
     }
 

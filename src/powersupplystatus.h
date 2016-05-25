@@ -17,19 +17,19 @@
 #ifndef POWERSUPPLYSTATUS
 #define POWERSUPPLYSTATUS
 
-#include <map>
-#include <utility>
-#include <memory>
 #include <chrono>
+#include <map>
+#include <memory>
+#include <utility>
 
-#include <QMutexLocker>
 #include <QMutex>
+#include <QMutexLocker>
 
 #include "global.h"
 
 namespace PowerSupplyStatus_constants
 {
-typedef std::pair<int, global_constants::MODE> CHANNELMODE;
+typedef std::pair<int, global_constants::LPQ_MODE> CHANNELMODE;
 typedef std::pair<int, double> CHANNELVALUE;
 typedef std::pair<int, bool> CHANNELOUTPUT;
 }
@@ -48,6 +48,24 @@ public:
         this->otp = false;
         this->duration = 0;
         this->time = std::chrono::system_clock::now();
+    }
+
+    friend std::ostream& operator<<(std::ostream& stream,
+                                    std::shared_ptr<PowerSupplyStatus>& s)
+    {
+        stream << "beep: " << s->beeper << "\n";
+        stream << "locked: " << s->locked << "\n";
+        stream << "ovp: " << s->ovp << "\n";
+        stream << "ocp: " << s->ocp << "\n";
+        stream << "duration: " << s->duration << "\n";
+        stream << "channel out: " << s->getChannelOutput(1) << "\n";
+        stream << "voltage set: " << s->getVoltageSet(1) << "\n";
+        stream << "voltage: " << s->getVoltage(1) << "\n";
+        stream << "current set: " << s->getCurrentSet(1) << "\n";
+        stream << "current: " << s->getCurrent(1) << "\n";
+        stream << "wattage: " << s->getWattage(1) << "\n";
+
+        return stream;
     }
 
     void setBeeper(bool beep) { this->beeper = beep; }
@@ -157,7 +175,7 @@ public:
     {
         this->channelMode.insert(mode);
     }
-    global_constants::MODE getChannelMode(int channel)
+    global_constants::LPQ_MODE getChannelMode(int channel)
     {
         return this->channelMode.at(channel);
     }
@@ -195,7 +213,7 @@ private:
 
     std::map<int, double> wattage;
 
-    std::map<int, global_constants::MODE> channelMode;
+    std::map<int, global_constants::LPQ_MODE> channelMode;
 
     std::map<int, bool> channelOutput;
 

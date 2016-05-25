@@ -17,12 +17,12 @@
 #ifndef LABPOWERMODEL_H
 #define LABPOWERMODEL_H
 
-#include <QObject>
 #include <QDebug>
+#include <QObject>
 #include <QString>
 
-#include <memory>
 #include <chrono>
+#include <memory>
 #include <vector>
 
 #include "global.h"
@@ -53,18 +53,18 @@ public:
     bool getDeviceLocked();
     bool getDeviceMute();
 
-    bool getOutput(global_constants::CHANNEL c);
-    global_constants::MODE getChannelMode(global_constants::CHANNEL c);
+    bool getOutput(global_constants::LPQ_CHANNEL c);
+    global_constants::LPQ_MODE getChannelMode(global_constants::LPQ_CHANNEL c);
 
     std::chrono::system_clock::time_point getTime();
 
-    void setVoltageSet(global_constants::CHANNEL c, double val);
-    double getVoltageSet(global_constants::CHANNEL c);
-    double getVoltage(global_constants::CHANNEL c);
-    void setCurrentSet(global_constants::CHANNEL c, double val);
-    double getCurrentSet(global_constants::CHANNEL c);
-    double getCurrent(global_constants::CHANNEL c);
-    double getWattage(global_constants::CHANNEL c);
+    void setVoltageSet(global_constants::LPQ_CHANNEL c, double val);
+    double getVoltageSet(global_constants::LPQ_CHANNEL c);
+    double getVoltage(global_constants::LPQ_CHANNEL c);
+    void setCurrentSet(global_constants::LPQ_CHANNEL c, double val);
+    double getCurrentSet(global_constants::LPQ_CHANNEL c);
+    double getCurrent(global_constants::LPQ_CHANNEL c);
+    double getWattage(global_constants::LPQ_CHANNEL c);
 
     void setOVP(bool status);
     bool getOVP();
