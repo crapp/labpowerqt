@@ -56,6 +56,48 @@ MainWindow::MainWindow(QWidget *parent)
     this->setupModelConnections();
     this->setupValuesDialog();
     this->setupControlConnections();
+
+    settings.beginGroup(setcon::GENERAL_GROUP);
+    if (!settings
+             .value(setcon::GENERAL_INFO_MAIN,
+                    setdef::general_defaults.at(setcon::GENERAL_INFO_MAIN))
+             .toBool()) {
+        // using a qtimer here is very useful. The Timer will fire as soon as
+        // the event queue is processed and the GUI is visible.
+        QTimer::singleShot(400, this, []() {
+            QCheckBox *msgCB = new QCheckBox();
+            msgCB->setText("Don't show this message at startup");
+            msgCB->setChecked(false);
+            QMessageBox box;
+            box.setIcon(QMessageBox::Icon::Information);
+            box.setStandardButtons(QMessageBox::StandardButton::Ok);
+            box.setDefaultButton(QMessageBox::StandardButton::Ok);
+            box.setCheckBox(msgCB);
+            box.setWindowTitle("Welcome to LabPowerQt");
+            box.setTextFormat(Qt::RichText);
+            box.setText(
+                "This is an application to control devices using a SCPI based "
+                "communication protocol");
+            box.setInformativeText(
+                "<p>You have to add a Device using the Device Wizard which you "
+                "can start from the settings dialog.</p>"
+                "<p>The Window on the left is used to control the device. Green "
+                "elements provide information "
+                "whereas orange elements allow interaction by double clicking "
+                "them. The data will be plotted on the right side of the "
+                "application. This data can be written simultaneously to a "
+                "SQLite Database.</p>"
+                "<p>More information can be found on the "
+                "<a href='https://github.com/crapp/labpowerqt'>github</a> "
+                "page of the project.</p>");
+            box.exec();
+            if (msgCB->isChecked()) {
+                QSettings settings;
+                settings.beginGroup(setcon::GENERAL_GROUP);
+                settings.setValue(setcon::GENERAL_INFO_MAIN, true);
+            }
+        });
+    }
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -353,8 +395,8 @@ void MainWindow::deviceControl(int control, int channel)
             QSettings settings;
             settings.beginGroup(setcon::GENERAL_GROUP);
             if (settings
-                    .value(setcon::GENERAL_DISC,
-                           setdef::general_defaults.at(setcon::GENERAL_DISC))
+                    .value(setcon::GENERAL_ASK_DISC,
+                           setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
                     .toBool()) {
                 if (QMessageBox::question(this, "Disconnect Device",
                                           "Do you really want to disconnect?",
@@ -416,8 +458,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
     if (settings
-            .value(setcon::GENERAL_EXIT,
-                   setdef::general_defaults.at(setcon::GENERAL_EXIT))
+            .value(setcon::GENERAL_ASK_EXIT,
+                   setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
             .toBool()) {
         QMessageBox box;
         // TODO: Can't set parent. Messagebox transparent after this :/??

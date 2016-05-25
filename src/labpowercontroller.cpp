@@ -7,7 +7,7 @@ namespace powcon = PowerSupplySCPI_constants;
 namespace globcon = global_constants;
 
 LabPowerController::LabPowerController(std::shared_ptr<LabPowerModel> appModel)
-    : applicationModel(appModel)
+    : QObject(), applicationModel(appModel)
 {
     this->powerSupplyConnector = nullptr;
     this->powerSupplyStatusUpdater = nullptr;

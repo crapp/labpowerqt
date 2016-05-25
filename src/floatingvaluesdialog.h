@@ -25,8 +25,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-#include <QDebug>
-
 #include <cmath>
 #include <memory>
 

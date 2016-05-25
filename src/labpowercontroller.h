@@ -5,7 +5,6 @@
 #include <sstream>
 
 #include <QByteArray>
-#include <QDebug>
 #include <QMessageBox>
 #include <QObject>
 #include <QSettings>

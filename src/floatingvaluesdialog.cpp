@@ -158,8 +158,4 @@ void FloatingValuesDialog::accept()
     this->done(1);
 }
 
-void FloatingValuesDialog::reject()
-{
-    qDebug() << Q_FUNC_INFO << "Dialog was rejected";
-    this->done(0);
-}
+void FloatingValuesDialog::reject() { this->done(0); }

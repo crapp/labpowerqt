@@ -17,12 +17,12 @@
 #ifndef KORADSCPI_H
 #define KORADSCPI_H
 
-#include <QDebug>
 #include <QObject>
 #include <QString>
 
 #include "config.h"
 #include "global.h"
+#include "log_instance.h"
 #include "powersupplyscpi.h"
 
 namespace KoradSCPI_constants

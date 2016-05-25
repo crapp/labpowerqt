@@ -31,8 +31,10 @@
 namespace settings_default
 {
 const std::map<const char* const, QVariant> general_defaults{
-    {settings_constants::GENERAL_EXIT, QVariant(true)},
-    {settings_constants::GENERAL_DISC, QVariant(false)},
+    {settings_constants::GENERAL_ASK_EXIT, QVariant(true)},
+    {settings_constants::GENERAL_ASK_DISC, QVariant(false)},
+    {settings_constants::GENERAL_INFO_MAIN, QVariant(false)},
+    {settings_constants::GENERAL_INFO_SETTINGS, QVariant(false)},
     {settings_constants::PLOT_ZOOM_MIN, QVariant(60)},
     {settings_constants::PLOT_ZOOM_MAX, QVariant(1800)},
     {settings_constants::RECORD_BUFFER, QVariant(60)},

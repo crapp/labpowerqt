@@ -22,7 +22,7 @@ namespace setcon = settings_constants;
 namespace dbcon = database_constants;
 namespace dbutil = database_utils;
 
-DBConnector::DBConnector()
+DBConnector::DBConnector() : QObject()
 {
     this->recID = -1;
     QSettings settings;

@@ -832,11 +832,7 @@ void PlottingArea::yAxisVisibility()
     this->plot->replot();
 }
 
-void PlottingArea::beforeReplotHandle()
-{
-    // qDebug() << Q_FUNC_INFO << "before replot";
-}
-
+void PlottingArea::beforeReplotHandle() {}
 void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
                                      const QCPRange &oldRange)
 {
@@ -925,8 +921,6 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
                 deltaSecsOldUpperLower - std::chrono::seconds(5) ||
             deltaSecsUpperLower >
                 deltaSecsOldUpperLower + std::chrono::seconds(5)) {
-            // qDebug() << Q_FUNC_INFO << "Delta not equal, updating visual
-            // feedback";
             QString zoomTxt;
             auto hours = std::chrono::duration_cast<std::chrono::hours>(
                              deltaSecsUpperLower)

@@ -16,7 +16,7 @@
 
 #include "labpowermodel.h"
 
-LabPowerModel::LabPowerModel()
+LabPowerModel::LabPowerModel() : QObject()
 {
     this->status = std::make_shared<PowerSupplyStatus>();
     this->deviceConnected = false;
@@ -49,7 +49,7 @@ bool LabPowerModel::getOutput(global_constants::LPQ_CHANNEL c)
     try {
         return this->status->getChannelOutput(static_cast<int>(c));
     } catch (const std::out_of_range &ex) {
-        qDebug() << Q_FUNC_INFO << ex.what();
+        LogInstance::get_instance().eal_error(ex.what());
     }
     return false;
 }

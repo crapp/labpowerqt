@@ -17,7 +17,6 @@
 #ifndef LABPOWERMODEL_H
 #define LABPOWERMODEL_H
 
-#include <QDebug>
 #include <QObject>
 #include <QString>
 
@@ -26,6 +25,7 @@
 #include <vector>
 
 #include "global.h"
+#include "log_instance.h"
 #include "powersupplystatus.h"
 
 /**

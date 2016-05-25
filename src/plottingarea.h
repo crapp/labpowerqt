@@ -27,8 +27,6 @@
 
 #include <QFileDialog>
 
-#include <QDebug>
-
 #include <chrono>
 #include <iostream>
 #include <map>

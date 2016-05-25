@@ -17,18 +17,17 @@
 #ifndef RECORDAREA_H
 #define RECORDAREA_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QDateTime>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
-#include <QDateTime>
-#include <QSettings>
 #include <QMessageBox>
-#include <QDebug>
+#include <QPushButton>
+#include <QSettings>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include "global.h"
 #include "settingsdefinitions.h"

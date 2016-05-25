@@ -17,21 +17,20 @@
 #ifndef DEVICEWIZARDOPTIONS_H
 #define DEVICEWIZARDOPTIONS_H
 
-#include <QWidget>
-#include <QWizardPage>
-#include <QVBoxLayout>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
-#include <QDoubleSpinBox>
-#include <QComboBox>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QWizardPage>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
-#include <QDebug>
-
 #include "global.h"
+#include "log_instance.h"
 
 /**
  * @brief Wizard page for all the device options

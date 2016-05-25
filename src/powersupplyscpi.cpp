@@ -6,9 +6,9 @@ PowerSupplySCPI::PowerSupplySCPI(
     QString serialPortName, QByteArray deviceHash, int noOfChannels,
     int voltageAccuracy, int currentAccuracy, QSerialPort::BaudRate brate,
     QSerialPort::FlowControl flowctl, QSerialPort::DataBits dbits,
-    QSerialPort::Parity parity, QSerialPort::StopBits sbits, int portTimeOut,
-    QObject *parent)
-    : serialPortName(std::move(serialPortName)),
+    QSerialPort::Parity parity, QSerialPort::StopBits sbits, int portTimeOut)
+    : QObject(),
+      serialPortName(std::move(serialPortName)),
       deviceHash(std::move(deviceHash)),
       noOfChannels(noOfChannels),
       voltageAccuracy(voltageAccuracy),
@@ -18,8 +18,7 @@ PowerSupplySCPI::PowerSupplySCPI(
       port_databits(dbits),
       port_parity(parity),
       port_stopbits(sbits),
-      portTimeOut(portTimeOut),
-      QObject(parent)
+      portTimeOut(portTimeOut)
 {
     this->serialPort = nullptr;
     this->canCalculateWattage = false;
@@ -64,7 +63,7 @@ void PowerSupplySCPI::threadFunc()
         this->readWriteData(this->serQueue.pop());
     }
 
-    qDebug() << Q_FUNC_INFO << "Background thread stopped";
+    LogInstance::get_instance().eal_debug("Stopping SCPI worker thread");
 
     QMutexLocker qlock(&this->qserialPortGuard);
     if (this->serialPort && this->serialPort->isOpen()) {
@@ -137,9 +136,6 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
                 this->processCommands(this->powStatus, c);
             }
         } else {
-            qDebug() << Q_FUNC_INFO
-                     << "Could not write to serial port. Error number: "
-                     << this->serialPort->error();
             emit this->errorReadWrite(QString(this->serialPort->error()));
             return;
         }
@@ -150,9 +146,6 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     long duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
             .count();
-    // qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " <<
-    // duration
-    //<< "ms";
 
     if (com->getCommand() == powcon::GETSTATUS) {
         this->powStatus->setDuration(duration);

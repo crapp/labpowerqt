@@ -165,13 +165,13 @@ void SettingsDialog::initGeneral()
     settings.beginGroup(setcon::GENERAL_GROUP);
     ui->checkBoxGeneralAskExit->setChecked(
         settings
-            .value(setcon::GENERAL_EXIT,
-                   setdef::general_defaults.at(setcon::GENERAL_EXIT))
+            .value(setcon::GENERAL_ASK_EXIT,
+                   setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
             .toBool());
     ui->checkBoxGeneralAskBeforeDis->setChecked(
         settings
-            .value(setcon::GENERAL_DISC,
-                   setdef::general_defaults.at(setcon::GENERAL_DISC))
+            .value(setcon::GENERAL_ASK_DISC,
+                   setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
             .toBool());
 }
 
@@ -255,18 +255,18 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
     switch (ui->listWidgetSettings->row(lastItem)) {
     case 0:  // general section
         settings.beginGroup(setcon::GENERAL_GROUP);
-        if (settings.contains(setcon::GENERAL_DISC)) {
+        if (settings.contains(setcon::GENERAL_ASK_DISC)) {
             if (!ui->checkBoxGeneralAskExit->isChecked() ==
                 settings
-                    .value(setcon::GENERAL_EXIT,
-                           setdef::general_defaults.at(setcon::GENERAL_EXIT))
+                    .value(setcon::GENERAL_ASK_EXIT,
+                           setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
                     .toBool()) {
                 somethingChanged = true;
             }
             if (!ui->checkBoxGeneralAskBeforeDis->isChecked() ==
                 settings
-                    .value(setcon::GENERAL_DISC,
-                           setdef::general_defaults.at(setcon::GENERAL_DISC))
+                    .value(setcon::GENERAL_ASK_DISC,
+                           setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
                     .toBool()) {
                 somethingChanged = true;
             }
@@ -365,9 +365,9 @@ void SettingsDialog::saveSettings(int currentRow)
     QSettings settings;
     if (currentRow == 0) {
         settings.beginGroup(setcon::GENERAL_GROUP);
-        settings.setValue(setcon::GENERAL_EXIT,
+        settings.setValue(setcon::GENERAL_ASK_EXIT,
                           ui->checkBoxGeneralAskExit->isChecked());
-        settings.setValue(setcon::GENERAL_DISC,
+        settings.setValue(setcon::GENERAL_ASK_DISC,
                           ui->checkBoxGeneralAskBeforeDis->isChecked());
     }
     if (currentRow == 1) {
@@ -423,9 +423,9 @@ void SettingsDialog::restoreSettings(int currentRow)
 {
     if (currentRow == 0) {
         ui->checkBoxGeneralAskExit->setChecked(
-            setdef::general_defaults.at(setcon::GENERAL_EXIT).toBool());
+            setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT).toBool());
         ui->checkBoxGeneralAskBeforeDis->setChecked(
-            setdef::general_defaults.at(setcon::GENERAL_DISC).toBool());
+            setdef::general_defaults.at(setcon::GENERAL_ASK_DISC).toBool());
     }
     if (currentRow == 1) {
         // nothing to reset here

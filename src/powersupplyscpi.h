@@ -31,6 +31,7 @@
 #include <QString>
 #include <QtSerialPort/QtSerialPort>
 
+#include "log_instance.h"
 #include "powersupplystatus.h"
 #include "serialcommand.h"
 #include "serialqueue.h"
@@ -84,8 +85,7 @@ public:
                     QSerialPort::BaudRate brate,
                     QSerialPort::FlowControl flowctl,
                     QSerialPort::DataBits dbits, QSerialPort::Parity parity,
-                    QSerialPort::StopBits sbits, int portTimeOut,
-                    QObject *parent = 0);
+                    QSerialPort::StopBits sbits, int portTimeOut);
     virtual ~PowerSupplySCPI();
 
     /**

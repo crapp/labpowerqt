@@ -38,9 +38,11 @@ void DeviceWizardOptions::initializePage()
     // get the serial ports and add them as items to the QComboBox.
     for (const QSerialPortInfo &port : QSerialPortInfo::availablePorts()) {
         this->comPort->addItem(port.portName());
-        qDebug() << "Info: " << port.portName();
-        qDebug() << "Desc " << port.description();
-        qDebug() << "Manu: " << port.manufacturer();
+        ealogger::Logger &log = LogInstance::get_instance();
+        log.eal_debug("Found serial port \n Info: " +
+                      port.portName().toStdString() + "\n" + "Desc: " +
+                      port.description().toStdString() + "\n" + "Manu:" +
+                      port.manufacturer().toStdString());
     }
 }
 

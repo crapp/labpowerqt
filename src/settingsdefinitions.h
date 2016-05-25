@@ -30,8 +30,10 @@ const char *const MAINWINDOW_ACTIVE_TAB = "tab";
 // settings dialog
 // general
 const char *const GENERAL_GROUP = "main";
-const char *const GENERAL_EXIT = "exit";
-const char *const GENERAL_DISC = "disconnect";
+const char *const GENERAL_ASK_EXIT = "exit";
+const char *const GENERAL_ASK_DISC = "disconnect";
+const char *const GENERAL_INFO_MAIN = "info_main";
+const char *const GENERAL_INFO_SETTINGS = "info_settings";
 // device
 const char *const DEVICE_GROUP = "device";
 const char *const DEVICE_ACTIVE = "active";

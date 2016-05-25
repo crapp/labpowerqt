@@ -19,15 +19,15 @@
 #define DATABASEDEF_H
 
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlQuery>
 
 #include <QDir>
 #include <QFileInfo>
 
-#include <QtDebug>
-
 #include <vector>
+
+#include "log_instance.h"
 
 namespace database_constants
 {
@@ -164,8 +164,11 @@ inline void initTables()
     for (auto &query : queryVec) {
         if (!query.exec()) {
             db.rollback();
-            qDebug() << Q_FUNC_INFO << query.lastError().text();
-            qDebug() << Q_FUNC_INFO << db.lastError().text();
+            LogInstance::get_instance().eal_error("Can not create DB Tables");
+            LogInstance::get_instance().eal_error(
+                query.lastError().text().toStdString());
+            LogInstance::get_instance().eal_error(
+                db.lastError().text().toStdString());
             return;
         }
     }
@@ -189,14 +192,15 @@ inline void initDatabase(QString driver, QString dbFile)
         // make sure the path for the db file exists
         QFileInfo fi(dbFile);
         if (!QDir().mkpath(fi.absolutePath())) {
-            qDebug() << Q_FUNC_INFO << "Could not create path for db file: "
-                     << fi.absolutePath();
+            LogInstance::get_instance().eal_error(
+                "Can not create db file directory: " +
+                fi.absolutePath().toStdString());
         }
         db.setDatabaseName(dbFile);
         // open creates the sqlite database file
         if (!db.open()) {
-            qDebug() << Q_FUNC_INFO << "Can not open Database. Error: "
-                     << db.lastError().text();
+            LogInstance::get_instance().eal_error(
+                "Can not open Database: " + db.lastError().text().toStdString());
         } else {
             setDBOptimizations();
             initTables();

@@ -159,6 +159,10 @@ void KoradSCPI::setOutput(ATTR_UNUSED int channel, bool status)
 void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
                                 const std::shared_ptr<SerialCommand> &com)
 {
+    LogInstance::get_instance().eal_debug("Processing command " +
+                                          std::to_string(com->getCommand()));
+    LogInstance::get_instance().eal_debug(
+        "Command value" + com->getValue().toString().toStdString());
     if (com->getCommand() == powcon::COMMANDS::GETSTATUS) {
         /*
          * Decoding the Korad Status Byte is pretty simple.
@@ -172,7 +176,8 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
          * 0   CH1 CC|CV mode
          */
         QByteArray val = com->getValue().toByteArray();
-        // qDebug() << Q_FUNC_INFO << "Status byte: " << val[0];
+        LogInstance::get_instance().eal_debug("Korad Status byte: " +
+                                              val.toStdString());
         // Unfortunately Korad SCPI does not seem to be able to determine
         // between different channels regarding output setting.
         if (val[0] & (1 << 6)) {
@@ -211,13 +216,11 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
 
     if (com->getCommand() == powcon::COMMANDS::GETIDN) {
         QString val = com->getValue().toString();
-        qDebug() << Q_FUNC_INFO << "ID: " << val;
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETCURRENTSET) {
         QString val = com->getValue().toString();
 
-        // qDebug() << Q_FUNC_INFO << "Current: " << val;
         // strangely current values seem to end with a "K". Therefor it is not
         // possible to get a double with toDouble() directly. This fimrware is
         // really buggy.
@@ -228,18 +231,15 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETCURRENT) {
-        // qDebug() << Q_FUNC_INFO << "Current Actual: " << com->getValue();
         if (status)
             status->setCurrent(std::make_pair(com->getPowerSupplyChannel(),
                                               com->getValue().toDouble()));
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETVOLTAGESET) {
-        // qDebug() << Q_FUNC_INFO << "Voltage: " << com->getValue();
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETVOLTAGE) {
-        // qDebug() << Q_FUNC_INFO << "Voltage Actual: " << com->getValue();
         if (status)
             status->setVoltage(std::make_pair(com->getPowerSupplyChannel(),
                                               com->getValue().toDouble()));
@@ -267,9 +267,6 @@ void KoradSCPI::calculateWattage(
     for (int i = 1; i <= this->noOfChannels; i++) {
         // P = U*I :)
         double wattValue = status->getVoltage(i) * status->getCurrent(i);
-        // qDebug() << Q_FUNC_INFO << "Calculated Watt for channel " << i << " =
-        // "
-        //         << wattValue;
         statuscon::CHANNELVALUE watt = std::make_pair(i, wattValue);
         status->setWattage(watt);
     }
@@ -312,7 +309,8 @@ QByteArray KoradSCPI::prepareCommandByteArray(
         }
     }
 
-    //    qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
+    LogInstance::get_instance().eal_debug("Command string: " +
+                                          commandString.toStdString());
 
     QByteArray commandByte = commandString.toLocal8Bit();
     return commandByte;

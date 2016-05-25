@@ -17,12 +17,10 @@
 #ifndef TABCONTROL_H
 #define TABCONTROL_H
 
-#include <QWidget>
 #include <QGridLayout>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-
-#include <QDebug>
+#include <QVBoxLayout>
+#include <QWidget>
 
 // TODO: What do I have this class for? You can not access any widgets from here.
 
@@ -40,4 +38,4 @@ private:
     QGridLayout *controlLayout;
 };
 
-#endif // TABCONTROL_H
+#endif  // TABCONTROL_H
