@@ -27,7 +27,8 @@ DeviceWizardIntro::DeviceWizardIntro(QWidget *parent) : QWizardPage(parent)
 
     infotext->setText(
         "You can use this wizard to add a new Power Supply Device. "
-        "Make sure you have the appropriate permissions to access the device.");
+        "Make sure the device is switched on, connected to your computer and  "
+        "you have the appropriate permissions to access the device.");
     this->setLayout(new QVBoxLayout());
     this->layout()->addWidget(infotext);
 }

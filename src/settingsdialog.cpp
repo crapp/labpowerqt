@@ -156,6 +156,43 @@ SettingsDialog::SettingsDialog(QWidget *parent)
                 ui->lineEditLogDirectory->setText(new_dir);
             }
         });
+
+    QSettings settings;
+    settings.beginGroup(setcon::GENERAL_GROUP);
+    if (!settings
+             .value(setcon::GENERAL_INFO_SETTINGS,
+                    setdef::general_defaults.at(setcon::GENERAL_INFO_SETTINGS))
+             .toBool()) {
+        // using a qtimer here is very useful. The Timer will fire as soon as
+        // the event queue is processed and the GUI is visible.
+        QTimer::singleShot(400, this, []() {
+            QCheckBox *msgCB = new QCheckBox();
+            msgCB->setText("Don't show this message again");
+            msgCB->setChecked(false);
+            QMessageBox box;
+            box.setIcon(QMessageBox::Icon::Information);
+            box.setStandardButtons(QMessageBox::StandardButton::Ok);
+            box.setDefaultButton(QMessageBox::StandardButton::Ok);
+            box.setCheckBox(msgCB);
+            box.setWindowTitle("LabPowerQt Settings");
+            box.setTextFormat(Qt::RichText);
+            box.setText("Configure LabPowerQt as you wish and add devices");
+            box.setInformativeText(
+                "<p>You have to add at least one Device using the Device Wizard "
+                "which is located in the Device section</p>"
+                "<p>In the Record section you can set the path for the SQLite "
+                "Database file LabPowerQt uses to store the recorded data.</p>"
+                "<p>If you have problems with the application please activate "
+                "the logging mechanism that will write log messages to log "
+                "files.</p>");
+            box.exec();
+            if (msgCB->isChecked()) {
+                QSettings settings;
+                settings.beginGroup(setcon::GENERAL_GROUP);
+                settings.setValue(setcon::GENERAL_INFO_SETTINGS, true);
+            }
+        });
+    }
 }
 
 SettingsDialog::~SettingsDialog() { delete ui; }
