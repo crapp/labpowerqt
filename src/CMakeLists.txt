@@ -213,3 +213,7 @@ if (EALOGGER_EXTERNAL)
     add_dependencies(labpowerqt ealogger_external)
     target_link_libraries(labpowerqt Threads::Threads)
 endif()
+
+if (WIN32)
+    add_definitions(-D_WINSOCKAPI_)
+endif(WIN32)
