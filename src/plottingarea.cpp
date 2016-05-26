@@ -315,9 +315,9 @@ void PlottingArea::setupGraph()
                     QString(setcon::PLOT_GRAPH_LINE).arg(graphIndex);
                 QString lskey = QString(setcon::PLOT_GRAPH_LS).arg(graphIndex);
                 if (settings.value(viskey, true).toBool()) {
-                    std::cout << "visibility is true "
-                              << labelGraphProps->text().toStdString()
-                              << std::endl;
+                    LogInstance::get_instance().eal_debug(
+                        "Visibility is true for " +
+                        labelGraphProps->text().toStdString());
                 }
                 if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
                     dt == globcon::LPQ_DATATYPE::CURRENT ||
@@ -495,7 +495,7 @@ void PlottingArea::setupUI()
         if (QMessageBox::question(
                 this, "Discard Data",
                 "Do you really want to discard the data in the "
-                "plot? This will not affect Recordings")) {
+                "plot? This will not affect Recordings") == QMessageBox::Yes) {
             for (int i = 0; i < this->plot->graphCount(); i++) {
                 this->plot->graph(i)->clearData();
             }

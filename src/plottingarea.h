@@ -34,6 +34,7 @@
 #include <vector>
 
 #include "global.h"
+#include "log_instance.h"
 #include "qcustomplot.h"
 #include "settingsdefault.h"
 #include "settingsdefinitions.h"

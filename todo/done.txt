@@ -1,0 +1,4 @@
+x 2016-04-22 2016-04-19 Plot section in settings is empty. Find some meaningful things to configure there or remove it.
+x 2016-04-21 2016-04-19 Visual feedback for current zoom level
+x 2016-05-26 2016-04-22 Restore default settings. Restore all settings or only active section?
+x 2016-04-22 2016-04-22 Remove "Record data by default" option. Makes no sense

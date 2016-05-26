@@ -32,7 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     QString titleString;
     QTextStream titleStream(&titleString, QIODevice::WriteOnly);
     titleStream << "LabPowerQt " << LABPOWERQT_VERSION_MAJOR << "."
-                << LABPOWERQT_VERSION_MINOR << "." << LABPOWERQT_VERSION_PATCH;
+                << LABPOWERQT_VERSION_MINOR;
+    if (QString(LABPOWERQT_VERSION_PATCH) != "0") {
+        titleStream << "." << LABPOWERQT_VERSION_PATCH;
+    }
     this->setWindowTitle(titleString);
 
     // Restore saved geometry and state

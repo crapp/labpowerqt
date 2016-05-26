@@ -102,3 +102,4 @@ __pycache__/
 korad.py
 build/
 database/
+gh-pages/
