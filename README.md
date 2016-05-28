@@ -70,7 +70,7 @@ sudo make install
 
 There are packages for the following Linux distributions:
 
-* Archlinux (AUR)
+* [Archlinux (AUR)](https://aur.archlinux.org/packages/labpowerqt)
 
 #### Windows
 
