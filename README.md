@@ -90,6 +90,9 @@ You may now open the solution file with visual studio and compile the applicatio
 
 Other possibilities are cmake's NMake Generator or mingw.
 
+I am providing an InnoSetup based installer for x86 and amd64 containing all
+dependencies. It is downloadable from [github.com](https://github.com/crapp/labpowerqt/releases)
+
 ### Supported Hardware
 
 Currently we only support Devices using the [Korad SCPI Protocol](http://sigrok.org/wiki/Velleman_PS3005D)
