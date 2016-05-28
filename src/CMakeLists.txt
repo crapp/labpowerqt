@@ -51,7 +51,7 @@ if (EALOGGER_EXTERNAL)
     # library we can link it directly
     ExternalProject_Add(
         ealogger_external
-        URL https://github.com/crapp/ealogger/archive/v0.8.tar.gz
+        URL https://github.com/crapp/ealogger/archive/v0.8.1.tar.gz
         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/ealogger"
         INSTALL_DIR install
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
