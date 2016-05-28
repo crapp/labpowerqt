@@ -100,7 +100,7 @@ __pycache__/
 .ycm_extra_conf.py
 
 korad.py
-build/
+build*/
 database/
 gh-pages/
 packages/
