@@ -13,6 +13,7 @@ The application is in an early stage of development make sure to read the **know
 issues** section.
 
 ![LabPowerQt main screen](https://crapp.github.io/labpowerqt/labpowerqt.png)
+*LabPowerQt running on archlinux and Gnome 3.20*
 
 ## Features
 
@@ -116,7 +117,14 @@ add a device. Other things can be set there as well.
 
 ## Screenshots
 
+![LabPowerQt running on Windows 8.1](https://crapp.github.io/labpowerqt/labpowerqt_about_win_border.png)
+*LabPowerQt running on Windows 8.1 32bit*
 
+![LabPowerQt recordings history](https://crapp.github.io/labpowerqt/labpowerqt_history.png)
+*Recordings listed in a table*
+
+![LabPowerQt example Plot export image](https://crapp.github.io/labpowerqt/labpowerqt_plot_example_export.jpg)
+*Exported image of the Plot in LabPowerQt*
 
 ## Development
 
@@ -182,7 +190,7 @@ to submit bugs or feature requests
   Currently this is not working correctly with QCustomPlot and there is nothing I
   can do about it as I believe it is because of a bug in their code.
 
-* Polling frequencies higher than 1Hz seem work unreliable on OSX and Windows.
+* Polling frequencies higher than 1Hz seem to work unreliable on OSX and Windows.
 	I have no idea if this is a problem with QtSerialport or the underlying driver
 	implementation or system layer.
 
