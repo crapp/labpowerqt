@@ -215,5 +215,9 @@ if (EALOGGER_EXTERNAL)
 endif()
 
 if (WIN32)
+    # have to add this explcicitly to avoid linker errors on msvc
     add_definitions(-D_WINSOCKAPI_)
+    # make this a windows gui application without opening a console
+    target_link_libraries(labpowerqt Qt5::WinMain)
+    set_property(TARGET labpowerqt PROPERTY WIN32_EXECUTABLE true)
 endif(WIN32)
