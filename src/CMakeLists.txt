@@ -221,3 +221,5 @@ if (WIN32)
     target_link_libraries(labpowerqt Qt5::WinMain)
     set_property(TARGET labpowerqt PROPERTY WIN32_EXECUTABLE true)
 endif(WIN32)
+
+install(TARGETS labpowerqt DESTINATION bin)
