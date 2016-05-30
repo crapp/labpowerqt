@@ -98,32 +98,67 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
         commands = this->prepareStatusCommands();
     }
 
-    // TODO: The Timeout values for serial port operations are critical. Maybe
-    // they need to be configurable
+    ealogger::Logger &log = LogInstance::get_instance();
+
+    bool serial_error = false;
+
     for (auto &c : commands) {
         QByteArray commandByte = this->prepareCommandByteArray(c);
-        bool waitForBytes = true;
-        this->serialPort->clear(QSerialPort::Direction::AllDirections);
-        if (this->serialPort->write(commandByte, commandByte.length()) != -1) {
+        bool waitForBytes = false;
+        // Could this be a problem here because there are pending commands?
+        if (!this->serialPort->clear(QSerialPort::Direction::AllDirections)) {
+            ;
+            log.eal_error("Could not clear serial port buffers");
+            log.eal_error(
+                "Error: " +
+                static_cast<QString>(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+        }
+        qint64 bytesWritten =
+            this->serialPort->write(commandByte, commandByte.length());
+        if (bytesWritten != -1) {
+            log.eal_debug("Bytes written: " +
+                          QString::number(bytesWritten).toStdString() + "\n" +
+                          "command length: " +
+                          QString::number(commandByte.length()).toStdString());
             // wait for for bytes to be written
             if (commandByte != "") {
                 waitForBytes =
                     this->serialPort->waitForBytesWritten(this->portTimeOut);
             }
+        } else {
+            log.eal_error("Could not write command " +
+                          commandByte.toStdString());
+            log.eal_error(
+                "Error: " +
+                static_cast<QString>(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+            serial_error = true;
         }
 
         if (waitForBytes) {
-            // is this command with a feedback?
+            // is this a command with feedback?
             if (c->getCommandWithReply()) {
                 QByteArray reply = "0";
                 if (commandByte != "") {
                     // wait until port is ready to read
-                    this->serialPort->waitForReadyRead(2000);
-                    if (serialPort->bytesAvailable())
-                        reply.clear();
-                    while (serialPort->bytesAvailable()) {
-                        reply.append(this->serialPort->readAll());
-                        this->serialPort->waitForReadyRead(this->portTimeOut);
+                    if (this->serialPort->waitForReadyRead(1000)) {
+                        if (serialPort->bytesAvailable())
+                            reply.clear();
+                        while (serialPort->bytesAvailable()) {
+                            reply.append(this->serialPort->readAll());
+                            this->serialPort->waitForReadyRead(
+                                this->portTimeOut);
+                        }
+                    } else {
+                        log.eal_error("Wait for ready read for command " +
+                                      commandByte.toStdString() + " timed out");
+                        log.eal_error(
+                            "Error: " +
+                            static_cast<QString>(this->serialPort->error())
+                                .toStdString());
+                        this->serialPort->clearError();
+                        serial_error = true;
                     }
                     //                    while
                     //                    (this->serialPort->waitForReadyRead(1))
@@ -137,8 +172,15 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
             }
         } else {
             emit this->errorReadWrite(QString(this->serialPort->error()));
-            return;
+            log.eal_error("Could not read from or write to device: " +
+                          QString(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+            serial_error = true;
         }
+    }
+
+    if (serial_error) {
+        return;
     }
 
     std::chrono::high_resolution_clock::time_point tEnd =

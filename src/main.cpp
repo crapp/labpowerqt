@@ -20,6 +20,7 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QTextStream>
+#include <QMessageBox>
 
 #include "log_instance.h"
 #include "settingsdefinitions.h"
@@ -42,22 +43,28 @@ int main(int argc, char *argv[])
 
     QSettings settings;
     settings.beginGroup(setcon::LOG_GROUP);
-    if (settings
-            .value(setcon::LOG_ENABLED,
-                   setdef::general_defaults.at(setcon::LOG_ENABLED))
+    if (settings.value(setcon::LOG_ENABLED,
+                       setdef::general_defaults.at(setcon::LOG_ENABLED))
             .toBool()) {
         ealogger::constants::LOG_LEVEL lvl =
             static_cast<ealogger::constants::LOG_LEVEL>(
-                settings
-                    .value(setcon::LOG_MIN_SEVERITY,
-                           setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+                settings.value(setcon::LOG_MIN_SEVERITY,
+                               setdef::general_defaults.at(
+                                   setcon::LOG_MIN_SEVERITY))
                     .toInt());
         // create file name
         QDateTime now = QDateTime::currentDateTime();
         QDir cachedir(
             QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
         if (!cachedir.exists()) {
-            QDir().mkdir(cachedir.absolutePath());
+            if (!QDir().mkpath(cachedir.absolutePath())) {
+                QMessageBox box;
+                box.setIcon(QMessageBox::Icon::Critical);
+                box.setWindowTitle("Logfiles directory");
+                box.setText("Could not create log file directory \n " +
+                            cachedir.absolutePath());
+                box.exec();
+            }
         }
         QString logfile =
             settings.value(setcon::LOG_DIRECTORY, cachedir.absolutePath())
@@ -66,9 +73,8 @@ int main(int argc, char *argv[])
                    now.toString("yyyyMMdd") + ".log";
         log.init_file_sink(
             true, lvl, "%d %s [%f:%l] %m", "%F %T", logfile.toStdString(),
-            settings
-                .value(setcon::LOG_FLUSH,
-                       setdef::general_defaults.at(setcon::LOG_FLUSH))
+            settings.value(setcon::LOG_FLUSH,
+                           setdef::general_defaults.at(setcon::LOG_FLUSH))
                 .toBool());
 
         QString titleString;

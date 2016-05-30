@@ -35,7 +35,8 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     // provided from 5.4 onwards
     if (!QDir(QStandardPaths::writableLocation(QStandardPaths::DataLocation))
              .exists()) {
-        QDir().mkdir(
+        // TODO: Do I have to check the return value of QDir::mkpath?
+        QDir().mkpath(
             QStandardPaths::writableLocation(QStandardPaths::DataLocation));
     }
     this->defaultSqlFile =
@@ -159,9 +160,9 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
-    if (!settings
-             .value(setcon::GENERAL_INFO_SETTINGS,
-                    setdef::general_defaults.at(setcon::GENERAL_INFO_SETTINGS))
+    if (!settings.value(
+                     setcon::GENERAL_INFO_SETTINGS,
+                     setdef::general_defaults.at(setcon::GENERAL_INFO_SETTINGS))
              .toBool()) {
         // using a qtimer here is very useful. The Timer will fire as soon as
         // the event queue is processed and the GUI is visible.
@@ -201,14 +202,12 @@ void SettingsDialog::initGeneral()
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
     ui->checkBoxGeneralAskExit->setChecked(
-        settings
-            .value(setcon::GENERAL_ASK_EXIT,
-                   setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
+        settings.value(setcon::GENERAL_ASK_EXIT,
+                       setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
             .toBool());
     ui->checkBoxGeneralAskBeforeDis->setChecked(
-        settings
-            .value(setcon::GENERAL_ASK_DISC,
-                   setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
+        settings.value(setcon::GENERAL_ASK_DISC,
+                       setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
             .toBool());
 }
 
@@ -218,14 +217,12 @@ void SettingsDialog::initPlot()
     QSettings settings;
     settings.beginGroup(setcon::PLOT_GROUP);
     ui->spinBoxPlotZoomMin->setValue(
-        settings
-            .value(setcon::PLOT_ZOOM_MIN,
-                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+        settings.value(setcon::PLOT_ZOOM_MIN,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
             .toInt());
     ui->spinBoxPlotZoomMax->setValue(
-        settings
-            .value(setcon::PLOT_ZOOM_MAX,
-                   setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+        settings.value(setcon::PLOT_ZOOM_MAX,
+                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
             .toInt());
 }
 void SettingsDialog::initRecord()
@@ -237,9 +234,8 @@ void SettingsDialog::initRecord()
     ui->lineEditRecordTablePrefix->setText(
         settings.value(setcon::RECORD_TBLPRE, "").toString());
     ui->spinBoxRecordBuffer->setValue(
-        settings
-            .value(setcon::RECORD_BUFFER,
-                   setdef::general_defaults.at(setcon::RECORD_BUFFER))
+        settings.value(setcon::RECORD_BUFFER,
+                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
             .toInt());
 }
 
@@ -248,21 +244,18 @@ void SettingsDialog::initLog()
     QSettings settings;
     settings.beginGroup(setcon::LOG_GROUP);
     ui->checkBoxLogEnabled->setChecked(
-        settings
-            .value(setcon::LOG_ENABLED,
-                   setdef::general_defaults.at(setcon::LOG_ENABLED))
+        settings.value(setcon::LOG_ENABLED,
+                       setdef::general_defaults.at(setcon::LOG_ENABLED))
             .toBool());
     ui->comboBoxLogLoglevel->setCurrentIndex(
-        settings
-            .value(setcon::LOG_MIN_SEVERITY,
-                   setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+        settings.value(setcon::LOG_MIN_SEVERITY,
+                       setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
             .toInt());
     ui->lineEditLogDirectory->setText(
         settings.value(setcon::LOG_DIRECTORY, this->defaultLogDir).toString());
     ui->checkBoxLogFlush->setChecked(
-        settings
-            .value(setcon::LOG_FLUSH,
-                   setdef::general_defaults.at(setcon::LOG_FLUSH))
+        settings.value(setcon::LOG_FLUSH,
+                       setdef::general_defaults.at(setcon::LOG_FLUSH))
             .toBool());
 }
 
@@ -294,16 +287,16 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
         settings.beginGroup(setcon::GENERAL_GROUP);
         if (settings.contains(setcon::GENERAL_ASK_DISC)) {
             if (!ui->checkBoxGeneralAskExit->isChecked() ==
-                settings
-                    .value(setcon::GENERAL_ASK_EXIT,
-                           setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
+                settings.value(setcon::GENERAL_ASK_EXIT,
+                               setdef::general_defaults.at(
+                                   setcon::GENERAL_ASK_EXIT))
                     .toBool()) {
                 somethingChanged = true;
             }
             if (!ui->checkBoxGeneralAskBeforeDis->isChecked() ==
-                settings
-                    .value(setcon::GENERAL_ASK_DISC,
-                           setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
+                settings.value(setcon::GENERAL_ASK_DISC,
+                               setdef::general_defaults.at(
+                                   setcon::GENERAL_ASK_DISC))
                     .toBool()) {
                 somethingChanged = true;
             }
@@ -319,16 +312,14 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
     case 2:
         settings.beginGroup(setcon::PLOT_GROUP);
         if (ui->spinBoxPlotZoomMin->value() !=
-            settings
-                .value(setcon::PLOT_ZOOM_MIN,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
+            settings.value(setcon::PLOT_ZOOM_MIN,
+                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MIN))
                 .toInt()) {
             somethingChanged = true;
         }
         if (ui->spinBoxPlotZoomMax->value() !=
-            settings
-                .value(setcon::PLOT_ZOOM_MAX,
-                       setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
+            settings.value(setcon::PLOT_ZOOM_MAX,
+                           setdef::general_defaults.at(setcon::PLOT_ZOOM_MAX))
                 .toInt()) {
             somethingChanged = true;
         }
@@ -345,9 +336,9 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
                 somethingChanged = true;
             }
             if (ui->spinBoxRecordBuffer->value() !=
-                settings
-                    .value(setcon::RECORD_BUFFER,
-                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
+                settings.value(
+                            setcon::RECORD_BUFFER,
+                            setdef::general_defaults.at(setcon::RECORD_BUFFER))
                     .toInt()) {
                 somethingChanged = true;
             }
@@ -356,16 +347,14 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
     case 4:
         settings.beginGroup(setcon::LOG_GROUP);
         if (ui->checkBoxLogEnabled->isChecked() !=
-            settings
-                .value(setcon::LOG_ENABLED,
-                       setdef::general_defaults.at(setcon::LOG_ENABLED))
+            settings.value(setcon::LOG_ENABLED,
+                           setdef::general_defaults.at(setcon::LOG_ENABLED))
                 .toBool()) {
             somethingChanged = true;
         }
         if (ui->comboBoxLogLoglevel->currentIndex() !=
-            settings
-                .value(setcon::LOG_MIN_SEVERITY,
-                       setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
+            settings.value(setcon::LOG_MIN_SEVERITY,
+                           setdef::general_defaults.at(setcon::LOG_MIN_SEVERITY))
                 .toInt()) {
             somethingChanged = true;
         }
@@ -375,9 +364,8 @@ bool SettingsDialog::checkSettingsChanged(QListWidgetItem *lastItem)
             somethingChanged = true;
         }
         if (ui->checkBoxLogFlush->isChecked() !=
-            settings
-                .value(setcon::LOG_FLUSH,
-                       setdef::general_defaults.at(setcon::LOG_FLUSH))
+            settings.value(setcon::LOG_FLUSH,
+                           setdef::general_defaults.at(setcon::LOG_FLUSH))
                 .toBool()) {
             somethingChanged = true;
         };

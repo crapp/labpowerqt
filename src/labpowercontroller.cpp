@@ -147,10 +147,9 @@ void LabPowerController::deviceConnected()
     this->powerSupplyStatusUpdater->start();
 }
 
-void LabPowerController::deviceReadWriteError(const QString &errorString)
+void LabPowerController::deviceReadWriteError(
+    ATTR_UNUSED const QString &errorString)
 {
-    LogInstance::get_instance().eal_error(
-        "Could not read from or write to device: " + errorString.toStdString());
     // TODO: This must be propagated to the GUI and the Model
 }
 
@@ -248,9 +247,8 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
         QSettings settings;
         settings.beginGroup(setcon::RECORD_GROUP);
         if (this->applicationModel->getBufferSize() >=
-            settings
-                .value(setcon::RECORD_BUFFER,
-                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
+            settings.value(setcon::RECORD_BUFFER,
+                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
                 .toInt()) {
             this->dbConnector->insertMeasurement(
                 this->applicationModel->getBuffer());

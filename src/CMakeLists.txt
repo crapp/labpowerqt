@@ -5,7 +5,7 @@ if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
     set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wno-reorder")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 endif(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 

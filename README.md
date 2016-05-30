@@ -21,10 +21,10 @@ issues** section.
 * Support for polling frequencies higher than 1Hz
 * Full support of the Korad SCPI Interface
 * Device Wizard for simple device setup
-* Visualize Data in a fully customizeable Plot with image export functionality
-* Store Data in a Database
+* Visualize Data in a fully customizeable plot with image export functionality
+* Store data in a SQLite Database
 * Manage recorded sessions
-* Export Data to csv files
+* Export data to csv files
 
 ## Setting up LabPowerQt
 
@@ -95,7 +95,13 @@ dependencies. It is downloadable from [github.com](https://github.com/crapp/labp
 
 ### Supported Hardware
 
-Currently we only support Devices using the [Korad SCPI Protocol](http://sigrok.org/wiki/Velleman_PS3005D)
+Currently we only support Devices using the [Korad SCPI Protocol](https://sigrok.org/wiki/Korad_KAxxxxP_series)
+
+* Korad KA3003P; KA3005P; KA3010P
+* Korad KA6002P; KA6003P; KA6005P
+* Vellemann PS3005D (rebranded KA3005P)
+* Tenma 72-2535; 72-2540 (rebranded KA30XXP)
+* Tenma 72-2545; 72-2550 (rebranded KA60XXP)
 
 ## Using the Application
 
