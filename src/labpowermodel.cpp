@@ -107,7 +107,7 @@ void LabPowerModel::setOCP(bool status) { this->status->setOcp(status); }
 bool LabPowerModel::getOCP() { return this->status->getOcp(); }
 void LabPowerModel::setOTP(bool status) { this->status->setOtp(status); }
 bool LabPowerModel::getOTP() { return this->status->getOtp(); }
-long LabPowerModel::getDuration() { return this->status->getDuration(); }
+long long LabPowerModel::getDuration() { return this->status->getDuration(); }
 std::vector<std::shared_ptr<PowerSupplyStatus>> LabPowerModel::getBuffer()
 {
     return this->statusBuffer;

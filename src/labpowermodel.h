@@ -73,7 +73,7 @@ public:
     void setOTP(bool status);
     bool getOTP();
 
-    long getDuration();
+    long long getDuration();
 
     std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
     int getBufferSize();

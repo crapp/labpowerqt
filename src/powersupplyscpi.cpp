@@ -185,7 +185,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     std::chrono::high_resolution_clock::time_point tEnd =
         std::chrono::high_resolution_clock::now();
-    long duration =
+    long long duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
             .count();
 

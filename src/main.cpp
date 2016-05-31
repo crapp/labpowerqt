@@ -40,7 +40,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("labpowerqt");
 
     ealogger::Logger &log = LogInstance::get_instance();
-
+#ifdef WIN32
+	QSettings::setDefaultFormat(QSettings::Format::IniFormat);
+#endif
     QSettings settings;
     settings.beginGroup(setcon::LOG_GROUP);
     if (settings.value(setcon::LOG_ENABLED,
