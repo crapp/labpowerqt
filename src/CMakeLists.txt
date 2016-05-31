@@ -1,9 +1,9 @@
 # Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
     # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
-    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wno-reorder")
+    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reorder")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")

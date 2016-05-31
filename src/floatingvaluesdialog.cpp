@@ -63,11 +63,11 @@ void FloatingValuesDialog::setCurrentValue(double value)
 
 void FloatingValuesDialog::setCurrentValue(ATTR_UNUSED int trackingMode) {}
 // FIXME: The number of channels was used in a previous version of this Dialog
-// and is no longer needed afair.
+// and is no longer needed AFAIR
 void FloatingValuesDialog::updateDeviceSpecs(
     double voltageMin, double voltageMax, uint voltagePrecision,
     double currentMin, double currentMax, uint currentPrecision,
-    uint noOfChannels)
+    ATTR_UNUSED uint noOfChannels)
 {
     voltageSpinBox->setMinimum(voltageMin);
     voltageSpinBox->setMaximum(voltageMax);

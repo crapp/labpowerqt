@@ -1,6 +1,24 @@
 # LabPowerQt
 
 [![Build Status](https://travis-ci.org/crapp/labpowerqt.svg?branch=master)](https://travis-ci.org/crapp/labpowerqt)
+[![LabPowerQt license GPL](https://img.shields.io/github/license/crapp/labpowerqt.svg)](#license)
+[![Latest release](https://img.shields.io/github/release/crapp/labpowerqt.svg)](https://github.com/crapp/labpowerqt/releases/latest)
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Features](#features)
+- [Setting up LabPowerQt](#setting-up-labpowerqt)
+- [Using the Application](#using-the-application)
+- [Screenshots](#screenshots)
+- [Development](#development)
+- [ToDo](#todo)
+- [Bugs, feature requests, ideas](#bugs-feature-requests-ideas)
+- [Known issues](#known-issues)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 LabPowerQt is an application to control laboratory power supplies and to record
 and visualize the data.
@@ -9,19 +27,19 @@ The software is written using the Qt Framework and therefor works on Linux,
 Windows and OS X. Although it works cross platform the main target platforms for
 this project are Linux and osx.
 
-The application is in an early stage of development make sure to read the **known
-issues** section.
+The application is in an early stage of development make sure to read the [known
+issues](#known-issues) section.
 
 ![LabPowerQt main screen](https://crapp.github.io/labpowerqt/labpowerqt.png)
 *LabPowerQt running on archlinux and Gnome 3.20*
 
 ## Features
 
-* Cross plattform written in Qt
+* Cross platform written in Qt
 * Support for polling frequencies higher than 1Hz
 * Full support of the Korad SCPI Interface
 * Device Wizard for simple device setup
-* Visualize Data in a fully customizeable plot with image export functionality
+* Visualize Data in a fully customizable plot with image export functionality
 * Store data in a SQLite Database
 * Manage recorded sessions
 * Export data to csv files
@@ -36,9 +54,9 @@ The following dependencies are required to run this software:
     * gcc >= 4.9
     * clang >= 3.4
     * MSVC >= 14 (Visual Studio 2015)
-    * MinGW
+    * MinGW >= 4.9
 * Qt >= 5.2 (Qt5Widgets, Qt5Gui, Qt5Core, Qt5SerialPort, Qt5Sql, Qt5PrintSupport, Qt5Quick)
-* [ealogger](https://github.com/crapp/ealogger) >= 0.8 (Included as external project)
+* [ealogger](https://github.com/crapp/ealogger) >= 0.8.1 (Included as external project)
 
 ### Installation
 
@@ -70,7 +88,7 @@ sudo make install
 
 There are packages for the following Linux distributions:
 
-* [Archlinux (AUR)](https://aur.archlinux.org/packages/labpowerqt)
+* Archlinux [![Archlinux AUR Version](https://img.shields.io/aur/version/labpowerqt.svg)](https://aur.archlinux.org/packages/labpowerqt)
 
 #### Windows
 
@@ -90,8 +108,8 @@ You may now open the solution file with visual studio and compile the applicatio
 
 Other possibilities are cmake's NMake Generator or mingw.
 
-I am providing an InnoSetup based installer for x86 and amd64 containing all
-dependencies. It is downloadable from [github.com](https://github.com/crapp/labpowerqt/releases)
+I am providing an [InnoSetup](http://www.jrsoftware.org/isinfo.php) based installer
+for x86 and amd64 containing all dependencies. It is downloadable from [github.com](https://github.com/crapp/labpowerqt/releases)
 
 ### Supported Hardware
 
@@ -116,7 +134,7 @@ and you can use the orange elements to control the device (by double-clicking th
 The data of the device is stored in memory. You can also persist the data in a SQLite
 database by turning on a Recording.
 
-The data is not displayed in the control but can also be visualized in a Plot on 
+The data is not displayed in the control but can also be visualized in a Plot on
 the right side of the main window. Have a look at the buttons above the Plot to
 discover all the possibilities you have (e.g. change graph color or line style,
 export plot as image, discard data and many more).
@@ -200,7 +218,7 @@ to submit bugs or feature requests
   can do about it as I believe it is because of a bug in their code.
 
 * Polling frequencies higher than 1Hz seem to work unreliable on OSX and Windows.
-	I have no idea if this is a problem with QtSerialport or the underlying driver
+	I have no idea if this is a problem with QSerialPort, the underlying driver
 	implementation or system layer.
 
 ## License

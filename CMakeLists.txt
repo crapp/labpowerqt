@@ -8,7 +8,7 @@ project(labpowerqt)
 #The version number
 set (labpowerqt_VERSION_MAJOR 0)
 set (labpowerqt_VERSION_MINOR 1)
-set (labpowerqt_VERSION_PATCH 1)
+set (labpowerqt_VERSION_PATCH 2)
 
 option (EALOGGER_EXTERNAL "Download and build ealogger" ON)
 option (SANITIZER "Use AddressSanitizer (ASan) compiler flags" OFF)

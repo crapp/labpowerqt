@@ -46,8 +46,8 @@ void TabHistory::updateModel()
     this->tblView->resizeColumnsToContents();
 }
 
-void TabHistory::indexChanged(const QModelIndex &current,
-                              const QModelIndex &previous)
+void TabHistory::indexChanged(ATTR_UNUSED const QModelIndex &current,
+                              ATTR_UNUSED const QModelIndex &previous)
 {
 }
 
@@ -71,8 +71,10 @@ void TabHistory::setupUI()
     this->lay->addWidget(this->tbar, 0, 0);
     this->actionDelete = this->tbar->addAction("Delete");
     this->actionDelete->setIcon(QPixmap(":/icons/trash32.png"));
+    this->actionDelete->setToolTip("Delete selected recordings");
     this->actionExport = this->tbar->addAction("Export");
     this->actionExport->setIcon(QPixmap(":/icons/csv32.png"));
+    this->actionExport->setToolTip("Export selected recordings to CSV");
 
     this->tblModel = std::unique_ptr<RecordSqlModel>(new RecordSqlModel());
     this->tblModel->setTable(dbcon::TBL_RECORDING);
