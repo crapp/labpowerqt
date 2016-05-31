@@ -44,6 +44,7 @@ void PlottingArea::addData(const int &channel, const double &data,
      * We actually can calculate the index of our graph using a simple formula
      * (a - 1) * 5 + b
      */
+	//LogInstance::get_instance().eal_debug("Plotting area received data: type: " + std::to_string(static_cast<int>(type)) + " data: " + std::to_string(data));
     if (this->cbGeneralPlot->isChecked()) {
         int index = (channel - 1) * 5 + static_cast<int>(type);
         auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -750,8 +751,9 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
         static_cast<void (QCPAxis::*)(const QCPRange &, const QCPRange &)>(
             &QCPAxis::rangeChanged),
         this, &PlottingArea::xAxisRangeChanged);
-    QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
-                     &PlottingArea::beforeReplotHandle);
+
+    //QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
+    //                 &PlottingArea::beforeReplotHandle);
 
     QObject::connect(this->plot, &QCustomPlot::mouseMove, this,
                      &PlottingArea::mouseMoveHandler);
@@ -772,7 +774,7 @@ void PlottingArea::yAxisRange(const QCPRange &currentXRange,
     this->wattageAxis->setRange(
         QCPRange(yaxb.wattageLower - 0.5, yaxb.wattageUpper + 0.5));
 
-    // replotting here causes some weird effects.
+    // replotting here causes some weird effects
     // this->plot->replot();
 }
 
@@ -840,9 +842,9 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
 
-    long newRangeUpperMS = static_cast<long>(newRange.upper * 1000);
+    long long newRangeUpperMS = static_cast<long long>(newRange.upper * 1000);
     std::chrono::milliseconds newRangeUpperMSDuration(newRangeUpperMS);
-    long newRangeLowerMS = static_cast<long>(newRange.lower * 1000);
+    long long newRangeLowerMS = static_cast<long long>(newRange.lower * 1000);
     std::chrono::milliseconds newRangeLowerMSDuration(newRangeLowerMS);
 
     // generate a timepoint from newRange upper and lower
@@ -865,9 +867,9 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
     std::chrono::duration<double> deltaSecsUpperLower =
         tpNewUpperSecs - tpNewLowerSecs;
 
-    long oldRangeUpperMS = static_cast<long>(oldRange.upper * 1000);
+    long long oldRangeUpperMS = static_cast<long long>(oldRange.upper * 1000);
     std::chrono::milliseconds oldRangeUpperMSDuration(oldRangeUpperMS);
-    long oldRangeLowerMS = static_cast<long>(oldRange.lower * 1000);
+    long long oldRangeLowerMS = static_cast<long long>(oldRange.lower * 1000);
     std::chrono::milliseconds oldRangeLowerMSDuration(oldRangeLowerMS);
 
     // generate a timepoint from newRange upper and lower

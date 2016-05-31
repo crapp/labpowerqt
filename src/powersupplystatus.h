@@ -103,8 +103,8 @@ public:
         QMutexLocker lock(&this->otpLock);
         return this->otp;
     }
-    void setDuration(long duration) { this->duration = duration; }
-    long getDuration() { return this->duration; }
+    void setDuration(long long duration) { this->duration = duration; }
+    long long getDuration() { return this->duration; }
     void setTime(std::chrono::system_clock::time_point t)
 
     {
@@ -197,7 +197,7 @@ private:
     bool ocp;
     bool otp;
 
-    long duration;
+    long long duration;
 
     std::chrono::system_clock::time_point time;
 
