@@ -103,6 +103,7 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
     bool serial_error = false;
 
     for (auto &c : commands) {
+        // QThread::currentThread()->msleep(80);
         QByteArray commandByte = this->prepareCommandByteArray(c);
         bool waitForBytes = false;
         // Could this be a problem here because there are pending commands?
