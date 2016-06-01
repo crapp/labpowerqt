@@ -242,13 +242,14 @@ void LabPowerController::receiveStatus(std::shared_ptr<PowerSupplyStatus> status
 
     // TODO: Wouldn't it be better to let the model signal the DBConnector to
     // fetch the buffer and write them to the database? Why has the controlller
-    // to this?
+    // to do this?
     if (this->applicationModel->getRecord()) {
         QSettings settings;
         settings.beginGroup(setcon::RECORD_GROUP);
         if (this->applicationModel->getBufferSize() >=
-            settings.value(setcon::RECORD_BUFFER,
-                           setdef::general_defaults.at(setcon::RECORD_BUFFER))
+            settings
+                .value(setcon::RECORD_BUFFER,
+                       setdef::general_defaults.at(setcon::RECORD_BUFFER))
                 .toInt()) {
             this->dbConnector->insertMeasurement(
                 this->applicationModel->getBuffer());

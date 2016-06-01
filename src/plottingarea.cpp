@@ -44,7 +44,7 @@ void PlottingArea::addData(const int &channel, const double &data,
      * We actually can calculate the index of our graph using a simple formula
      * (a - 1) * 5 + b
      */
-	//LogInstance::get_instance().eal_debug("Plotting area received data: type: " + std::to_string(static_cast<int>(type)) + " data: " + std::to_string(data));
+    //LogInstance::get_instance().eal_debug("Plotting area received data: type: " + std::to_string(static_cast<int>(type)) + " data: " + std::to_string(data));
     if (this->cbGeneralPlot->isChecked()) {
         int index = (channel - 1) * 5 + static_cast<int>(type);
         auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -645,7 +645,6 @@ void PlottingArea::resetGraph()
     utils::clearLayout(this->controlData->layout());
     utils::clearLayout(this->controlAppearance->layout());
 
-    // TODO: Does this work? really have to check this!
     this->layout()->removeWidget(this->plot);
     delete this->plot;
     this->plot = new QCustomPlot();
@@ -752,7 +751,7 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
             &QCPAxis::rangeChanged),
         this, &PlottingArea::xAxisRangeChanged);
 
-    //QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
+    // QObject::connect(this->plot, &QCustomPlot::beforeReplot, this,
     //                 &PlottingArea::beforeReplotHandle);
 
     QObject::connect(this->plot, &QCustomPlot::mouseMove, this,
@@ -1032,7 +1031,6 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
 void PlottingArea::mouseMoveHandler(QMouseEvent *event)
 {
     // don't do anything if there are no graphs.
-    // TODO: I don't know but I think this check is nonsense.
     if (this->plot->graphCount() == 0)
         return;
 

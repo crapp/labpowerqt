@@ -130,7 +130,8 @@ void TabHistory::exportToCsv()
         this->tblView->selectionModel()->selectedRows();
     QString csvFile = QFileDialog::getSaveFileName(
         this, "Export Recordings",
-        QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+            QDir::separator() + "labpowerqt_export.csv",
         "CSV (*.csv)");
     log.eal_info("Exporting data to csv file " + csvFile.toStdString());
     if (csvFile != "") {
@@ -181,12 +182,18 @@ void TabHistory::exportToCsv()
                     txt << "\"" << recName << "\""
                         << ";"
                         << "\"" << devName << "\"";
+                    // TODO: Fixed value for number of columns in for loop. Maybe
+                    // we could do this differently
                     for (int i = 0; i < 14; i++) {
                         txt << ";" << getMeasurements.value(i).toString();
                     }
                     txt << endl;
                 }
             } else {
+                LogInstance::get_instance().eal_error(
+                    "Could not export recording " + recName.toStdString());
+                LogInstance::get_instance().eal_error(
+                    getMeasurements.lastError().text().toStdString());
                 QMessageBox::critical(this,
                                       "Could not export Recording " + recName,
                                       getMeasurements.lastError().text());

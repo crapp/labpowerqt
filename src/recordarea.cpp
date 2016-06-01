@@ -60,7 +60,6 @@ void RecordArea::recordStateToggled(bool checked)
         if (this->recordName->text() != "") {
             emit this->record(checked, this->recordName->text());
         } else {
-            // TODO: Show a messagebox!
             QMessageBox::warning(
                 this, "Record Name invalid",
                 "You have chosen an invalid name for the recording",
