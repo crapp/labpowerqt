@@ -44,6 +44,7 @@ before_install:
         sudo apt-get install g++-5 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.4" ]]; then
+        sudo apt-get install g++-5 -y
         sudo apt-get install clang-3.4 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.7" ]]; then
