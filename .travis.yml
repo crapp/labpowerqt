@@ -14,11 +14,17 @@ matrix:
         - COMPILER=g++-5
         - COMPILEREXEC=g++-5
     - os: linux
-      compiler: clang
+      compiler: gcc
       env:
-        - COMPILER=clang++-3.4
-        - COMPILEREXEC=clang++
-        - CXXFLAGS='-stdlib=libc++ -lc++abi'
+        - COMPILER=g++-6
+        - COMPILEREXEC=g++-6
+    # currently not compiling
+    #- os: linux
+      #compiler: clang
+      #env:
+        #- COMPILER=clang++-3.4
+        #- COMPILEREXEC=clang++
+        #- CXXFLAGS='-stdlib=libc++ -lc++abi'
     #- os: linux
       #compiler: clang
       #env: COMPILER=clang++-3.7
@@ -43,6 +49,9 @@ before_install:
       fi
       if [[ "${COMPILER}" == "g++-5" ]]; then
         sudo apt-get install g++-5 -y
+      fi
+      if [[ "${COMPILER}" == "g++-6" ]]; then
+        sudo apt-get install g++-6 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.4" ]]; then
         sudo apt-get install clang-3.4 -y
@@ -76,7 +85,7 @@ script:
     cd ${TRAVIS_BUILD_DIR}
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} -DCMAKE_CXX_FLAGS=${CXXFLAGS} ../
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} ../
     make -j 2
 
 # blacklist
