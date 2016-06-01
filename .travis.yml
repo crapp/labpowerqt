@@ -5,13 +5,19 @@ matrix:
   include:
     - os: linux
       compiler: gcc
-      env: COMPILER=g++-4.9
+      env:
+        - COMPILER=g++-4.9
+        - COMPILEREXEC=g++-4.9
     - os: linux
       compiler: gcc
-      env: COMPILER=g++-5
+      env:
+        - COMPILER=g++-5
+        - COMPILEREXEC=g++-5
     - os: linux
       compiler: clang
-      env: COMPILER=clang++-3.4
+      env:
+        - COMPILER=clang++-3.4
+        - COMPILEREXEC=clang++
     #- os: linux
       #compiler: clang
       #env: COMPILER=clang++-3.7
@@ -69,7 +75,7 @@ script:
     cd ${TRAVIS_BUILD_DIR}
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_PREFIX_PATH=$PRE_PATH ../
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} ../
     make -j 2
 
 # blacklist
