@@ -18,6 +18,7 @@ matrix:
       env:
         - COMPILER=clang++-3.4
         - COMPILEREXEC=clang++
+        - CXXFLAGS='-stdlib=libc++ -lc++abi'
     #- os: linux
       #compiler: clang
       #env: COMPILER=clang++-3.7
@@ -44,7 +45,6 @@ before_install:
         sudo apt-get install g++-5 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.4" ]]; then
-        sudo apt-get install g++-5 -y
         sudo apt-get install clang-3.4 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.7" ]]; then
@@ -76,7 +76,7 @@ script:
     cd ${TRAVIS_BUILD_DIR}
     mkdir build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} ../
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} -DCMAKE_CXX_FLAGS=${CXXFLAGS} ../
     make -j 2
 
 # blacklist
