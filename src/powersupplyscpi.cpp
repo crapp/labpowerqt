@@ -94,8 +94,19 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
         bool waitForBytes = true;
         if (this->serialPort->write(commandByte) != -1) {
             // wait for for bytes to be written
-            if (commandByte != "")
-                waitForBytes = this->serialPort->waitForBytesWritten(1000);
+            if (commandByte != "") {
+                waitForBytes =
+                    this->serialPort->waitForBytesWritten(this->portTimeOut);
+                //waitForBytes = this->serialPort->waitForBytesWritten(1000);
+            }
+        } else {
+            log.eal_error("Could not write command " +
+                    std::string(commandByte.constData(), commandByte.length()));
+            log.eal_error(
+                "Error: " +
+                static_cast<QString>(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+            serial_error = true;
         }
 
         if (waitForBytes) {
