@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,38 +18,41 @@
 #ifndef TABHISTORY_H
 #define TABHISTORY_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QAction>
 #include <QGridLayout>
-#include <QTableView>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
+#include <QTableView>
 #include <QToolBar>
-#include <QAction>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include <QSqlDatabase>
-#include <QSqlTableModel>
 #include <QSqlRecord>
+#include <QSqlTableModel>
 
 #include <QSettings>
 
-#include <QMessageBox>
 #include <QFileDialog>
+#include <QMessageBox>
 
-#include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include <QStandardPaths>
 #include <QTextStream>
-#include <QDebug>
 
 #include <memory>
 
-#include "settingsdefinitions.h"
 #include "databasedef.h"
+#include "log_instance.h"
+#include "settingsdefinitions.h"
 
 #include "recordsqlmodel.h"
 
+/**
+ * @brief Base widget for the Recordings History tab
+ */
 class TabHistory : public QWidget
 {
     Q_OBJECT
@@ -82,4 +85,4 @@ private:
     void exportToCsv();
 };
 
-#endif // TABHISTORY_H
+#endif  // TABHISTORY_H

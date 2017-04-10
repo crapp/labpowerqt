@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ TabProgram::TabProgram(QWidget *parent) : QWidget(parent)
     QLabel *niy = new QLabel("Not implemented yet...");
     niy->setAlignment(Qt::AlignmentFlag::AlignCenter);
     QFont f;
-    f.setPixelSize(50);
+    f.setPixelSize(24);
     niy->setFont(f);
 
     this->programLayout->addWidget(niy);

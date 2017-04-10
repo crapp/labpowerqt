@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,29 +21,35 @@
 #include <QObject>
 
 #include <QSqlDatabase>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
-#include <QSqlError>
 
 #include <QDateTime>
 
-#include <QStandardPaths>
 #include <QDir>
 #include <QSettings>
-#include <QDebug>
+#include <QStandardPaths>
 
-#include <vector>
-#include <memory>
 #include <chrono>
+#include <memory>
+#include <vector>
 
-#include "global.h"
-#include "settingsdefinitions.h"
 #include "databasedef.h"
+#include "global.h"
+#include "log_instance.h"
 #include "powersupplystatus.h"
+#include "settingsdefinitions.h"
 
+/**
+ * @brief Connector class between the application controller and the database
+ *
+ * @details
+ *
+ * Defines some essential helper functions
+ */
 class DBConnector : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -59,10 +65,9 @@ public slots:
     void insertMeasurement(std::shared_ptr<PowerSupplyStatus> powStatus);
 
 private:
-
     long long recID;
 
     long long maxID(const QString &table, const QString &id);
 };
 
-#endif // DBCONNECTOR_H
+#endif  // DBCONNECTOR_H

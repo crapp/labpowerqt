@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,25 +21,20 @@ namespace powcon = PowerSupplySCPI_constants;
 namespace korcon = KoradSCPI_constants;
 namespace statuscon = PowerSupplyStatus_constants;
 
-KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
-                     int noOfChannels, int voltageAccuracy, int currentAccuracy)
-    : PowerSupplySCPI(std::move(serialPortName), std::move(deviceName),
-                      noOfChannels, voltageAccuracy, currentAccuracy)
+KoradSCPI::KoradSCPI(QString serialPortName, QByteArray deviceHash,
+                     int noOfChannels, int voltageAccuracy, int currentAccuracy,
+                     QSerialPort::BaudRate brate,
+                     QSerialPort::FlowControl flowctl,
+                     QSerialPort::DataBits dbits, QSerialPort::Parity parity,
+                     QSerialPort::StopBits sbits, int portTimeOut)
+    : PowerSupplySCPI(std::move(serialPortName), std::move(deviceHash),
+                      noOfChannels, voltageAccuracy, currentAccuracy, brate,
+                      flowctl, dbits, parity, sbits, portTimeOut)
 {
     this->canCalculateWattage = true;
-    this->port_baudraute = QSerialPort::BaudRate::Baud9600;
-    this->port_flowControl = QSerialPort::FlowControl::NoFlowControl;
-    this->port_databits = QSerialPort::DataBits::Data8;
-    this->port_parity = QSerialPort::Parity::NoParity;
-    this->port_stopbits = QSerialPort::StopBits::OneStop;
-    this->ovp = false;
-    this->ocp = false;
 
-    // GETOVP and GETOCP are just pseudo commands here
-    this->statusCommands = {
-        powcon::GETSTATUS,  powcon::GETCURRENT,       powcon::GETACTUALCURRENT,
-        powcon::GETVOLTAGE, powcon::GETACTUALVOLTAGE, powcon::GETOVP,
-        powcon::GETOCP};
+    this->statusCommands = {powcon::GETSTATUS, powcon::GETCURRENT,
+                            powcon::GETVOLTAGE};
 
     QObject::connect(this, &KoradSCPI::deviceOpen, this,
                      &KoradSCPI::deviceInitialization);
@@ -48,79 +43,105 @@ KoradSCPI::KoradSCPI(QString serialPortName, QString deviceName,
 KoradSCPI::~KoradSCPI()
 {
     // We must make sure our thread has finished PowerSupplySCPI::readWriteData
-    // before an Ibject of this class gets destroyed. The Problem is every
+    // before an Object of this class gets destroyed. The Problem is every
     // derived class must do this.
     // TODO: Document all special implementations needed by a derived class of
     // PowerSupplySCPI
-    std::lock_guard<std::mutex> lock(this->serialPortGuard);
+    QMutexLocker qlock(&this->qserialPortGuard);
 }
 
 void KoradSCPI::getIdentification()
 {
     // parameters two and three are irrelevant here.
     this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETIDN), 0,
-                        QVariant(0), true);
+                        QVariant(0), true, 50);
 }
 
 void KoradSCPI::getStatus()
 {
     this->serQueue.push(static_cast<int>(powcon::COMMANDS::GETSTATUS), 0,
-                        QVariant(0), true);
+                        QVariant(0), true, 50);
 }
 
 void KoradSCPI::changeChannel(ATTR_UNUSED int channel) {}
-
 void KoradSCPI::setVoltage(int channel, double value)
 {
+    this->powStatus->setVoltageSet(std::make_pair(channel, value));
     this->serQueue.push(
-        static_cast<int>(powcon::COMMANDS::SETVOLTAGE), channel,
-        QVariant(QString::number(value, 'f', this->voltageAccuracy)), false);
+        static_cast<int>(powcon::COMMANDS::SETVOLTAGESET), channel,
+        QVariant(QString::number(value, 'f', this->voltageAccuracy)));
+}
+
+void KoradSCPI::getVoltage(int channel)
+{
+    this->serQueue.push(
+        static_cast<int>(powcon::COMMANDS::GETVOLTAGESET), channel, QVariant(),
+        true,
+        korcon::SERIALCOMMANDBUFLENGTH.at(powcon::COMMANDS::GETVOLTAGESET));
+}
+
+void KoradSCPI::getActualVoltage(int channel)
+{
+    this->serQueue.push(
+        static_cast<int>(powcon::COMMANDS::GETVOLTAGE), channel, QVariant(),
+        true, korcon::SERIALCOMMANDBUFLENGTH.at(powcon::COMMANDS::GETVOLTAGE));
 }
 
 void KoradSCPI::setCurrent(int channel, double value)
 {
+    this->powStatus->setCurrentSet(std::make_pair(channel, value));
     this->serQueue.push(
-        static_cast<int>(powcon::COMMANDS::SETCURRENT), channel,
-        QVariant(QString::number(value, 'f', this->currentAccuracy)), false);
+        static_cast<int>(powcon::COMMANDS::SETCURRENTSET), channel,
+        QVariant(QString::number(value, 'f', this->currentAccuracy)));
+}
+
+void KoradSCPI::getCurrent(int channel)
+{
+    this->serQueue.push(
+        static_cast<int>(powcon::COMMANDS::GETCURRENTSET), channel, QVariant(),
+        true,
+        korcon::SERIALCOMMANDBUFLENGTH.at(powcon::COMMANDS::GETCURRENTSET));
+}
+
+void KoradSCPI::getActualCurrent(int channel)
+{
+    this->serQueue.push(
+        static_cast<int>(powcon::COMMANDS::GETCURRENT), channel, QVariant(),
+        true, korcon::SERIALCOMMANDBUFLENGTH.at(powcon::COMMANDS::GETCURRENT));
 }
 
 void KoradSCPI::setOCP(bool status)
 {
-    this->ocp = status;
+    this->powStatus->setOcp(status);
     QVariant val = 0;
     if (status) {
         val = 1;
     }
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOCP), 0, val,
-                        false);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOCP), 0, val);
 }
 
 void KoradSCPI::setOVP(bool status)
 {
-    this->ovp = status;
+    this->powStatus->setOvp(status);
     QVariant val = 0;
     if (status) {
         val = 1;
     }
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOVP), 0, val,
-                        false);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOVP), 0, val);
 }
 
 void KoradSCPI::setOTP(ATTR_UNUSED bool status) {}
-
 void KoradSCPI::setLocked(ATTR_UNUSED bool status) {}
-
 void KoradSCPI::setBeep(bool status)
 {
     QVariant val = 0;
     if (status) {
         val = 1;
     }
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETBEEP), 0, val,
-                        false);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETBEEP), 0, val);
 }
 
-void KoradSCPI::setTracking(ATTR_UNUSED globcon::TRACKING trMode)
+void KoradSCPI::setTracking(ATTR_UNUSED globcon::LPQ_TRACKING trMode)
 {
     // TODO: Implement Tracking in Korad SCPI Class.
 }
@@ -132,14 +153,16 @@ void KoradSCPI::setOutput(ATTR_UNUSED int channel, bool status)
         val = 1;
     }
     // sending 0 as Korad SCPI interface does not support different channels
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOUT), 0, val,
-                        false);
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETOUT), 0, val);
 }
 
-void KoradSCPI::processStatusCommands(
-    const std::shared_ptr<PowerSupplyStatus> &status,
-    const std::shared_ptr<SerialCommand> &com)
+void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
+                                const std::shared_ptr<SerialCommand> &com)
 {
+    LogInstance::get_instance().eal_debug("Processing command " +
+                                          std::to_string(com->getCommand()));
+    LogInstance::get_instance().eal_debug(
+        "Command value" + com->getValue().toString().toStdString());
     if (com->getCommand() == powcon::COMMANDS::GETSTATUS) {
         /*
          * Decoding the Korad Status Byte is pretty simple.
@@ -153,9 +176,10 @@ void KoradSCPI::processStatusCommands(
          * 0   CH1 CC|CV mode
          */
         QByteArray val = com->getValue().toByteArray();
-        // qDebug() << Q_FUNC_INFO << "Status byte: " << val[0];
+        LogInstance::get_instance().eal_debug("Korad Status byte: " +
+                                              val.toStdString());
         // Unfortunately Korad SCPI does not seem to be able to determine
-        // between different channels regarding ouput setting.
+        // between different channels regarding output setting.
         if (val[0] & (1 << 6)) {
             for (int i = 1; i <= this->noOfChannels; i++) {
                 status->setChannelOutput(std::make_pair(i, true));
@@ -176,60 +200,65 @@ void KoradSCPI::processStatusCommands(
 
         if (val[0] & (1 << 1)) {
             status->setChannelMode(
-                std::make_pair(2, globcon::MODE::CONSTANT_VOLTAGE));
+                std::make_pair(2, globcon::LPQ_MODE::CONSTANT_VOLTAGE));
         } else {
             status->setChannelMode(
-                std::make_pair(2, globcon::MODE::CONSTANT_CURRENT));
+                std::make_pair(2, globcon::LPQ_MODE::CONSTANT_CURRENT));
         }
         if (val[0] & (1 << 0)) {
             status->setChannelMode(
-                std::make_pair(1, globcon::MODE::CONSTANT_VOLTAGE));
+                std::make_pair(1, globcon::LPQ_MODE::CONSTANT_VOLTAGE));
         } else {
             status->setChannelMode(
-                std::make_pair(1, globcon::MODE::CONSTANT_CURRENT));
+                std::make_pair(1, globcon::LPQ_MODE::CONSTANT_CURRENT));
         }
     }
 
-    if (com->getCommand() == powcon::COMMANDS::GETCURRENT) {
+    if (com->getCommand() == powcon::COMMANDS::GETIDN) {
+        QString val = com->getValue().toString();
+    }
 
+    if (com->getCommand() == powcon::COMMANDS::GETCURRENTSET) {
         QString val = com->getValue().toString();
 
-        // qDebug() << Q_FUNC_INFO << "Current: " << val;
         // strangely current values seem to end with a "K". Therefor it is not
         // possible to get a double with toDouble() directly. This fimrware is
         // really buggy.
         if (val.endsWith("K", Qt::CaseSensitivity::CaseInsensitive)) {
             val = val.left(val.length() - 1);
+            com->setValue(std::move(val));
         }
-        status->setCurrentSet(
-            std::make_pair(com->getPowerSupplyChannel(), val.toDouble()));
     }
 
-    if (com->getCommand() == powcon::COMMANDS::GETACTUALCURRENT) {
-        // qDebug() << Q_FUNC_INFO << "Current Actual: " << com->getValue();
-        status->setCurrent(std::make_pair(com->getPowerSupplyChannel(),
-                                          com->getValue().toDouble()));
+    if (com->getCommand() == powcon::COMMANDS::GETCURRENT) {
+        if (status)
+            status->setCurrent(std::make_pair(com->getPowerSupplyChannel(),
+                                              com->getValue().toDouble()));
+    }
+
+    if (com->getCommand() == powcon::COMMANDS::GETVOLTAGESET) {
     }
 
     if (com->getCommand() == powcon::COMMANDS::GETVOLTAGE) {
-        // qDebug() << Q_FUNC_INFO << "Voltage: " << com->getValue();
-        status->setVoltageSet(std::make_pair(com->getPowerSupplyChannel(),
-                                             com->getValue().toDouble()));
+        if (status)
+            status->setVoltage(std::make_pair(com->getPowerSupplyChannel(),
+                                              com->getValue().toDouble()));
+    }
+}
+
+void KoradSCPI::updateNewPStatus(
+    const std::shared_ptr<PowerSupplyStatus> &status)
+{
+    for (int i = 1; i <= this->noOfChannels; i++) {
+        status->setVoltageSet(
+            std::make_pair(i, this->powStatus->getVoltageSet(i)));
+        status->setCurrentSet(
+            std::make_pair(i, this->powStatus->getCurrentSet(i)));
     }
 
-    if (com->getCommand() == powcon::COMMANDS::GETACTUALVOLTAGE) {
-        // qDebug() << Q_FUNC_INFO << "Voltage Actual: " << com->getValue();
-        status->setVoltage(std::make_pair(com->getPowerSupplyChannel(),
-                                          com->getValue().toDouble()));
-    }
-    if (com->getCommand() == powcon::COMMANDS::GETOVP) {
-        // We set the status directly from what we got from the UI.
-        status->setOvp(this->ovp);
-    }
-    if (com->getCommand() == powcon::COMMANDS::GETOCP) {
-        // We set the status directly from what we got from the UI.
-        status->setOcp(this->ocp);
-    }
+    status->setOvp(this->powStatus->getOvp());
+    status->setOcp(this->powStatus->getOcp());
+    status->setOtp(this->powStatus->getOtp());
 }
 
 void KoradSCPI::calculateWattage(
@@ -238,9 +267,6 @@ void KoradSCPI::calculateWattage(
     for (int i = 1; i <= this->noOfChannels; i++) {
         // P = U*I :)
         double wattValue = status->getVoltage(i) * status->getCurrent(i);
-        // qDebug() << Q_FUNC_INFO << "Calculated Watt for channel " << i << " =
-        // "
-        //         << wattValue;
         statuscon::CHANNELVALUE watt = std::make_pair(i, wattValue);
         status->setWattage(watt);
     }
@@ -256,11 +282,13 @@ void KoradSCPI::deviceInitialization()
     // this->setOVP(false);
 }
 
-QByteArray KoradSCPI::prepareCommand(const std::shared_ptr<SerialCommand> &com)
+QByteArray KoradSCPI::prepareCommandByteArray(
+    const std::shared_ptr<SerialCommand> &com)
 {
     // First job create the command
     powcon::COMMANDS command = static_cast<powcon::COMMANDS>(com->getCommand());
-    if (command == powcon::COMMANDS::GETOVP || command == powcon::COMMANDS::GETOCP)
+    if (command == powcon::COMMANDS::GETOVP ||
+        command == powcon::COMMANDS::GETOCP)
         return "";
     QString commandString = korcon::SERIALCOMMANDMAP.at(command);
     /*
@@ -281,8 +309,31 @@ QByteArray KoradSCPI::prepareCommand(const std::shared_ptr<SerialCommand> &com)
         }
     }
 
-    qDebug() << Q_FUNC_INFO << "CommandString: " << commandString;
+    LogInstance::get_instance().eal_debug("Command string: " +
+                                          commandString.toStdString());
 
     QByteArray commandByte = commandString.toLocal8Bit();
     return commandByte;
+}
+
+std::vector<std::shared_ptr<SerialCommand>> KoradSCPI::prepareStatusCommands()
+{
+    std::vector<std::shared_ptr<SerialCommand>> comVec;
+    std::shared_ptr<SerialCommand> com;
+    for (const auto &c : this->statusCommands) {
+        if (c == powcon::COMMANDS::GETVOLTAGE ||
+            c == powcon::COMMANDS::GETCURRENT) {
+            for (int i = 1; i <= this->noOfChannels; i++) {
+                com = std::make_shared<SerialCommand>(
+                    static_cast<int>(c), i, QVariant(), true,
+                    korcon::SERIALCOMMANDBUFLENGTH.at(c));
+            }
+        } else {
+            com = std::make_shared<SerialCommand>(
+                static_cast<int>(c), 1, QVariant(), true,
+                korcon::SERIALCOMMANDBUFLENGTH.at(c));
+        }
+        comVec.push_back(com);
+    }
+    return comVec;
 }

@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,13 +27,14 @@ TabHistory::TabHistory(QWidget *parent) : QWidget(parent)
     this->setLayout(this->lay);
     QSettings settings;
     settings.beginGroup(setcon::RECORD_GROUP);
-    dbutil::initDatabase("QSQLITE",
-                         settings.value(setcon::RECORD_SQLPATH,
-                                        QStandardPaths::writableLocation(
-                                            QStandardPaths::DataLocation) +
-                                            QDir::separator() +
-                                            QString("labpowerqt.sqlite"))
-                             .toString());
+    dbutil::initDatabase(
+        "QSQLITE",
+        settings
+            .value(
+                setcon::RECORD_SQLPATH,
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                    QDir::separator() + QString("labpowerqt.sqlite"))
+            .toString());
 
     this->setupUI();
     this->setupConnections();
@@ -45,8 +46,8 @@ void TabHistory::updateModel()
     this->tblView->resizeColumnsToContents();
 }
 
-void TabHistory::indexChanged(const QModelIndex &current,
-                              const QModelIndex &previous)
+void TabHistory::indexChanged(ATTR_UNUSED const QModelIndex &current,
+                              ATTR_UNUSED const QModelIndex &previous)
 {
 }
 
@@ -70,8 +71,10 @@ void TabHistory::setupUI()
     this->lay->addWidget(this->tbar, 0, 0);
     this->actionDelete = this->tbar->addAction("Delete");
     this->actionDelete->setIcon(QPixmap(":/icons/trash32.png"));
+    this->actionDelete->setToolTip("Delete selected recordings");
     this->actionExport = this->tbar->addAction("Export");
     this->actionExport->setIcon(QPixmap(":/icons/csv32.png"));
+    this->actionExport->setToolTip("Export selected recordings to CSV");
 
     this->tblModel = std::unique_ptr<RecordSqlModel>(new RecordSqlModel());
     this->tblModel->setTable(dbcon::TBL_RECORDING);
@@ -122,12 +125,15 @@ void TabHistory::deleteRecordings()
 
 void TabHistory::exportToCsv()
 {
+    ealogger::Logger &log = LogInstance::get_instance();
     QModelIndexList selectedRows =
         this->tblView->selectionModel()->selectedRows();
     QString csvFile = QFileDialog::getSaveFileName(
         this, "Export Recordings",
-        QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+            QDir::separator() + "labpowerqt_export.csv",
         "CSV (*.csv)");
+    log.eal_info("Exporting data to csv file " + csvFile.toStdString());
     if (csvFile != "") {
         QFile csvf(csvFile);
         csvf.open(QFile::OpenModeFlag::WriteOnly | QFile::OpenModeFlag::Text);
@@ -166,9 +172,9 @@ void TabHistory::exportToCsv()
                                     + "INNER JOIN " + dbcon::TBL_MEASUREMENT + " AS m \n"
                                     + "ON c." + dbcon::TBL_CHANNEL_MES + " = m." + dbcon::TBL_MEASUREMENT_ID + "\n"
                                     + "WHERE m." + dbcon::TBL_MEASUREMENT_REC + " = ?")) {
-                qDebug() << Q_FUNC_INFO << getMeasurements.lastError().text();
+                log.eal_error(getMeasurements.lastError().text().toStdString());
             }
-            qDebug() << Q_FUNC_INFO << getMeasurements.executedQuery();
+            log.eal_debug(getMeasurements.executedQuery().toStdString());
             // clang-format on
             getMeasurements.bindValue(0, recId);
             if (getMeasurements.exec()) {
@@ -176,12 +182,18 @@ void TabHistory::exportToCsv()
                     txt << "\"" << recName << "\""
                         << ";"
                         << "\"" << devName << "\"";
+                    // TODO: Fixed value for number of columns in for loop. Maybe
+                    // we could do this differently
                     for (int i = 0; i < 14; i++) {
                         txt << ";" << getMeasurements.value(i).toString();
                     }
                     txt << endl;
                 }
             } else {
+                LogInstance::get_instance().eal_error(
+                    "Could not export recording " + recName.toStdString());
+                LogInstance::get_instance().eal_error(
+                    getMeasurements.lastError().text().toStdString());
                 QMessageBox::critical(this,
                                       "Could not export Recording " + recName,
                                       getMeasurements.lastError().text());

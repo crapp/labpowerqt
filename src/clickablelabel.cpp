@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,14 +43,12 @@ void ClickableLabel::setClickable(bool status)
 }
 
 bool ClickableLabel::getClickable() { return this->clickable; }
-
 void ClickableLabel::setNoReturnValue(bool status)
 {
     this->noReturnValue = status;
 }
 
 bool ClickableLabel::getNoReturnValue() { return this->noReturnValue; }
-
 void ClickableLabel::initLabel()
 {
     this->setAttribute(Qt::WA_Hover, true);

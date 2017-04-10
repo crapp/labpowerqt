@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,42 +18,60 @@
 #define KORADSCPI_H
 
 #include <QObject>
-#include <QDebug>
 #include <QString>
 
+#include "config.h"
 #include "global.h"
+#include "log_instance.h"
 #include "powersupplyscpi.h"
 
 namespace KoradSCPI_constants
 {
 namespace powcon = PowerSupplySCPI_constants;
+/**
+ * @brief Map internal commands to SCPI syntax
+ *
+ * @details
+ * Every derives class of PowerSupplySCPI has to provide this map
+ */
 const std::map<int, QString> SERIALCOMMANDMAP = {
-    {powcon::SETCURRENT, "ISET%1:%2"},     /**< Set current */
-    {powcon::GETCURRENT, "ISET%1?"},       /**< Get current that has been set */
-    {powcon::SETVOLTAGE, "VSET%1:%2"},     /**< Set voltage */
-    {powcon::GETVOLTAGE, "VSET%1?"},       /**< Get voltage that has been set */
-    {powcon::GETACTUALCURRENT, "IOUT%1?"}, /**< Get actual current */
-    {powcon::GETACTUALVOLTAGE, "VOUT%1?"}, /**< Get actual Voltage */
-    {powcon::SETCHANNELTRACKING,
-     "TRACK%1"}, /**< Selects the operation mode: independent, trackingseries,
-                    or tracking parallel. */
-    {powcon::SETBEEP, "BEEP%1"},         // turn beep on or off
-    {powcon::SETOUT, "OUT%1"},           // turn output on or off
-    {powcon::GETSTATUS, "STATUS?"},      // request status
-    {powcon::GETIDN, "*IDN?"},           // get device identification string
-    {powcon::GETSAVEDSETTINGS, "RCL%1"}, // set device to memorized settings
-    {powcon::SAVESETTINGS, "SAV%1"}, // save current settings on memory position
-    {powcon::SETOCP, "OCP%1"},       // switch over current protection
-    {powcon::SETOVP, "OVP%1"},       // switch over voltage protection
-    {powcon::GETOVP, "OVP%1?"}, // dummy command because firmware does not support this
-    {powcon::GETOCP, "OCP%1?"}, // dummy command because firmware does not support this
-    {powcon::SETDUMMY, "DUMMY"}, // just some dummy command
+    {powcon::SETCURRENTSET, "ISET%1:%2"}, /**< Set current */
+    {powcon::GETCURRENTSET, "ISET%1?"},   /**< Get current that has been set */
+    {powcon::SETVOLTAGESET, "VSET%1:%2"}, /**< Set voltage */
+    {powcon::GETVOLTAGESET, "VSET%1?"},   /**< Get voltage that has been set */
+    {powcon::GETCURRENT, "IOUT%1?"},      /**< Get actual current */
+    {powcon::GETVOLTAGE, "VOUT%1?"},      /**< Get actual Voltage */
+    {powcon::SETCHANNELTRACKING, "TRACK%1"}, /**< Selects the operation mode:
+                                            independent, trackingseries, or
+                                            tracking parallel. */
+    {powcon::SETBEEP, "BEEP%1"},             // turn beep on or off
+    {powcon::SETOUT, "OUT%1"},               // turn output on or off
+    {powcon::GETSTATUS, "STATUS?"},          // request status
+    {powcon::GETIDN, "*IDN?"},               // get device identification string
+    {powcon::GETSAVEDSETTINGS, "RCL%1"},     // set device to memorized settings
+    {powcon::SAVESETTINGS, "SAV%1"},  // save current settings on memory position
+    {powcon::SETOCP, "OCP%1"},        // switch over current protection
+    {powcon::SETOVP, "OVP%1"},        // switch over voltage protection
+    {powcon::GETOVP,
+     "OVP%1?"},  // dummy command because firmware does not support this
+    {powcon::GETOCP,
+     "OCP%1?"},  // dummy command because firmware does not support this
+    {powcon::SETDUMMY, "DUMMY"},  // just some dummy command
+};
+const std::map<int, int> SERIALCOMMANDBUFLENGTH = {
+    {powcon::GETVOLTAGESET, 5}, /**< Get voltage that has been set */
+    {powcon::GETVOLTAGE, 5},    /**< Get actual Voltage */
+    {powcon::GETCURRENTSET, 5},
+    {powcon::GETCURRENT, 5},  /**< Get actual current */
+    {powcon::GETSTATUS, 50},  // request status
+    {powcon::GETIDN, 50}      // get device identification string
 };
 }
 
 /**
- * @brief The KoradSCPI class Is implementing the SCPI Interface for Korad Power Supplies.
+ * @brief The KoradSCPI class is an Implementation of the SCPI Interface for Korad Power Supplies.
  *
+ * @details
  * Other devices like the Velleman 3005P should work with this implementation as
  * well. It is imortant to know, That the Firmware in these Devices is missing
  * some features which means there are some limitations regarding the
@@ -61,7 +79,6 @@ const std::map<int, QString> SERIALCOMMANDMAP = {
  */
 class KoradSCPI : public PowerSupplySCPI
 {
-
     Q_OBJECT
 
 public:
@@ -70,8 +87,11 @@ public:
      * @param serialPortName
      * @throw std::runtime_error when Serial Port could not be opened
      */
-    KoradSCPI(QString serialPortName, QString deviceName, int noOfChannels,
-              int voltageAccuracy, int currentAccuracy);
+    KoradSCPI(QString serialPortName, QByteArray deviceHash, int noOfChannels,
+              int voltageAccuracy, int currentAccuracy,
+              QSerialPort::BaudRate brate, QSerialPort::FlowControl flowctl,
+              QSerialPort::DataBits dbits, QSerialPort::Parity parity,
+              QSerialPort::StopBits sbits, int portTimeOut);
     ~KoradSCPI();
 
     // LabPowerSupply Interface
@@ -79,7 +99,11 @@ public:
     void getStatus();
     void changeChannel(int channel);
     void setVoltage(int channel, double value);
+    void getVoltage(int channel);
+    void getActualVoltage(int channel);
     void setCurrent(int channel, double value);
+    void getCurrent(int channel);
+    void getActualCurrent(int channel);
     void setOCP(bool status);
     void setOVP(bool status);
     /**
@@ -93,19 +117,22 @@ public:
      */
     void setLocked(bool status);
     void setBeep(bool status);
-    void setTracking(global_constants::TRACKING trMode);
+    void setTracking(global_constants::LPQ_TRACKING trMode);
     void setOutput(int channel, bool status);
 
 signals:
 
 private:
     // LabPowerSupply Interface
-    QByteArray prepareCommand(const std::shared_ptr<SerialCommand> &com);
-    void processStatusCommands(const std::shared_ptr<PowerSupplyStatus> &status,
-                               const std::shared_ptr<SerialCommand> &com);
+    QByteArray prepareCommandByteArray(
+        const std::shared_ptr<SerialCommand> &com);
+    std::vector<std::shared_ptr<SerialCommand>> prepareStatusCommands();
+    void processCommands(const std::shared_ptr<PowerSupplyStatus> &status,
+                         const std::shared_ptr<SerialCommand> &com);
+    void updateNewPStatus(const std::shared_ptr<PowerSupplyStatus> &status);
     void calculateWattage(const std::shared_ptr<PowerSupplyStatus> &status);
 
-    // No way to query the status of over voltage and over surrent protection so
+    // No way to query the status of over voltage and over current protection so
     // we save the status here :/ In order to get this to work properly both
     // functions have to be disabled before a connection by labpowerqt is
     // established. I know this is unreliable and bad, but you have to blame the
@@ -117,4 +144,4 @@ private slots:
     void deviceInitialization();
 };
 
-#endif // KORADSCPI_H
+#endif  // KORADSCPI_H

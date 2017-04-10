@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,23 +17,25 @@
 #ifndef RECORDAREA_H
 #define RECORDAREA_H
 
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QDateTime>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QPushButton>
-#include <QDateTime>
-#include <QSettings>
 #include <QMessageBox>
-#include <QDebug>
+#include <QPushButton>
+#include <QSettings>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include "global.h"
 #include "settingsdefinitions.h"
 #include "switchbutton.h"
 
+/**
+ * @brief Widget that manages recordings in the main gui
+ */
 class RecordArea : public QWidget
 {
     Q_OBJECT
@@ -58,7 +60,6 @@ public slots:
     void recordExternal(bool status, QString name);
 
 private:
-
     SwitchButton *recordToggle;
     QLineEdit *recordName;
 
@@ -67,7 +68,6 @@ private:
 private slots:
 
     void recordStateToggled(bool checked);
-
 };
 
-#endif // RECORDAREA_H
+#endif  // RECORDAREA_H

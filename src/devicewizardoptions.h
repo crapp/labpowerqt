@@ -1,5 +1,5 @@
-// lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// labpowerqt is a Gui application to control programmable lab power supplies
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,25 +17,26 @@
 #ifndef DEVICEWIZARDOPTIONS_H
 #define DEVICEWIZARDOPTIONS_H
 
-#include <QWidget>
-#include <QWizardPage>
-#include <QVBoxLayout>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
-#include <QDoubleSpinBox>
-#include <QComboBox>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QWizardPage>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
-#include <QDebug>
-
 #include "global.h"
+#include "log_instance.h"
 
+/**
+ * @brief Wizard page for all the device options
+ */
 class DeviceWizardOptions : public QWizardPage
 {
-
     Q_OBJECT
     Q_PROPERTY(QString protocolName READ getProtoName)
 
@@ -49,9 +50,18 @@ private:
     QComboBox *protoCombo;
     QComboBox *comPort;
 
+    /**
+     * @brief Builds a groupbox concerning communication protocol
+     */
     void protocolBox();
+    /**
+     * @brief Groupbox with the device specifications
+     */
     void specBox();
+    /**
+     * @brief Another groupbox for the serial port settings
+     */
     void comBox();
 };
 
-#endif // DEVICEWIZARDOPTIONS_H
+#endif  // DEVICEWIZARDOPTIONS_H

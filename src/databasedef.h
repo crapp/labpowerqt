@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,16 +19,18 @@
 #define DATABASEDEF_H
 
 #include <QSqlDatabase>
-#include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlQuery>
 
-#include <QtDebug>
+#include <QDir>
+#include <QFileInfo>
 
 #include <vector>
 
+#include "log_instance.h"
+
 namespace database_constants
 {
-
 /**
  * @brief Recording infos like Device, start and stop time.
  */
@@ -80,9 +82,18 @@ const char *const TBL_CHANNEL_TS = "timestamp";
 
 namespace database_utils
 {
-
 namespace dbcon = database_constants;
 
+/**
+ * @brief SQlite perfromance optimizations
+ *
+ * @details
+ *
+ * These will be applied every time the db is opened. This can greatly improve
+ * performance for applications that write to the database very fast. There is
+ * also an internal buffer of measurement objects that will help to reduce IO
+ * activity.
+ */
 inline void setDBOptimizations()
 {
     QSqlDatabase db = QSqlDatabase::database();
@@ -97,6 +108,9 @@ inline void setDBOptimizations()
     QSqlQuery("PRAGMA synchronous = OFF", db);
 }
 
+/**
+ * @brief Init all necessary database tables
+ */
 inline void initTables()
 {
     std::vector<QSqlQuery> queryVec;
@@ -150,30 +164,49 @@ inline void initTables()
     for (auto &query : queryVec) {
         if (!query.exec()) {
             db.rollback();
-            qDebug() << Q_FUNC_INFO << query.lastError().text();
-            qDebug() << Q_FUNC_INFO << db.lastError().text();
+            LogInstance::get_instance().eal_error("Can not create DB Tables");
+            LogInstance::get_instance().eal_error(
+                query.lastError().text().toStdString());
+            LogInstance::get_instance().eal_error(
+                db.lastError().text().toStdString());
             return;
         }
     }
     db.commit();
 }
 
+/**
+ * @brief Open database with dbFile as File
+ *
+ * @param driver
+ * @param dbFile
+ *
+ * @details
+ *
+ * Only SQLite databases supported currently
+ */
 inline void initDatabase(QString driver, QString dbFile)
 {
     if (!QSqlDatabase::database().isValid()) {
         QSqlDatabase db = QSqlDatabase::addDatabase(driver);
+        // make sure the path for the db file exists
+        QFileInfo fi(dbFile);
+        if (!QDir().mkpath(fi.absolutePath())) {
+            LogInstance::get_instance().eal_error(
+                "Can not create db file directory: " +
+                fi.absolutePath().toStdString());
+        }
         db.setDatabaseName(dbFile);
-        qDebug() << Q_FUNC_INFO << db.databaseName();
+        // open creates the sqlite database file
         if (!db.open()) {
-            qDebug() << Q_FUNC_INFO
-                     << "Can not open Database. Error: " << db.lastError().text();
+            LogInstance::get_instance().eal_error(
+                "Can not open Database: " + db.lastError().text().toStdString());
         } else {
             setDBOptimizations();
             initTables();
         }
     }
 }
-
 }
 
-#endif // DATABASEDEF_H
+#endif  // DATABASEDEF_H

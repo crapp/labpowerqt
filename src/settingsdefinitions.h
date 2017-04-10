@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
 #ifndef SETTINGSDEFINITIONS_H
 #define SETTINGSDEFINITIONS_H
 
+/**
+ * @brief Constant keys for the QSettings object
+ */
 namespace settings_constants
 {
 const char *const MAINWINDOW_GROUP = "mainwindow";
@@ -27,8 +30,10 @@ const char *const MAINWINDOW_ACTIVE_TAB = "tab";
 // settings dialog
 // general
 const char *const GENERAL_GROUP = "main";
-const char *const GENERAL_EXIT = "exit";
-const char *const GENERAL_DISC = "disconnect";
+const char *const GENERAL_ASK_EXIT = "exit";
+const char *const GENERAL_ASK_DISC = "disconnect";
+const char *const GENERAL_INFO_MAIN = "info_main";
+const char *const GENERAL_INFO_SETTINGS = "info_settings";
 // device
 const char *const DEVICE_GROUP = "device";
 const char *const DEVICE_ACTIVE = "active";
@@ -36,6 +41,12 @@ const char *const DEVICE_HASH = "hash";
 const char *const DEVICE_NAME = "name";
 const char *const DEVICE_PROTOCOL = "protocol";
 const char *const DEVICE_PORT = "port";
+const char *const DEVICE_PORT_BRATE = "baud";
+const char *const DEVICE_PORT_FLOW = "flowctl";
+const char *const DEVICE_PORT_DBITS = "databits";
+const char *const DEVICE_PORT_PARITY = "parity";
+const char *const DEVICE_PORT_SBITS = "stopbits";
+const char *const DEVICE_PORT_TIMEOUT = "timeout";
 const char *const DEVICE_CHANNELS = "channels";
 const char *const DEVICE_CURRENT_MIN = "current_min";
 const char *const DEVICE_CURRENT_MAX = "current_max";
@@ -43,40 +54,30 @@ const char *const DEVICE_CURRENT_ACCURACY = "current_accuracy";
 const char *const DEVICE_VOLTAGE_MIN = "voltage_min";
 const char *const DEVICE_VOLTAGE_MAX = "voltage_max";
 const char *const DEVICE_VOLTAGE_ACCURACY = "voltage_accuracy";
+const char *const DEVICE_POLL_FREQ = "poll_freq";
 // plot
 const char *const PLOT_GROUP = "plot";
+const char *const PLOT_ENABLED = "enabled";
 const char *const PLOT_SHOW_DATA = "show_data";
 const char *const PLOT_SHOW_GRID = "show_grid";
 const char *const PLOT_SHOW_LEGEND = "show_legend";
+const char *const PLOT_SHOW_TIMESCALE = "show_legend";
 const char *const PLOT_GRAPH_VISIBLE = "graph_%1_visible";
 const char *const PLOT_GRAPH_COLOR = "graph_%1_color";
 const char *const PLOT_GRAPH_LS = "graph_%1_ls";
 const char *const PLOT_GRAPH_LINE = "graph_%1_line";
-//const char *const PLOT_GROUP_CHANNEL = "channel";
-//const char *const PLOT_GRAPH_V_VISIBLE = "voltage_visible";
-//const char *const PLOT_GRAPH_V_COLOR = "voltage_color";
-//const char *const PLOT_GRAPH_V_LS = "voltage_ls"; /**< line style */
-//const char *const PLOT_GRAPH_V_LINE = "voltage_line"; /**< line thickness */
-//const char *const PLOT_GRAPH_VS_VISIBLE = "voltageset_visible";
-//const char *const PLOT_GRAPH_VS_COLOR = "voltageset_color";
-//const char *const PLOT_GRAPH_VS_LS = "voltageset_ls"; /**< line style */
-//const char *const PLOT_GRAPH_VS_LINE = "voltageset_line"; /**< line thickness */
-//const char *const PLOT_GRAPH_A_VISIBLE = "current_visible";
-//const char *const PLOT_GRAPH_A_COLOR = "current_color";
-//const char *const PLOT_GRAPH_A_LS = "current_ls"; /**< line style */
-//const char *const PLOT_GRAPH_A_LINE = "current_line"; /**< line thickness */
-//const char *const PLOT_GRAPH_AS_VISIBLE = "currentset_visible";
-//const char *const PLOT_GRAPH_AS_COLOR = "currentset_color";
-//const char *const PLOT_GRAPH_AS_LS = "currentset_ls"; /**< line style */
-//const char *const PLOT_GRAPH_AS_LINE = "currentset_line"; /**< line thickness */
-//const char *const PLOT_GRAPH_W_VISIBLE = "wattage_visible";
-//const char *const PLOT_GRAPH_W_COLOR = "wattage_color";
-//const char *const PLOT_GRAPH_W_LS = "wattage_ls"; /**< line style */
-//const char *const PLOT_GRAPH_W_LINE = "wattage_line"; /**< line thickness */
+const char *const PLOT_ZOOM_MIN = "zoom_min";
+const char *const PLOT_ZOOM_MAX = "zoom_max";
 // record
 const char *const RECORD_GROUP = "record";
 const char *const RECORD_SQLPATH = "sqlpath";
 const char *const RECORD_TBLPRE = "tblprefix";
 const char *const RECORD_BUFFER = "buffersize";
+// log
+const char *const LOG_GROUP = "logging";
+const char *const LOG_ENABLED = "enabled";
+const char *const LOG_DIRECTORY = "directory";
+const char *const LOG_MIN_SEVERITY = "severity";
+const char *const LOG_FLUSH = "flush";
 }
-#endif // SETTINGSDEFINITIONS_H
+#endif  // SETTINGSDEFINITIONS_H

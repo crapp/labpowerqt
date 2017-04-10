@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a@posteo.org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a@posteo.org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 namespace globcon = global_constants;
 namespace setcon = settings_constants;
+namespace setdef = settings_default;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -31,7 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     QString titleString;
     QTextStream titleStream(&titleString, QIODevice::WriteOnly);
     titleStream << "LabPowerQt " << LABPOWERQT_VERSION_MAJOR << "."
-                << LABPOWERQT_VERSION_MINOR << "." << LABPOWERQT_VERSION_PATCH;
+                << LABPOWERQT_VERSION_MINOR;
+    if (QString(LABPOWERQT_VERSION_PATCH) != "0") {
+        titleStream << "." << LABPOWERQT_VERSION_PATCH;
+    }
     this->setWindowTitle(titleString);
 
     // Restore saved geometry and state
@@ -55,105 +59,152 @@ MainWindow::MainWindow(QWidget *parent)
     this->setupModelConnections();
     this->setupValuesDialog();
     this->setupControlConnections();
+
+    settings.beginGroup(setcon::GENERAL_GROUP);
+    if (!settings
+             .value(setcon::GENERAL_INFO_MAIN,
+                    setdef::general_defaults.at(setcon::GENERAL_INFO_MAIN))
+             .toBool()) {
+        // using a qtimer here is very useful. The Timer will fire as soon as
+        // the event queue is processed and the GUI is visible.
+        QTimer::singleShot(400, this, []() {
+            QCheckBox *msgCB = new QCheckBox();
+            msgCB->setText("Don't show this message at startup");
+            msgCB->setChecked(false);
+            QMessageBox box;
+            box.setIcon(QMessageBox::Icon::Information);
+            box.setStandardButtons(QMessageBox::StandardButton::Ok);
+            box.setDefaultButton(QMessageBox::StandardButton::Ok);
+            box.setCheckBox(msgCB);
+            box.setWindowTitle("Welcome to LabPowerQt");
+            box.setTextFormat(Qt::RichText);
+            box.setText(
+                "This is an application to control devices using a SCPI based "
+                "communication protocol");
+            box.setInformativeText(
+                "<p>You have to add a Device using the Device Wizard which you "
+                "can start from the settings dialog.</p>"
+                "<p>The Window on the left is used to control the device. Green "
+                "elements provide information "
+                "whereas orange elements allow interaction by double clicking "
+                "them. The data will be plotted on the right side of the "
+                "application. This data can be written simultaneously to a "
+                "SQLite Database.</p>"
+                "<p>More information can be found on the "
+                "<a href='https://github.com/crapp/labpowerqt'>github</a> "
+                "page of the project.</p>");
+            box.exec();
+            if (msgCB->isChecked()) {
+                QSettings settings;
+                settings.beginGroup(setcon::GENERAL_GROUP);
+                settings.setValue(setcon::GENERAL_INFO_MAIN, true);
+            }
+        });
+    }
 }
 
 MainWindow::~MainWindow() { delete ui; }
-
 void MainWindow::dataUpdated()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt(); i++) {
-        double voltage =
-            this->applicationModel->getVoltage(static_cast<globcon::CHANNEL>(i));
-        double actualVoltage = this->applicationModel->getActualVoltage(
-            static_cast<globcon::CHANNEL>(i));
-        double current =
-            this->applicationModel->getCurrent(static_cast<globcon::CHANNEL>(i));
-        double actualCurrent = this->applicationModel->getActualCurrent(
-            static_cast<globcon::CHANNEL>(i));
-        double wattage =
-            this->applicationModel->getWattage(static_cast<globcon::CHANNEL>(i));
+        double voltage = this->applicationModel->getVoltageSet(
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double actualVoltage = this->applicationModel->getVoltage(
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double current = this->applicationModel->getCurrentSet(
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double actualCurrent = this->applicationModel->getCurrent(
+            static_cast<globcon::LPQ_CHANNEL>(i));
+        double wattage = this->applicationModel->getWattage(
+            static_cast<globcon::LPQ_CHANNEL>(i));
 
         this->ui->widgetGraph->addData(i, voltage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::SETVOLTAGE);
+                                       globcon::LPQ_DATATYPE::SETVOLTAGE);
         this->ui->widgetGraph->addData(i, actualVoltage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::VOLTAGE);
+                                       globcon::LPQ_DATATYPE::VOLTAGE);
         this->ui->widgetGraph->addData(i, current,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::SETCURRENT);
+                                       globcon::LPQ_DATATYPE::SETCURRENT);
         this->ui->widgetGraph->addData(i, actualCurrent,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::CURRENT);
+                                       globcon::LPQ_DATATYPE::CURRENT);
         this->ui->widgetGraph->addData(i, wattage,
                                        this->applicationModel->getTime(),
-                                       globcon::DATATYPE::WATTAGE);
+                                       globcon::LPQ_DATATYPE::WATTAGE);
 
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 voltage, 'f',
-                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-            globcon::DATATYPE::SETVOLTAGE, i);
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
+            globcon::LPQ_DATATYPE::SETVOLTAGE, i);
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 actualVoltage, 'f',
-                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt()))),
-            globcon::DATATYPE::VOLTAGE, i);
+                settings.value(setcon::DEVICE_VOLTAGE_ACCURACY).toInt())),
+            globcon::LPQ_DATATYPE::VOLTAGE, i);
 
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 current, 'f',
-                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-            globcon::DATATYPE::SETCURRENT, i);
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
+            globcon::LPQ_DATATYPE::SETCURRENT, i);
         ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(
+            QVariant(QString::number(
                 actualCurrent, 'f',
-                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt()))),
-            globcon::DATATYPE::CURRENT, i);
+                settings.value(setcon::DEVICE_CURRENT_ACCURACY).toInt())),
+            globcon::LPQ_DATATYPE::CURRENT, i);
 
-        ui->widgetDisplay->dataUpdate(
-            std::move(QVariant(QString::number(wattage, 'f', 3))),
-            globcon::DATATYPE::WATTAGE, i);
+        ui->widgetDisplay->dataUpdate(QVariant(QString::number(wattage, 'f', 3)),
+                                      globcon::LPQ_DATATYPE::WATTAGE, i);
 
-        this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(i))
-            ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                            globcon::CONTROL::OUTPUT, i)
-            : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                            globcon::CONTROL::OUTPUT, i);
-        this->applicationModel->getChannelMode(
-            static_cast<globcon::CHANNEL>(i)) == globcon::MODE::CONSTANT_CURRENT
-            ? ui->widgetDisplay->dataUpdate(globcon::CONSTANT_CURRENT, i)
-            : ui->widgetDisplay->dataUpdate(globcon::CONSTANT_VOLTAGE, i);
+        this->applicationModel->getOutput(static_cast<globcon::LPQ_CHANNEL>(i))
+            ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                            globcon::LPQ_CONTROL::OUTPUT, i)
+            : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                            globcon::LPQ_CONTROL::OUTPUT, i);
+
+        this->applicationModel->getChannelMode(static_cast<globcon::LPQ_CHANNEL>(
+            i)) == globcon::LPQ_MODE::CONSTANT_CURRENT
+            ? ui->widgetDisplay->dataUpdate(globcon::LPQ_MODE::CONSTANT_CURRENT,
+                                            i)
+            : ui->widgetDisplay->dataUpdate(globcon::LPQ_MODE::CONSTANT_VOLTAGE,
+                                            i);
     }
 
     this->applicationModel->getOVP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OVP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OVP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OVP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OVP, 0);
     this->applicationModel->getOCP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OCP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OCP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OCP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OCP, 0);
     this->applicationModel->getOTP()
-        ? ui->widgetDisplay->dataUpdate(std::move(QVariant("On")),
-                                        globcon::CONTROL::OTP, 0)
-        : ui->widgetDisplay->dataUpdate(std::move(QVariant("Off")),
-                                        globcon::CONTROL::OTP, 0);
+        ? ui->widgetDisplay->dataUpdate(QVariant("On"),
+                                        globcon::LPQ_CONTROL::OTP, 0)
+        : ui->widgetDisplay->dataUpdate(QVariant("Off"),
+                                        globcon::LPQ_CONTROL::OTP, 0);
+    // this->statusBar()->showMessage(
+    // QString::number(this->applicationModel->getDuration()) + "ms");
 }
 
 void MainWindow::deviceConnectionUpdated(bool connected)
 {
     if (connected) {
-        ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
+        ui->widgetDisplay->dataUpdate(connected, globcon::LPQ_CONTROL::CONNECT,
+                                      0);
         this->statusBar()->showMessage("Connected");
     } else {
         this->statusBar()->showMessage("Disconnected");
-        ui->widgetDisplay->dataUpdate(connected, globcon::CONTROL::CONNECT, 0);
+        ui->widgetDisplay->dataUpdate(connected, globcon::LPQ_CONTROL::CONNECT,
+                                      0);
     }
 }
 
@@ -161,7 +212,7 @@ void MainWindow::deviceIDUpdated()
 {
     ui->widgetDisplay->dataUpdate(
         this->applicationModel->getDeviceIdentification(),
-        globcon::CONTROL::DEVICEID, 0);
+        globcon::LPQ_CONTROL::DEVICEID, 0);
 }
 
 void MainWindow::setupMenuBarActions()
@@ -257,33 +308,36 @@ void MainWindow::setupControlConnections()
 
 void MainWindow::fileBugReport()
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/crapp/labpowerqt"));
+    QDesktopServices::openUrl(
+        QUrl("https://github.com/crapp/labpowerqt/issues"));
 }
 
 void MainWindow::showAbout()
 {
     AboutMe abm;
-    abm.exec(); // show it application modal
+    abm.exec();  // show application modal
 }
 
 void MainWindow::showAboutQt() { QMessageBox::aboutQt(this, tr("About Qt")); }
-
 void MainWindow::showSettings()
 {
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
     QByteArray hash = settings.value(setcon::DEVICE_HASH).toByteArray();
-    // release the serial port
-    // this->controller->disconnectDevice();
+    settings.endGroup();
     SettingsDialog sd;
     sd.exec();
 
+    settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+    QByteArray newHash = settings.value(setcon::DEVICE_HASH).toByteArray();
     // FIXME: In fact this hole thing here is useless. When the user changes the
     // active device in the settings dialog and a recording or whatever is
-    // running it will have some nasty effects. So we need some sort signal
-    // Udate the values for the valuesDialog floating widget
-    if (settings.value(setcon::DEVICE_HASH).toByteArray() != hash) {
+    // running it will have some nasty effects. So we need some sort of signal
+    // EDIT 2016-04-24: Is this hint still relevant. Seems like the following
+    // code copes with the mentioned issues.
+    // Update the values for the valuesDialog floating widget
+    if (newHash != hash) {
         this->valuesDialog->updateDeviceSpecs(
             settings.value(setcon::DEVICE_VOLTAGE_MIN).toDouble(),
             settings.value(setcon::DEVICE_VOLTAGE_MAX).toDouble(),
@@ -321,55 +375,73 @@ void MainWindow::tabWidgetChangedIndex(int index)
 
 void MainWindow::displayWidgetDoubleResult(double val, int dt, int channel)
 {
-    switch (static_cast<globcon::DATATYPE>(dt)) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    switch (static_cast<globcon::LPQ_DATATYPE>(dt)) {
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->controller->setVoltage(channel, val);
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->controller->setCurrent(channel, val);
         break;
     default:
         break;
     }
-
-    qDebug() << Q_FUNC_INFO << "Received " << val << " "
-             << "Channel: " << channel;
+    LogInstance::get_instance().eal_debug("Received " + std::to_string(val) +
+                                          " for channel " +
+                                          std::to_string(channel));
 }
 
 void MainWindow::deviceControl(int control, int channel)
 {
-    switch (static_cast<globcon::CONTROL>(control)) {
-    case globcon::CONTROL::CONNECT:
-        this->applicationModel->getDeviceConnected()
-            ? this->controller->disconnectDevice()
-            : this->controller->connectDevice();
-
+    switch (static_cast<globcon::LPQ_CONTROL>(control)) {
+    case globcon::LPQ_CONTROL::CONNECT: {
+        if (this->applicationModel->getDeviceConnected()) {
+            QSettings settings;
+            settings.beginGroup(setcon::GENERAL_GROUP);
+            if (settings
+                    .value(setcon::GENERAL_ASK_DISC,
+                           setdef::general_defaults.at(setcon::GENERAL_ASK_DISC))
+                    .toBool()) {
+                if (QMessageBox::question(this, "Disconnect Device",
+                                          "Do you really want to disconnect?",
+                                          QMessageBox::StandardButton::Yes |
+                                              QMessageBox::StandardButton::No,
+                                          QMessageBox::StandardButton::No) ==
+                    static_cast<int>(QMessageBox::StandardButton::Yes))
+                    this->controller->disconnectDevice();
+            } else {
+                this->controller->disconnectDevice();
+            }
+        } else {
+            this->controller->connectDevice();
+        }
         break;
-    case globcon::CONTROL::SOUND:
+    }
+    case globcon::LPQ_CONTROL::SOUND:
         this->applicationModel->getDeviceMute()
             ? this->controller->setAudio(false)
             : this->controller->setAudio(true);
         break;
-    case globcon::CONTROL::LOCK:
+    case globcon::LPQ_CONTROL::LOCK:
         this->applicationModel->getDeviceLocked()
             ? this->controller->setLock(false)
             : this->controller->setLock(true);
         break;
-    case globcon::CONTROL::OUTPUT:
-        this->applicationModel->getOutput(static_cast<globcon::CHANNEL>(channel))
+    case globcon::LPQ_CONTROL::OUTPUT:
+        this->applicationModel->getOutput(
+            static_cast<globcon::LPQ_CHANNEL>(channel))
             ? this->controller->setOutput(channel - 1, false)
             : this->controller->setOutput(channel - 1, true);
         break;
     // TODO OCP, OVP, OTP controls missing. Also missing in model and controller.
-    case globcon::CONTROL::OVP:
+    case globcon::LPQ_CONTROL::OVP:
         this->applicationModel->getOVP() ? this->controller->setOVP(false)
                                          : this->controller->setOVP(true);
         break;
-    case globcon::CONTROL::OCP:
+    case globcon::LPQ_CONTROL::OCP:
         this->applicationModel->getOCP() ? this->controller->setOCP(false)
                                          : this->controller->setOCP(true);
         break;
-    case globcon::CONTROL::OTP:
+    case globcon::LPQ_CONTROL::OTP:
         this->applicationModel->getOTP() ? this->controller->setOTP(false)
                                          : this->controller->setOTP(true);
         break;
@@ -388,7 +460,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
     settings.beginGroup(setcon::GENERAL_GROUP);
-    if (settings.value(setcon::GENERAL_EXIT).toBool()) {
+    if (settings
+            .value(setcon::GENERAL_ASK_EXIT,
+                   setdef::general_defaults.at(setcon::GENERAL_ASK_EXIT))
+            .toBool()) {
         QMessageBox box;
         // TODO: Can't set parent. Messagebox transparent after this :/??
         // box.setParent(this);
@@ -407,5 +482,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     settings.setValue(setcon::MAINWINDOW_GEO, this->saveGeometry());
     settings.setValue(setcon::MAINWINDOW_STATE, this->saveState());
     settings.endGroup();
+
+    LogInstance::get_instance().eal_info("labpowerqt exit");
+
     QWidget::closeEvent(event);
 }
+
+void MainWindow::showEvent(QShowEvent *ev) { QMainWindow::showEvent(ev); }

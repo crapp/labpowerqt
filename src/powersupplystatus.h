@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,22 +17,28 @@
 #ifndef POWERSUPPLYSTATUS
 #define POWERSUPPLYSTATUS
 
-#include <map>
-#include <utility>
-#include <memory>
 #include <chrono>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <utility>
+
+#include <QMutex>
+#include <QMutexLocker>
 
 #include "global.h"
 
 namespace PowerSupplyStatus_constants
 {
-typedef std::pair<int, global_constants::MODE> CHANNELMODE;
+typedef std::pair<int, global_constants::LPQ_MODE> CHANNELMODE;
 typedef std::pair<int, double> CHANNELVALUE;
 typedef std::pair<int, bool> CHANNELOUTPUT;
 }
 
+/**
+ * @brief Models the state of the hardware at a given time
+ */
 struct PowerSupplyStatus {
-
 public:
     PowerSupplyStatus()
     {
@@ -41,28 +47,70 @@ public:
         this->ovp = false;
         this->ocp = false;
         this->otp = false;
+        this->duration = 0;
         this->time = std::chrono::system_clock::now();
+    }
+
+    friend std::ostream& operator<<(std::ostream& stream,
+                                    std::shared_ptr<PowerSupplyStatus>& s)
+    {
+        stream << "beep: " << s->beeper << "\n";
+        stream << "locked: " << s->locked << "\n";
+        stream << "ovp: " << s->ovp << "\n";
+        stream << "ocp: " << s->ocp << "\n";
+        stream << "duration: " << s->duration << "\n";
+        stream << "channel out: " << s->getChannelOutput(1) << "\n";
+        stream << "voltage set: " << s->getVoltageSet(1) << "\n";
+        stream << "voltage: " << s->getVoltage(1) << "\n";
+        stream << "current set: " << s->getCurrentSet(1) << "\n";
+        stream << "current: " << s->getCurrent(1) << "\n";
+        stream << "wattage: " << s->getWattage(1) << "\n";
+
+        return stream;
     }
 
     void setBeeper(bool beep) { this->beeper = beep; }
     bool getBeeper() { return this->beeper; }
     void setLocked(bool locked) { this->locked = locked; }
     bool getLocked() { return this->locked; }
-    void setOvp(bool ovp) { this->ovp = ovp; }
-    bool getOvp() { return this->ovp; }
-    void setOcp(bool ocp) { this->ocp = ocp; }
-    bool getOcp() { return this->ocp; }
-    void setOtp(bool otp) { this->otp = otp; }
-    bool getOtp() { return this->otp; }
+    void setOvp(bool ovp)
+    {
+        QMutexLocker lock(&this->ovpLock);
+        this->ovp = ovp;
+    }
+    bool getOvp()
+    {
+        QMutexLocker lock(&this->ovpLock);
+        return this->ovp;
+    }
+    void setOcp(bool ocp)
+    {
+        QMutexLocker lock(&this->ocpLock);
+        this->ocp = ocp;
+    }
+    bool getOcp()
+    {
+        QMutexLocker lock(&this->ocpLock);
+        return this->ocp;
+    }
+    void setOtp(bool otp)
+    {
+        QMutexLocker lock(&this->otpLock);
+        this->otp = otp;
+    }
+    bool getOtp()
+    {
+        QMutexLocker lock(&this->otpLock);
+        return this->otp;
+    }
+    void setDuration(long long duration) { this->duration = duration; }
+    long long getDuration() { return this->duration; }
     void setTime(std::chrono::system_clock::time_point t)
+
     {
         this->time = std::move(t);
     }
-    std::chrono::system_clock::time_point getTime()
-    {
-        return this->time;
-    }
-
+    std::chrono::system_clock::time_point getTime() { return this->time; }
     void setCurrent(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
         this->actualCurrent.insert(value);
@@ -73,14 +121,11 @@ public:
      * @return actual current as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    double getCurrent(int channel)
+    double getCurrent(int channel) { return this->actualCurrent.at(channel); }
+    void setCurrentSet(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
-        return this->actualCurrent.at(channel);
-    }
-    void
-    setCurrentSet(PowerSupplyStatus_constants::CHANNELVALUE value)
-    {
-        this->adjustedCurrent.insert(value);
+        QMutexLocker lock(&this->currentSetLock);
+        this->adjustedCurrent[value.first] = value.second;
     }
     /**
      * @brief getAdjustedCurrent
@@ -90,6 +135,7 @@ public:
      */
     double getCurrentSet(int channel)
     {
+        QMutexLocker lock(&this->currentSetLock);
         return this->adjustedCurrent.at(channel);
     }
 
@@ -103,15 +149,11 @@ public:
      * @return Actual Voltage as double
      * @throw [std::out_of_range](http://en.cppreference.com/w/cpp/error/out_of_range) if there is no value for the specified channel
      */
-    double getVoltage(int channel)
+    double getVoltage(int channel) { return this->actualVoltage.at(channel); }
+    void setVoltageSet(PowerSupplyStatus_constants::CHANNELVALUE value)
     {
-        return this->actualVoltage.at(channel);
-    }
-
-    void
-    setVoltageSet(PowerSupplyStatus_constants::CHANNELVALUE value)
-    {
-        this->adjustedVoltage.insert(value);
+        QMutexLocker lock(&this->voltageSetLock);
+        this->adjustedVoltage[value.first] = value.second;
     }
     /**
      * @brief getAdjustedVoltage Get value for channel
@@ -121,6 +163,7 @@ public:
      */
     double getVoltageSet(int channel)
     {
+        QMutexLocker lock(&this->voltageSetLock);
         return this->adjustedVoltage.at(channel);
     }
 
@@ -128,22 +171,17 @@ public:
     {
         this->wattage.insert(value);
     }
-    double getWattage(int channel)
-    {
-        return this->wattage.at(channel);
-    }
-
+    double getWattage(int channel) { return this->wattage.at(channel); }
     void setChannelMode(PowerSupplyStatus_constants::CHANNELMODE mode)
     {
         this->channelMode.insert(mode);
     }
-    global_constants::MODE getChannelMode(int channel)
+    global_constants::LPQ_MODE getChannelMode(int channel)
     {
         return this->channelMode.at(channel);
     }
 
-    void
-    setChannelOutput(PowerSupplyStatus_constants::CHANNELOUTPUT output)
+    void setChannelOutput(PowerSupplyStatus_constants::CHANNELOUTPUT output)
     {
         this->channelOutput.insert(output);
     }
@@ -158,6 +196,8 @@ private:
     bool ovp;
     bool ocp;
     bool otp;
+
+    long long duration;
 
     std::chrono::system_clock::time_point time;
 
@@ -174,13 +214,19 @@ private:
 
     std::map<int, double> wattage;
 
-    std::map<int, global_constants::MODE> channelMode;
+    std::map<int, global_constants::LPQ_MODE> channelMode;
 
     std::map<int, bool> channelOutput;
+
+    QMutex voltageSetLock;
+    QMutex currentSetLock;
+    QMutex ovpLock;
+    QMutex ocpLock;
+    QMutex otpLock;
 };
 
 // Register our metatype. Needed to send this kind of object wrapped in a std
 // smart pointer via SIGNAL/SLOT mechanism
 Q_DECLARE_METATYPE(std::shared_ptr<PowerSupplyStatus>)
 
-#endif // POWERSUPPLYSTATUS
+#endif  // POWERSUPPLYSTATUS

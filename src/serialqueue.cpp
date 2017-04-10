@@ -1,28 +1,42 @@
+// labpowerqt is a Gui application to control programmable lab power supplies
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #include "serialqueue.h"
 
 SerialQueue::SerialQueue() {}
-
-void SerialQueue::push(const int &command, const int &channel,
-                       const QVariant &value, const bool &withReply)
+void SerialQueue::push(int command, int channel, const QVariant &value,
+                       bool withReply, int replyLength)
 {
-    std::lock_guard<std::mutex> lock(this->mtx);
-    std::shared_ptr<SerialCommand> com =
-        std::make_shared<SerialCommand>(command, channel, value, withReply);
+    QMutexLocker qlock(&this->qmtx);
+    std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
+        command, channel, value, withReply, replyLength);
 
     this->internalQueue.push(com);
-    // notify thread to wake up and pop latest command
-    this->threadWakeUpCondition.notify_one();
+    qlock.unlock();
+    // notify background thread to wake up and pop latest command
+    this->qcondition.wakeOne();
 }
 
 std::shared_ptr<SerialCommand> SerialQueue::pop()
 {
-    // we use a unique lock as conditional variable requires one
-    std::unique_lock<std::mutex> lock(this->mtx);
+    QMutexLocker qlock(&this->qmtx);
 
-    // this unlocks our mutex and waits unitl our internal queue
-    // is no longer empty.
-    this->threadWakeUpCondition.wait(
-        lock, [this]() { return !this->internalQueue.empty(); });
+    // this unlocks our mutex and waits if the internal queue is not empty
+    if (this->internalQueue.empty())
+        this->qcondition.wait(&this->qmtx);
 
     std::shared_ptr<SerialCommand> com = this->internalQueue.front();
     this->internalQueue.pop();
@@ -32,6 +46,6 @@ std::shared_ptr<SerialCommand> SerialQueue::pop()
 
 bool SerialQueue::empty()
 {
-    std::lock_guard<std::mutex> lock(this->mtx);
+    QMutexLocker qlock(&this->qmtx);
     return this->internalQueue.empty();
 }

@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ DeviceWizardConnection::DeviceWizardConnection(QWidget *parent)
     gridl->addWidget(this->txt, 1, 0, 1, 2);
     this->txt->setPlainText("Idle");
 
+    this->t = std::unique_ptr<QThread>(new QThread());
+
     QObject::connect(this->startTest, &QPushButton::clicked, this,
                      &DeviceWizardConnection::testConnection);
 
@@ -46,7 +48,6 @@ DeviceWizardConnection::DeviceWizardConnection(QWidget *parent)
 }
 
 QString DeviceWizardConnection::getDeviceID() const { return this->devID; }
-
 void DeviceWizardConnection::initializePage()
 {
     // disable next button until test is successfull.
@@ -61,21 +62,41 @@ bool DeviceWizardConnection::isComplete() const
 void DeviceWizardConnection::testConnection()
 {
     this->startTest->setDisabled(true);
+    if (this->t->isRunning()) {
+        // TODO: I don't think it is a good idea to terminate a thread
+        LogInstance::get_instance().eal_warn("Thread has been terminated");
+        this->t->terminate();
+    }
 
     this->txt->clear();
     QString statustext =
         "Connecting to device on port " + field("comPort").toString();
     this->txt->appendPlainText(statustext);
-    if (static_cast<global_constants::PROTOCOL>(field("protocol").toInt()) ==
-        global_constants::PROTOCOL::KORADV2) {
+
+    QSerialPort::BaudRate brate =
+        static_cast<QSerialPort::BaudRate>(field("baudBox").toInt());
+    QSerialPort::FlowControl flowctl =
+        static_cast<QSerialPort::FlowControl>(field("flowctlBox").toInt());
+    QSerialPort::DataBits dbits =
+        static_cast<QSerialPort::DataBits>(field("dbitsBox").toInt());
+    QSerialPort::Parity parity =
+        static_cast<QSerialPort::Parity>(field("parityBox").toInt());
+    QSerialPort::StopBits sbits =
+        static_cast<QSerialPort::StopBits>(field("stopBox").toInt());
+
+    if (static_cast<global_constants::LPQ_PROTOCOL>(field("protocol").toInt()) ==
+        global_constants::LPQ_PROTOCOL::KORADV2) {
         this->powerSupplyConnector = std::unique_ptr<KoradSCPI>(new KoradSCPI(
-            std::move(field("comPort").toString()),
-            std::move(QString("WizardConnectionTest")), field("channel").toInt(),
-            field("voltAcc").toInt(), field("currentAcc").toInt()));
+            field("comPort").toString(), QByteArray("WizardConnectionTest"),
+            field("channel").toInt(), field("voltAcc").toInt(),
+            field("currentAcc").toInt(), brate, flowctl, dbits, parity, sbits,
+            field("sportTimeout").toInt()));
     }
 
     this->txt->appendPlainText("Using " + field("protocolText").toString() +
                                " protocol");
+
+    this->powerSupplyConnector->moveToThread(this->t.get());
 
     QObject::connect(this->powerSupplyConnector.get(),
                      &PowerSupplySCPI::requestFinished, this,
@@ -83,8 +104,15 @@ void DeviceWizardConnection::testConnection()
     QObject::connect(this->powerSupplyConnector.get(),
                      &PowerSupplySCPI::errorOpen, this,
                      &DeviceWizardConnection::deviceError);
+    QObject::connect(this->t.get(), &QThread::started,
+                     this->powerSupplyConnector.get(),
+                     &PowerSupplySCPI::startPowerSupplyBackgroundThread);
+    QObject::connect(this->powerSupplyConnector.get(),
+                     &PowerSupplySCPI::backgroundThreadStopped,
+                     [this]() { this->t->quit(); });
 
-    this->powerSupplyConnector->startPowerSupplyBackgroundThread();
+    this->t->start();
+    // check if the device identifies correctly
     this->powerSupplyConnector->getIdentification();
 }
 
@@ -97,9 +125,10 @@ void DeviceWizardConnection::dataAvailable(
         QString idString = command->getValue().toString();
         this->devID = idString;
         if (idString == "") {
-            QString statustext = "Connection successfull but Device send back "
-                                 "an empty identification String. Check the "
-                                 "chosen protocol and port.";
+            QString statustext =
+                "Connection successfull but Device send back "
+                "an empty identification String. Check the "
+                "chosen protocol and port.";
             this->txt->appendPlainText(statustext);
             this->connectionSuccessfull = false;
             emit this->completeChanged();
@@ -112,6 +141,11 @@ void DeviceWizardConnection::dataAvailable(
             emit this->completeChanged();
         }
         this->startTest->setDisabled(false);
+        this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
+        if (!this->t->wait(3000)) {
+            LogInstance::get_instance().eal_warn(
+                "Thread timeout while waiting for data");
+        }
     }
 }
 
@@ -124,6 +158,11 @@ void DeviceWizardConnection::deviceError(QString errorString)
         "communications "
         "protocol as well as the correct device port.");
     this->connectionSuccessfull = false;
+    this->powerSupplyConnector->stopPowerSupplyBackgroundThread();
+    if (!this->t->wait(3000)) {
+        LogInstance::get_instance().eal_warn(
+            "Thread timeout while waiting for device object");
+    }
     emit this->completeChanged();
     this->startTest->setDisabled(false);
 }

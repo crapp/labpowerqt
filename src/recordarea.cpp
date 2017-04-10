@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 #include "recordarea.h"
 
 RecordArea::RecordArea(QWidget *parent) : QWidget(parent) { this->setupUI(); }
-
 void RecordArea::recordExternal(bool status, QString name)
 {
     this->recordToggle->setCheckable(false);
@@ -47,7 +46,7 @@ void RecordArea::setupUI()
     this->recordName->setToolTip("Set a name for the current recording");
     QDateTime dt = QDateTime::currentDateTime();
     this->recordName->setText(QString("recording_") +
-                              dt.toString("yyyy-MM-dd_HH:MM"));
+                              dt.toString("yyyy-MM-dd_HH:mm"));
     recordBoxLayout->addWidget(this->recordName, 1, 0, 1, 2);
 
     QObject::connect(this->recordToggle, &SwitchButton::toggled, this,
@@ -61,7 +60,6 @@ void RecordArea::recordStateToggled(bool checked)
         if (this->recordName->text() != "") {
             emit this->record(checked, this->recordName->text());
         } else {
-            // TODO: Show a messagebox!
             QMessageBox::warning(
                 this, "Record Name invalid",
                 "You have chosen an invalid name for the recording",

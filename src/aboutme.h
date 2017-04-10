@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,13 @@ namespace Ui
 class AboutMe;
 }
 
+/**
+ * @brief Dialog to show copyright information
+ *
+ * @details
+ *
+ * This dialog is based on a form
+ */
 class AboutMe : public QDialog
 {
     Q_OBJECT
@@ -36,4 +43,4 @@ private:
     Ui::AboutMe *ui;
 };
 
-#endif // ABOUTME_H
+#endif  // ABOUTME_H

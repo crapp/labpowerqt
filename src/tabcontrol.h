@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a@posteo.org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a@posteo.org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,12 +17,10 @@
 #ifndef TABCONTROL_H
 #define TABCONTROL_H
 
-#include <QWidget>
 #include <QGridLayout>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-
-#include <QDebug>
+#include <QVBoxLayout>
+#include <QWidget>
 
 // TODO: What do I have this class for? You can not access any widgets from here.
 
@@ -40,4 +38,4 @@ private:
     QGridLayout *controlLayout;
 };
 
-#endif // TABCONTROL_H
+#endif  // TABCONTROL_H

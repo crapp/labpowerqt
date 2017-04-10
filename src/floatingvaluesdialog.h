@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,14 +21,12 @@
 #include <QDialog>
 
 #include <QGridLayout>
-#include <QStackedWidget>
 #include <QLabel>
+#include <QStackedWidget>
 #include <QToolButton>
 
-#include <QDebug>
-
-#include <memory>
 #include <cmath>
+#include <memory>
 
 #include "global.h"
 #include "valuedoublespinbox.h"
@@ -54,7 +52,6 @@ struct FloatingValuesDialogData {
  */
 class FloatingValuesDialog : public QDialog
 {
-
     Q_OBJECT
 
 public:
@@ -68,7 +65,7 @@ signals:
 
 public slots:
 
-    void setDatatype(global_constants::DATATYPE dt);
+    void setDatatype(global_constants::LPQ_DATATYPE dt);
     void setCurrentValue(double value);
     void setCurrentValue(int trackingMode);
     void updateDeviceSpecs(double voltageMin, double voltageMax,
@@ -84,7 +81,7 @@ private:
     ValueDoubleSpinBox *voltageSpinBox;
     ValueDoubleSpinBox *currentSpinBox;
 
-    global_constants::DATATYPE dt;
+    global_constants::LPQ_DATATYPE dt;
     int sourceChannel;
 
     std::shared_ptr<FloatingValuesDialogData> data;
@@ -96,4 +93,4 @@ private slots:
     void reject();
 };
 
-#endif // FLOATINGVALUESDIALOG_H
+#endif  // FLOATINGVALUESDIALOG_H

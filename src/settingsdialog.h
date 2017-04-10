@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include <QDialog>
-#include <QListWidgetItem>
-#include <QQuickView>
 #include <QAbstractButton>
+#include <QDialog>
 #include <QDialogButtonBox>
-#include <QStandardPaths>
-#include <QMessageBox>
 #include <QFileDialog>
+#include <QListWidgetItem>
+#include <QMessageBox>
+#include <QQuickView>
+#include <QStandardPaths>
 
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
@@ -32,21 +32,24 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 
-#include <QDebug>
 #include <QSettings>
 
 #include <iostream>
 #include <memory>
 
-#include "settingsdefinitions.h"
 #include "databasedef.h"
 #include "devicewizard.h"
+#include "settingsdefault.h"
+#include "settingsdefinitions.h"
 
 namespace Ui
 {
 class SettingsDialog;
 }
 
+/**
+ * @brief The settings dialog of the application
+ */
 class SettingsDialog : public QDialog
 {
     Q_OBJECT
@@ -59,14 +62,19 @@ private:
     Ui::SettingsDialog *ui;
 
     QListWidgetItem *lastItem;
+    QString
+        defaultSqlFile; /**< Path to default database location on users system */
+    QString defaultLogDir;
 
     void initGeneral();
     void initDevice();
     void initPlot();
     void initRecord();
+    void initLog();
     void setupSettingsList();
     bool checkSettingsChanged(QListWidgetItem *lastItem);
     void saveSettings(int currentRow);
+    void restoreSettings(int currentRow);
 
 private slots:
     void settingCategoryChanged(int currentRow);
@@ -74,8 +82,15 @@ private slots:
     void buttonBoxClicked(QAbstractButton *button);
     void devicesComboBoxUpdate();
 
+    /**
+     * @brief Slot that enforces a minimum zoom range for the zoom spinboxes
+     *
+     * @param value
+     */
+    void zoomMinMaxSync(int value);
+
     void accept();
     void reject();
 };
 
-#endif // SETTINGSDIALOG_H
+#endif  // SETTINGSDIALOG_H

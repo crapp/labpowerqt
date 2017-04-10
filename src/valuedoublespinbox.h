@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,9 +21,15 @@
 #include <QDoubleSpinBox>
 #include <QKeyEvent>
 
+/**
+ * @brief Own Implementation of a DoubleSpinBox
+ *
+ * @details
+ * Implements a new signal that will be emitted when the enter or return keys are
+ * pressed
+ */
 class ValueDoubleSpinBox : public QDoubleSpinBox
 {
-
     Q_OBJECT
 
 public:
@@ -47,4 +53,4 @@ protected:
     }
 };
 
-#endif // VALUEDOUBLESPINBOX_H
+#endif  // VALUEDOUBLESPINBOX_H

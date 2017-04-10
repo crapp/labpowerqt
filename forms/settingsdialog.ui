@@ -28,18 +28,8 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
@@ -86,7 +76,7 @@ QListView::item {
       <item row="0" column="1">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>3</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="pageGeneral">
          <layout class="QVBoxLayout" name="verticalLayout">
@@ -214,34 +204,86 @@ QListView::item {
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="pagePlot"/>
-        <widget class="QWidget" name="pageRecord">
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+        <widget class="QWidget" name="pagePlot">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QGroupBox" name="groupBoxRecord">
+           <widget class="QGroupBox" name="groupBoxPlotZoom">
             <property name="title">
-             <string>Record</string>
+             <string>Zoom</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_6">
-             <item>
-              <widget class="QCheckBox" name="checkBoxRecordDefault">
-               <property name="toolTip">
-                <string>IF this option is checked data will be recorded by default</string>
-               </property>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <widget class="QLabel" name="labelPlotZoomMin">
                <property name="text">
-                <string>Record data by default</string>
+                <string>Minimum</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="labelPlotZoomMax">
+               <property name="text">
+                <string>Maximum</string>
                </property>
-               <property name="checked">
-                <bool>true</bool>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QSpinBox" name="spinBoxPlotZoomMin">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="suffix">
+                <string>s</string>
+               </property>
+               <property name="minimum">
+                <number>10</number>
+               </property>
+               <property name="maximum">
+                <number>21490</number>
+               </property>
+               <property name="value">
+                <number>60</number>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QSpinBox" name="spinBoxPlotZoomMax">
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="suffix">
+                <string>s</string>
+               </property>
+               <property name="minimum">
+                <number>120</number>
+               </property>
+               <property name="maximum">
+                <number>21600</number>
+               </property>
+               <property name="value">
+                <number>1800</number>
                </property>
               </widget>
              </item>
             </layout>
            </widget>
           </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageRecord">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <widget class="QGroupBox" name="groupBoxRecordDatabase">
             <property name="title">
@@ -363,9 +405,146 @@ QListView::item {
           </item>
          </layout>
         </widget>
+        <widget class="QWidget" name="pageLog">
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QGroupBox" name="groupBoxLog">
+            <property name="title">
+             <string>Logging</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QCheckBox" name="checkBoxLogEnabled">
+               <property name="toolTip">
+                <string>Check this checkbox to enable logging to log files</string>
+               </property>
+               <property name="text">
+                <string>Enable logging</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QLabel" name="labelLogLoglevel">
+                 <property name="text">
+                  <string>Minimum log level</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBoxLogLoglevel">
+                 <property name="currentIndex">
+                  <number>1</number>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string>Debug</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Info</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Warning</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Error</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QLineEdit" name="lineEditLogDirectory">
+                 <property name="toolTip">
+                  <string>Log file directory</string>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>Directory for log files</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButtonLogDirectory">
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Click to choose a log file directory</string>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBoxLogFlush">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Flush the log file whenever data is written to it.&lt;/p&gt;&lt;p&gt;This option is only useful for developers&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Flush log file</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelLogWarning">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;You have to restart the application if you make any changes here&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
     </widget>
    </item>
   </layout>

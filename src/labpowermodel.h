@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,19 +18,27 @@
 #define LABPOWERMODEL_H
 
 #include <QObject>
-#include <QDebug>
 #include <QString>
 
-#include <memory>
 #include <chrono>
+#include <memory>
 #include <vector>
 
 #include "global.h"
+#include "log_instance.h"
 #include "powersupplystatus.h"
 
+/**
+ * @brief Class that models the state of a lab power supply
+ *
+ * @details
+ * This class holds all the information a device can provide. It does not store
+ * the characteristics the user provided with the device wizard.
+ * The information will be updated by the application controller. There are
+ * several signals available that will notify potentional listeners.
+ */
 class LabPowerModel : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -45,20 +53,27 @@ public:
     bool getDeviceLocked();
     bool getDeviceMute();
 
-    bool getOutput(global_constants::CHANNEL c);
-    global_constants::MODE getChannelMode(global_constants::CHANNEL c);
+    bool getOutput(global_constants::LPQ_CHANNEL c);
+    global_constants::LPQ_MODE getChannelMode(global_constants::LPQ_CHANNEL c);
 
     std::chrono::system_clock::time_point getTime();
 
-    double getVoltage(global_constants::CHANNEL c);
-    double getActualVoltage(global_constants::CHANNEL c);
-    double getCurrent(global_constants::CHANNEL c);
-    double getActualCurrent(global_constants::CHANNEL c);
-    double getWattage(global_constants::CHANNEL c);
+    void setVoltageSet(global_constants::LPQ_CHANNEL c, double val);
+    double getVoltageSet(global_constants::LPQ_CHANNEL c);
+    double getVoltage(global_constants::LPQ_CHANNEL c);
+    void setCurrentSet(global_constants::LPQ_CHANNEL c, double val);
+    double getCurrentSet(global_constants::LPQ_CHANNEL c);
+    double getCurrent(global_constants::LPQ_CHANNEL c);
+    double getWattage(global_constants::LPQ_CHANNEL c);
 
+    void setOVP(bool status);
     bool getOVP();
+    void setOCP(bool status);
     bool getOCP();
+    void setOTP(bool status);
     bool getOTP();
+
+    long long getDuration();
 
     std::vector<std::shared_ptr<PowerSupplyStatus>> getBuffer();
     int getBufferSize();
@@ -75,6 +90,9 @@ signals:
 public slots:
 
     void updatePowerSupplyStatus(std::shared_ptr<PowerSupplyStatus> status);
+    /**
+     * @brief Clear interal buffer of PowerSupplyStatus objects
+     */
     void clearBuffer();
 
 private:
@@ -84,7 +102,6 @@ private:
     bool deviceConnected;
     QString deviceIdentification;
     bool record;
-
 };
 
-#endif // LABPOWERMODEL_H
+#endif  // LABPOWERMODEL_H

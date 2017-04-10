@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 namespace globcon = global_constants;
 
 YAxisHelper::YAxisHelper() {}
-
 YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                                         QCustomPlot *plot, int noChannels)
 {
@@ -32,7 +31,7 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
     // loop through all channels
     for (int i = 1; i <= noChannels; i++) {
         for (int j = 0; j < 5; j++) {
-            globcon::DATATYPE dt = static_cast<globcon::DATATYPE>(j);
+            globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(j);
             // only visible graphs count
             if (!plot->graph(j)->visible())
                 continue;
@@ -50,6 +49,8 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                     dataMap->lowerBound(currentXRange.upper);
                 if (itend == dataMap->end())
                     itend = dataMap->end() - 1;
+                // extract all the data for the visible time frame and put it in
+                // vector
                 for (; itbegin != itend; itbegin++) {
                     graphValues.push_back((*itbegin).value);
                 }
@@ -59,18 +60,18 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
                 lowHighPair.second = dataMap->first().value;
             }
 
-            if (dt == globcon::DATATYPE::SETVOLTAGE ||
-                dt == globcon::DATATYPE::VOLTAGE) {
+            if (dt == globcon::LPQ_DATATYPE::SETVOLTAGE ||
+                dt == globcon::LPQ_DATATYPE::VOLTAGE) {
                 voltageBounds.push_back(lowHighPair.first);
                 voltageBounds.push_back(lowHighPair.second);
             }
-            if (dt == globcon::DATATYPE::SETCURRENT ||
-                dt == globcon::DATATYPE::CURRENT) {
+            if (dt == globcon::LPQ_DATATYPE::SETCURRENT ||
+                dt == globcon::LPQ_DATATYPE::CURRENT) {
                 currentBounds.push_back(lowHighPair.first);
                 currentBounds.push_back(lowHighPair.second);
             }
-            if (dt == globcon::DATATYPE::WATTAGE ||
-                dt == globcon::DATATYPE::WATTAGE) {
+            if (dt == globcon::LPQ_DATATYPE::WATTAGE ||
+                dt == globcon::LPQ_DATATYPE::WATTAGE) {
                 wattageBounds.push_back(lowHighPair.first);
                 wattageBounds.push_back(lowHighPair.second);
             }
@@ -93,11 +94,15 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
     return axb;
 }
 
-std::pair<double, double>
-YAxisHelper::lowHighVectorValue(std::vector<double> values)
+std::pair<double, double> YAxisHelper::lowHighVectorValue(
+    std::vector<double> values)
 {
+    // TODO: Wouldn't it be easier to use this method to find min max of a vector
+    // http://en.cppreference.com/w/cpp/algorithm/minmax_element
     std::pair<double, double> lowHighPair = {0, 0};
     if (!values.empty()) {
+        // TODO: Couldn't we pass the original lowHighPair as reference to this
+        // function?
         lowHighPair.first = values.at(0);
         lowHighPair.second = values.at(0);
         for (auto d : values) {

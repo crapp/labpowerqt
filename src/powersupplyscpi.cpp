@@ -2,78 +2,90 @@
 
 namespace powcon = PowerSupplySCPI_constants;
 
-PowerSupplySCPI::PowerSupplySCPI(QString serialPortName, QString deviceName,
-                                 int noOfChannels, int voltageAccuracy,
-                                 int currentAccuracy, QObject *parent)
-    : serialPortName(std::move(serialPortName)),
-      deviceName(std::move(deviceName)), noOfChannels(noOfChannels),
-      voltageAccuracy(voltageAccuracy), currentAccuracy(currentAccuracy),
-      QObject(parent)
+PowerSupplySCPI::PowerSupplySCPI(
+    QString serialPortName, QByteArray deviceHash, int noOfChannels,
+    int voltageAccuracy, int currentAccuracy, QSerialPort::BaudRate brate,
+    QSerialPort::FlowControl flowctl, QSerialPort::DataBits dbits,
+    QSerialPort::Parity parity, QSerialPort::StopBits sbits, int portTimeOut)
+    : QObject(),
+      serialPortName(std::move(serialPortName)),
+      deviceHash(std::move(deviceHash)),
+      noOfChannels(noOfChannels),
+      voltageAccuracy(voltageAccuracy),
+      currentAccuracy(currentAccuracy),
+      port_baudraute(brate),
+      port_flowControl(flowctl),
+      port_databits(dbits),
+      port_parity(parity),
+      port_stopbits(sbits),
+      portTimeOut(portTimeOut)
 {
     this->serialPort = nullptr;
     this->canCalculateWattage = false;
+
+    this->powStatus = std::make_shared<PowerSupplyStatus>();
 }
 
-PowerSupplySCPI::~PowerSupplySCPI()
-{
-    this->backgroundWorkerThreadRun = false;
-    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETDUMMY));
-    this->backgroundWorkerThread.join();
-
-    if (this->serialPort->isOpen()) {
-        this->serialPort->close();
-    }
-    delete serialPort;
-}
-
+PowerSupplySCPI::~PowerSupplySCPI() {}
 void PowerSupplySCPI::startPowerSupplyBackgroundThread()
 {
     this->backgroundWorkerThreadRun = true;
-    backgroundWorkerThread = std::thread(&PowerSupplySCPI::threadFunc, this);
+    this->threadFunc();
+}
+
+void PowerSupplySCPI::stopPowerSupplyBackgroundThread()
+{
+    this->backgroundWorkerThreadRun = false;
+    this->serQueue.push(static_cast<int>(powcon::COMMANDS::SETDUMMY));
 }
 
 QString PowerSupplySCPI::getserialPortName() { return this->serialPortName; }
-
-QString PowerSupplySCPI::getDeviceName() { return this->deviceName; }
-
+QByteArray PowerSupplySCPI::getDeviceHash() { return this->deviceHash; }
 void PowerSupplySCPI::threadFunc()
 {
-    if (!this->serialPort) {
-        this->serialPort = new QSerialPort(this->serialPortName);
-        if (!this->serialPort->open(QIODevice::ReadWrite)) {
-            emit errorOpen(this->serialPort->errorString());
-            return;
-        }
+    this->serialPort = new QSerialPort(this->serialPortName);
 
-        this->serialPort->setBaudRate(this->port_baudraute);
-        this->serialPort->setFlowControl(this->port_flowControl);
-        this->serialPort->setDataBits(this->port_databits);
-        this->serialPort->setParity(this->port_parity);
-        this->serialPort->setStopBits(this->port_stopbits);
-
-        emit deviceOpen();
+    // this->serialPort = new QSerialPort(this->serialPortName);
+    if (!this->serialPort->open(QIODevice::ReadWrite)) {
+        emit errorOpen(this->serialPort->errorString());
+        return;
     }
+
+    this->serialPort->setBaudRate(this->port_baudraute);
+    this->serialPort->setFlowControl(this->port_flowControl);
+    this->serialPort->setDataBits(this->port_databits);
+    this->serialPort->setParity(this->port_parity);
+    this->serialPort->setStopBits(this->port_stopbits);
+
+    emit deviceOpen();
 
     while (this->backgroundWorkerThreadRun) {
         this->readWriteData(this->serQueue.pop());
     }
+
+    LogInstance::get_instance().eal_debug("Stopping SCPI worker thread");
+
+    QMutexLocker qlock(&this->qserialPortGuard);
+    if (this->serialPort && this->serialPort->isOpen()) {
+        this->serialPort->close();
+        delete this->serialPort;
+    }
+
+    emit backgroundThreadStopped();
 }
 
 void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 {
     // FIXME: There is a race condition if the destructor of a derived class is
     // called because we use several pure virtual methods here.
-    // Solutions: 1. Provide basic implementations in base class :(
-    // 2. Wait in derived destructor until serialPortGuard is available. This
+    // Solutions:
+    // 1. Provide basic implementations in base class :(
+    // 2. Wait in derived destructor until serialPortGuard mutex is unlocked. This
     // sounds good but every derived class needs to do this. Not convenient and
     // most of all not error prone.
 
-    std::lock_guard<std::mutex> lock(this->serialPortGuard);
-    std::shared_ptr<PowerSupplyStatus> status = nullptr;
+    QMutexLocker qlock(&this->qserialPortGuard);
     std::vector<std::shared_ptr<SerialCommand>> commands = {com};
-
-    if (!this->serialPort->isOpen())
-        return;
 
     if (com->getCommand() == powcon::COMMANDS::SETDUMMY) {
         return;
@@ -84,24 +96,42 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
 
     if (com->getCommand() == powcon::GETSTATUS) {
         commands = this->prepareStatusCommands();
-        status = std::make_shared<PowerSupplyStatus>();
     }
 
-    // TODO: The Timeout values for serial port operations are critical. Maybe
-    // they need to be configurable
+    ealogger::Logger &log = LogInstance::get_instance();
+
+    bool serial_error = false;
+
     for (auto &c : commands) {
-        QByteArray commandByte = this->prepareCommand(c);
-        bool waitForBytes = true;
-        if (this->serialPort->write(commandByte) != -1) {
+        // QThread::currentThread()->msleep(80);
+        QByteArray commandByte = this->prepareCommandByteArray(c);
+        bool waitForBytes = false;
+        // Could this be a problem here because there are pending commands?
+        if (!this->serialPort->clear(QSerialPort::Direction::AllDirections)) {
+            ;
+            log.eal_error("Could not clear serial port buffers");
+            log.eal_error(
+                "Error: " +
+                static_cast<QString>(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+        }
+        qint64 bytesWritten =
+            this->serialPort->write(commandByte, commandByte.length());
+        if (bytesWritten != -1) {
+            log.eal_debug("Bytes written: " +
+                          QString::number(bytesWritten).toStdString() + "\n" +
+                          "command length: " +
+                          QString::number(commandByte.length()).toStdString());
             // wait for for bytes to be written
             if (commandByte != "") {
                 waitForBytes =
                     this->serialPort->waitForBytesWritten(this->portTimeOut);
-                //waitForBytes = this->serialPort->waitForBytesWritten(1000);
+                // waitForBytes = this->serialPort->waitForBytesWritten(1000);
             }
         } else {
-            log.eal_error("Could not write command " +
-                    std::string(commandByte.constData(), commandByte.length()));
+            log.eal_error(
+                "Could not write command " +
+                std::string(commandByte.constData(), commandByte.length()));
             log.eal_error(
                 "Error: " +
                 static_cast<QString>(this->serialPort->error()).toStdString());
@@ -110,71 +140,73 @@ void PowerSupplySCPI::readWriteData(std::shared_ptr<SerialCommand> com)
         }
 
         if (waitForBytes) {
-            // is this command with a feedback?
+            // is this a command with feedback?
             if (c->getCommandWithReply()) {
-                QByteArray reply;
+                QByteArray reply = "0";
                 if (commandByte != "") {
                     // wait until port is ready to read
-                    this->serialPort->waitForReadyRead(1000);
-                    reply = this->serialPort->readAll();
-                    while (this->serialPort->waitForReadyRead(10)) {
-                        reply += this->serialPort->readAll();
+                    if (this->serialPort->waitForReadyRead(1000)) {
+                        if (serialPort->bytesAvailable())
+                            reply.clear();
+                        while (serialPort->bytesAvailable()) {
+                            reply.append(this->serialPort->readAll());
+                            this->serialPort->waitForReadyRead(
+                                this->portTimeOut);
+                        }
+                    } else {
+                        log.eal_error("Wait for ready read for command " +
+                                      commandByte.toStdString() + " timed out");
+                        log.eal_error(
+                            "Error: " +
+                            static_cast<QString>(this->serialPort->error())
+                                .toStdString());
+                        this->serialPort->clearError();
+                        serial_error = true;
                     }
+                    //                    while
+                    //                    (this->serialPort->waitForReadyRead(1))
+                    //                    {
+                    //                        reply +=
+                    //                        this->serialPort->readAll();
+                    //                    }
                 }
-                c->setValue(QVariant(reply));
-
-                if (status != nullptr) {
-                    this->processStatusCommands(status, c);
-                } else {
-                    // send our com object with the signal
-                    emit this->requestFinished(c);
-                }
+                c->setValue(reply);
+                this->processCommands(this->powStatus, c);
             }
         } else {
-            qDebug() << Q_FUNC_INFO
-                     << "Could not write to serial port. Error number: "
-                     << this->serialPort->error();
-            ;
-            // TODO emit an error
+            emit this->errorReadWrite(QString(this->serialPort->error()));
+            log.eal_error("Could not read from or write to device: " +
+                          QString(this->serialPort->error()).toStdString());
+            this->serialPort->clearError();
+            serial_error = true;
         }
+    }
+
+    if (serial_error) {
+        return;
     }
 
     std::chrono::high_resolution_clock::time_point tEnd =
         std::chrono::high_resolution_clock::now();
-    long duration =
+    long long duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(tEnd - tStart)
             .count();
-    qDebug() << Q_FUNC_INFO << "Elapsed time for serial command(s): " << duration
-             << "ms";
 
-    if (status != nullptr) {
-        status->setTime(std::move(std::chrono::system_clock::now()));
+    if (com->getCommand() == powcon::GETSTATUS) {
+        this->powStatus->setDuration(duration);
+        this->powStatus->setTime(std::chrono::system_clock::now());
         // calculate wattage
         if (this->canCalculateWattage)
-            this->calculateWattage(status);
-        emit this->statusReady(status);
-    }
-}
+            this->calculateWattage(this->powStatus);
 
-std::vector<std::shared_ptr<SerialCommand>>
-PowerSupplySCPI::prepareStatusCommands()
-{
-    std::vector<std::shared_ptr<SerialCommand>> comVec;
-    for (const auto &c : this->statusCommands) {
-        if (c == powcon::COMMANDS::GETACTUALVOLTAGE ||
-            c == powcon::COMMANDS::GETACTUALCURRENT ||
-            c == powcon::COMMANDS::GETVOLTAGE || powcon::COMMANDS::GETCURRENT) {
-            for (int i = 1; i <= this->noOfChannels; i++) {
-                std::shared_ptr<SerialCommand> com =
-                    std::make_shared<SerialCommand>(static_cast<int>(c), i,
-                                                    QVariant(), true);
-                comVec.push_back(com);
-            }
-        } else {
-            std::shared_ptr<SerialCommand> com = std::make_shared<SerialCommand>(
-                static_cast<int>(c), 1, QVariant(), true);
-            comVec.push_back(com);
-        }
+        // seems like we have to emit first, but why?
+        emit this->statusReady(this->powStatus);
+
+        std::shared_ptr<PowerSupplyStatus> newStatus =
+            std::make_shared<PowerSupplyStatus>();
+        this->updateNewPStatus(newStatus);
+        this->powStatus = newStatus;
+    } else {
+        emit this->requestFinished(com);
     }
-    return comVec;
 }

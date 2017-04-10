@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,16 +33,16 @@ void FloatingValuesDialog::setValuesDialogData(
     this->data = data;
 }
 
-void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
+void FloatingValuesDialog::setDatatype(global_constants::LPQ_DATATYPE dt)
 {
     this->dt = dt;
     // set the index of the stacked container.
     switch (dt) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->stackedContainer->setCurrentIndex(0);
         this->voltageSpinBox->setFocus();
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->stackedContainer->setCurrentIndex(1);
         this->currentSpinBox->setFocus();
         break;
@@ -56,18 +56,18 @@ void FloatingValuesDialog::setDatatype(global_constants::DATATYPE dt)
 
 void FloatingValuesDialog::setCurrentValue(double value)
 {
-    // WARNING: This is highly dependend of our gui structure
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->setValue(value);
 }
 
 void FloatingValuesDialog::setCurrentValue(ATTR_UNUSED int trackingMode) {}
-
+// FIXME: The number of channels was used in a previous version of this Dialog
+// and is no longer needed AFAIR
 void FloatingValuesDialog::updateDeviceSpecs(
     double voltageMin, double voltageMax, uint voltagePrecision,
     double currentMin, double currentMax, uint currentPrecision,
-    uint noOfChannels)
+    ATTR_UNUSED uint noOfChannels)
 {
     voltageSpinBox->setMinimum(voltageMin);
     voltageSpinBox->setMaximum(voltageMax);
@@ -141,15 +141,14 @@ void FloatingValuesDialog::createUI()
 
 void FloatingValuesDialog::accept()
 {
-    qDebug() << Q_FUNC_INFO << "Dialog was accepted";
     QFrame *cont =
         dynamic_cast<QFrame *>(this->stackedContainer->currentWidget());
     double value = dynamic_cast<QDoubleSpinBox *>(cont->children()[1])->value();
     switch (dt) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->data->voltage = value;
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->data->current = value;
         break;
     default:
@@ -159,8 +158,4 @@ void FloatingValuesDialog::accept()
     this->done(1);
 }
 
-void FloatingValuesDialog::reject()
-{
-    qDebug() << Q_FUNC_INFO << "Dialog was rejected";
-    this->done(0);
-}
+void FloatingValuesDialog::reject() { this->done(0); }

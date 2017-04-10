@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,6 +45,14 @@ struct YAxisBounds {
     }
 };
 
+/**
+ * @brief Class that calculates the nounds for the different y-axes
+ *
+ * @details
+ * This helper class is used by the plottingarea to calculate the range for
+ * different y-axis. The range is dependent from the values of the graph in the
+ * current viewport of the QCustomPlot.
+ */
 class YAxisHelper
 {
 public:
@@ -57,4 +65,4 @@ private:
     std::pair<double, double> lowHighVectorValue(std::vector<double> values);
 };
 
-#endif // YAXISHELPER_H
+#endif  // YAXISHELPER_H

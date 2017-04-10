@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,21 +17,27 @@
 #ifndef DEVICEWIZARDCONNECTION_H
 #define DEVICEWIZARDCONNECTION_H
 
+#include <QGridLayout>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QThread>
+#include <QVBoxLayout>
 #include <QWidget>
 #include <QWizardPage>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QPlainTextEdit>
-
-#include <QDebug>
 
 #include <memory>
 
 #include "global.h"
 #include "koradscpi.h"
+#include "log_instance.h"
 #include "serialcommand.h"
 
+/**
+ * @brief This class is part of the device wizard where we test the connection
+ *
+ * @details
+ * The class mimics the behaviour of the controller class.
+ */
 class DeviceWizardConnection : public QWizardPage
 {
     Q_OBJECT
@@ -50,14 +56,38 @@ private:
     QPlainTextEdit *txt;
     QString devID;
 
+    std::unique_ptr<QThread>
+        t; /**< QThread that is used by the PowerSupplySCPI object to handle its queue */
+
     bool connectionSuccessfull;
 
     std::unique_ptr<PowerSupplySCPI> powerSupplyConnector;
 
 private slots:
+
+    /**
+     * @brief Creates a PowerSupplySCPI derived object and sends an identification command
+     */
     void testConnection();
+
+    /**
+     * @brief Method that receives the reply from the hardware device
+     *
+     * @param command
+     *
+     * @details
+     *
+     * Checks if reply is within defined parameters and the device the user
+     * provided is usable by this application
+     */
     void dataAvailable(std::shared_ptr<SerialCommand> command);
+
+    /**
+     * @brief Slot that receives error states
+     *
+     * @param errorString
+     */
     void deviceError(QString errorString);
 };
 
-#endif // DEVICEWIZARDCONNECTION_H
+#endif  // DEVICEWIZARDCONNECTION_H

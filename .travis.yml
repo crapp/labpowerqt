@@ -1,0 +1,101 @@
+language: cpp
+sudo: required
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-4.9
+        - COMPILEREXEC=g++-4.9
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-5
+        - COMPILEREXEC=g++-5
+    - os: linux
+      compiler: gcc
+      env:
+        - COMPILER=g++-6
+        - COMPILEREXEC=g++-6
+    # currently not compiling
+    #- os: linux
+      #compiler: clang
+      #env:
+        #- COMPILER=clang++-3.4
+        #- COMPILEREXEC=clang++
+        #- CXXFLAGS='-stdlib=libc++ -lc++abi'
+    #- os: linux
+      #compiler: clang
+      #env: COMPILER=clang++-3.7
+    - os: osx
+      compiler: clang
+    - os: osx
+      compiler: clang
+      osx_image: xcode7.3
+
+# use this to install linux specific dependencies and different compilers based on
+# environmental variables.
+before_install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+      sudo apt-add-repository ppa:beineri/opt-qt56 -y
+      #sudo sh -c "echo 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.7 main' >> /etc/apt/sources.list"
+      #wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+      sudo apt-get update -qq
+      if [[ "${COMPILER}" == "g++-4.9" ]]; then
+        sudo apt-get install g++-4.9 -y
+      fi
+      if [[ "${COMPILER}" == "g++-5" ]]; then
+        sudo apt-get install g++-5 -y
+      fi
+      if [[ "${COMPILER}" == "g++-6" ]]; then
+        sudo apt-get install g++-6 -y
+      fi
+      if [[ "${COMPILER}" == "clang++-3.4" ]]; then
+        sudo apt-get install clang-3.4 -y
+      fi
+      if [[ "${COMPILER}" == "clang++-3.7" ]]; then
+        sudo apt-get install clang-3.7 -y
+      fi
+      sudo apt-get install mesa-common-dev qt56base qt56quickcontrols qt56serialport -y
+      export PRE_PATH=/opt/qt56
+    fi
+
+# get cmake eiter from cmake.org or use homebrew
+install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.sh"
+      CMAKE_INSTALLER="cmake-3.5.2-Linux-x86_64.sh"
+      wget --no-check-certificate --quiet -O ${CMAKE_INSTALLER} - ${CMAKE_URL}
+      sh ${CMAKE_INSTALLER} --prefix=$HOME --exclude-subdir
+    else
+      brew update
+      brew uninstall --force cmake
+      brew install cmake
+      brew install qt5
+      export PRE_PATH=$(brew --prefix qt5)
+    fi
+
+# generate make files and compile the application
+script:
+  - |
+    cd ${TRAVIS_BUILD_DIR}
+    mkdir build
+    cd build
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${COMPILEREXEC} -DCMAKE_PREFIX_PATH=${PRE_PATH} ../
+    make -j 2
+
+# blacklist
+branches:
+  except:
+    - dev
+    - gh-pages
+
+#notifications:
+#  webhooks:
+#    urls: https://webhooks.gitter.im/e/
+#    on_success: change
+#

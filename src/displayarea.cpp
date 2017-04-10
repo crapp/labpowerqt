@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -37,41 +37,41 @@ void DisplayArea::setValuesDialog(
     this->valuesDialogData = valuesDialogData;
 }
 
-void DisplayArea::dataUpdate(QVariant val, global_constants::DATATYPE dt,
+void DisplayArea::dataUpdate(QVariant val, global_constants::LPQ_DATATYPE dt,
                              int channel)
 {
     switch (dt) {
-    case globcon::DATATYPE::SETVOLTAGE:
+    case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->chanwVector.at(channel - 1)
             ->voltageSet->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::VOLTAGE:
+    case globcon::LPQ_DATATYPE::VOLTAGE:
         this->chanwVector.at(channel - 1)
             ->voltageActual->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::SETCURRENT:
+    case globcon::LPQ_DATATYPE::SETCURRENT:
         this->chanwVector.at(channel - 1)
             ->currentSet->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::CURRENT:
+    case globcon::LPQ_DATATYPE::CURRENT:
         this->chanwVector.at(channel - 1)
             ->currentActual->setText(std::move(val.toString()));
         break;
-    case globcon::DATATYPE::WATTAGE:
+    case globcon::LPQ_DATATYPE::WATTAGE:
         this->chanwVector.at(channel - 1)
             ->wattageActual->setText(std::move(val.toString()));
         break;
     }
 }
 
-void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
+void DisplayArea::dataUpdate(QVariant val, global_constants::LPQ_CONTROL ct,
                              int channel)
 {
     switch (ct) {
-    case globcon::CONTROL::DEVICEID:
+    case globcon::LPQ_CONTROL::DEVICEID:
         this->labelDeviceName->setText(val.toString());
         break;
-    case globcon::CONTROL::CONNECT:
+    case globcon::LPQ_CONTROL::CONNECT:
         if (val.toBool()) {
             this->labelConnect->setPixmap(QPixmap(":/icons/plug_in_orange"));
         } else {
@@ -79,54 +79,56 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::CONTROL ct,
         }
         this->controlStateEnabled(val.toBool());
         break;
-    case globcon::CONTROL::SOUND:
+    case globcon::LPQ_CONTROL::SOUND:
         this->labelSound->setPixmap(QPixmap(val.toString()));
         break;
-    case globcon::CONTROL::LOCK:
+    case globcon::LPQ_CONTROL::LOCK:
         this->labelSound->setPixmap(QPixmap(val.toString()));
         break;
-    case globcon::CONTROL::OUTPUT:
+    case globcon::LPQ_CONTROL::OUTPUT:
         this->chanwVector.at(channel - 1)->outputSet->setText(val.toString());
         break;
-    case globcon::CONTROL::OVP:
+    case globcon::LPQ_CONTROL::OVP:
         this->labelOVPSet->setText(val.toString());
         break;
-    case globcon::CONTROL::OCP:
+    case globcon::LPQ_CONTROL::OCP:
         this->labelOCPSet->setText(val.toString());
         break;
-    case globcon::CONTROL::OTP:
+    case globcon::LPQ_CONTROL::OTP:
         this->labelOTPSet->setText(val.toString());
         break;
     }
 }
 
-void DisplayArea::dataUpdate(global_constants::MODE md, int channel)
+void DisplayArea::dataUpdate(global_constants::LPQ_MODE md, int channel)
 {
     switch (md) {
-    case globcon::MODE::CONSTANT_VOLTAGE:
+    case globcon::LPQ_MODE::CONSTANT_VOLTAGE:
         this->chanwVector.at(channel - 1)->modeActual->setText("CV");
         break;
-    case globcon::MODE::CONSTANT_CURRENT:
+    case globcon::LPQ_MODE::CONSTANT_CURRENT:
         this->chanwVector.at(channel - 1)->modeActual->setText("CC");
         break;
     }
 }
 
-// The following two functions are very big. Lost of code for dynamically build
-// guis.
+// The following two functions are very big. Lots of code is necessay for
+// dynamically build guis.
 void DisplayArea::setupChannels()
 {
     this->labelConnect->setClickable(false);
     QSettings settings;
     settings.beginGroup(setcon::DEVICE_GROUP);
     settings.beginGroup(settings.value(setcon::DEVICE_ACTIVE).toString());
+
     if (settings.contains(setcon::DEVICE_PORT)) {
         // if there is a device we must enable the connect button.
         this->labelConnect->setClickable(true);
         // TODO: One could make this more intelligent and only create / delete
         // channels that are (no longer) needed.
 
-        // remove all channels from the frame
+        // remove all channels from the frame if there are any. Happens if the
+        // user changes the device specs or chooses another one.
         for (auto f : this->channelFramesVec) {
             utils::clearLayout(f->layout());
             this->frameChannels->layout()->removeWidget(f);
@@ -139,7 +141,6 @@ void DisplayArea::setupChannels()
         // create the frames that control one channel
         for (int i = 1; i <= settings.value(setcon::DEVICE_CHANNELS).toInt();
              i++) {
-
             std::shared_ptr<ChannelWidgets> chanw =
                 std::make_shared<ChannelWidgets>();
 
@@ -239,12 +240,12 @@ void DisplayArea::setupChannels()
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
                         std::move(pos), chanw->voltageSet,
-                        global_constants::DATATYPE::SETVOLTAGE, value);
+                        global_constants::LPQ_DATATYPE::SETVOLTAGE, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
                             this->valuesDialogData->voltage,
                             static_cast<int>(
-                                global_constants::DATATYPE::SETVOLTAGE),
+                                global_constants::LPQ_DATATYPE::SETVOLTAGE),
                             i);
                     }
                 });
@@ -253,12 +254,12 @@ void DisplayArea::setupChannels()
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
                         std::move(pos), chanw->currentSet,
-                        global_constants::DATATYPE::SETCURRENT, value);
+                        global_constants::LPQ_DATATYPE::SETCURRENT, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
                             this->valuesDialogData->current,
                             static_cast<int>(
-                                global_constants::DATATYPE::SETCURRENT),
+                                global_constants::LPQ_DATATYPE::SETCURRENT),
                             i);
                     }
                 });
@@ -311,7 +312,8 @@ void DisplayArea::setupChannels()
                 chanw->outputSet, &ClickableLabel::doubleClickNoValue,
                 [this, chanw, i]() {
                     emit this->deviceControlValueChanged(
-                        static_cast<int>(global_constants::CONTROL::OUTPUT), i);
+                        static_cast<int>(global_constants::LPQ_CONTROL::OUTPUT),
+                        i);
                 });
 
             outputContainer->layout()->addWidget(outputLabel);
@@ -333,7 +335,6 @@ void DisplayArea::setupChannels()
 
 void DisplayArea::setupUI()
 {
-
     this->setLayout(new QGridLayout());
     this->setStyleSheet("background-color: rgb(47, 47, 47); color: " +
                         QString(globcon::GREENCOLOR) + "; \n" + " QToolTip {}");
@@ -366,7 +367,7 @@ void DisplayArea::setupUI()
     QObject::connect(this->labelConnect, &ClickableLabel::doubleClickNoValue,
                      [this]() {
                          emit this->deviceControlValueChanged(
-                             static_cast<int>(globcon::CONTROL::CONNECT), 0);
+                             static_cast<int>(globcon::LPQ_CONTROL::CONNECT), 0);
                      });
 
     this->labelSound = new ClickableLabel();
@@ -412,12 +413,13 @@ void DisplayArea::setupUI()
     this->labelOVPSet = new ClickableLabel();
     this->labelOVPSet->setText("Off");
     this->labelOVPSet->setNoReturnValue(true);
+    this->labelOVPSet->setMinimumWidth(20);
     frameOVP->layout()->addWidget(this->labelOVPSet);
     this->frameFooter->layout()->addWidget(frameOVP);
     QObject::connect(this->labelOVPSet, &ClickableLabel::doubleClickNoValue,
                      [this]() {
                          emit this->deviceControlValueChanged(
-                             static_cast<int>(globcon::CONTROL::OVP), 0);
+                             static_cast<int>(globcon::LPQ_CONTROL::OVP), 0);
                      });
 
     QFrame *frameOCP = new QFrame();
@@ -426,12 +428,13 @@ void DisplayArea::setupUI()
     this->labelOCPSet = new ClickableLabel();
     this->labelOCPSet->setText("Off");
     this->labelOCPSet->setNoReturnValue(true);
+    this->labelOCPSet->setMinimumWidth(20);
     frameOCP->layout()->addWidget(this->labelOCPSet);
     this->frameFooter->layout()->addWidget(frameOCP);
     QObject::connect(this->labelOCPSet, &ClickableLabel::doubleClickNoValue,
                      [this]() {
                          emit this->deviceControlValueChanged(
-                             static_cast<int>(globcon::CONTROL::OCP), 0);
+                             static_cast<int>(globcon::LPQ_CONTROL::OCP), 0);
                      });
 
     QFrame *frameOTP = new QFrame();
@@ -440,12 +443,13 @@ void DisplayArea::setupUI()
     this->labelOTPSet = new ClickableLabel();
     this->labelOTPSet->setText("Off");
     this->labelOTPSet->setNoReturnValue(true);
+    this->labelOTPSet->setMinimumWidth(20);
     frameOTP->layout()->addWidget(this->labelOTPSet);
     this->frameFooter->layout()->addWidget(frameOTP);
     QObject::connect(this->labelOTPSet, &ClickableLabel::doubleClickNoValue,
                      [this]() {
                          emit this->deviceControlValueChanged(
-                             static_cast<int>(globcon::CONTROL::OTP), 0);
+                             static_cast<int>(globcon::LPQ_CONTROL::OTP), 0);
                      });
 
     QFrame *frameTracking = new QFrame();
@@ -460,10 +464,9 @@ void DisplayArea::setupUI()
 }
 
 void DisplayArea::controlValuesDialog(QPoint pos, QWidget *clickedWidget,
-                                      global_constants::DATATYPE dt,
+                                      global_constants::LPQ_DATATYPE dt,
                                       double currentValue)
 {
-
     // map widget cursor position to global position (top left)
     QPoint globalPos = clickedWidget->mapToGlobal(pos);
     // move the dialog to the calculated position

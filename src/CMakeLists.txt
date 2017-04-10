@@ -1,44 +1,36 @@
-# Initialize CXXFLAGS for Linux and OS X
-if (NOT WIN32)
-    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+# Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
+if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
     # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
-    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wextra -Wno-reorder")
+    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reorder")
     set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE        "-O4 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-endif(NOT WIN32)
+endif(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
 # Compiler-specific C++11 activation.
 if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    execute_process(
-        COMMAND ${CMAKE_CXX_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (NOT (GCC_VERSION VERSION_GREATER 4.7 OR GCC_VERSION VERSION_EQUAL 4.7))
-        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.7 or greater.")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
+        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.9 or greater")
     endif ()
 elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
+        message(FATAL_ERROR "${PROJECT_NAME} requires clang 3.3 or greater")
+    endif()
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
     elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif()
-elseif(WIN32)
-    # So far only msvc is supported on Windows.
-    if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    message(
-      ERROR
-      "LabPowerQt does not support compiling on Windows with "
-      "${CMAKE_CXX_COMPILER_ID}. Please use MSVC.")
-    endif (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-
-    # MSVC 1800 supports C++11; earlier versions don't. So, warn if you try to
-    # use anything else.
-    if (${MSVC_VERSION} LESS 1800)
-    message(
-      ERROR
-      "LabPowerQt does not support compiling on MSVC versions earlier than 1800. "
-      "Please use MSVC 1800 (included with Visual Studio 2013 or later).")
-    endif (${MSVC_VERSION} LESS 1800)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    if (${MSVC_VERSION} LESS 1900)
+        message(
+            # MSVC 1900 has the best C++11 support so far. So, fatal_error if you try to
+            # use anything else.
+          FATAL_ERROR
+          "${PROJECT_NAME} does not support compiling on Windows with MSVC ${MSVC_VERSION}")
+    endif()
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
@@ -48,6 +40,46 @@ if (${SANITIZER})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
+add_definitions(-DQT_NO_DEBUG_OUTPUT -DQT_NO_WARNING_OUTPUT)
+
+if (EALOGGER_EXTERNAL)
+    message(STATUS "Trying to get ealogger sources from github and compile the library")
+    include(ExternalProject)
+
+    # add ealogger as external project. this will pull the sources from github,
+    # compile them and install the library to a subfolder. as we are using a static
+    # library we can link it directly
+    ExternalProject_Add(
+        ealogger_external
+        URL https://github.com/crapp/ealogger/archive/v0.8.1.tar.gz
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/ealogger"
+        INSTALL_DIR install
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+                   -DCMAKE_BUILD_TYPE=Release
+                   -DBUILD_SHARED_LIBS=OFF
+                   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        )
+    # get the install dir
+    ExternalProject_Get_Property(ealogger_external install_dir)
+    set (EALOGGER_LIB
+        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        )
+    include_directories(
+        "${install_dir}/include"
+        )
+    set(CMAKE_THREAD_PREFER_PTHREAD ON)
+    find_package(Threads REQUIRED)
+else(EALOGGER_EXTERNAL)
+    message(STATUS "Searching for ealogger in default locations")
+    find_library(EALOGGER_LIB
+        NAMES ealogger)
+    if (EALOGGER_LIB)
+        message(STATUS "Found ealogger library")
+    else(EALOGGER_LIB)
+        message(FATAL_ERROR "ealogger library not found")
+    endif(EALOGGER_LIB)
+    # search for ealogger
+endif(EALOGGER_EXTERNAL)
 
 # Add our custom cmake search modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -56,9 +88,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
-
-# Find Threads
-find_package(Threads REQUIRED)
 
 # Find the QtWidgets library. This has dependencies on QtGui and QtCore!
 find_package(Qt5Widgets 5.2 REQUIRED)
@@ -79,11 +108,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/external/switchbutton
     ${CMAKE_SOURCE_DIR}/external/qaccordion/include
 )
-
-# include qAccordion build directory
-if (EXT_INCLUDE)
-    include_directories(${EXT_INCLUDE})
-endif(EXT_INCLUDE)
 
 # configure a header file to pass some of the CMake settings
 # to the source code
@@ -108,6 +132,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/global.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowercontroller.h
     ${CMAKE_CURRENT_SOURCE_DIR}/labpowermodel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/log_instance.h
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/plottingarea.h
     ${CMAKE_CURRENT_SOURCE_DIR}/powersupplyscpi.h
@@ -117,6 +142,7 @@ set(HEADER
     ${CMAKE_CURRENT_SOURCE_DIR}/serialcommand.h
     ${CMAKE_CURRENT_SOURCE_DIR}/serialqueue.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefinitions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/settingsdefault.h
     ${CMAKE_CURRENT_SOURCE_DIR}/settingsdialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabcontrol.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tabhistory.h
@@ -172,6 +198,7 @@ add_executable(labpowerqt
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
 #set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
+
 target_link_libraries(labpowerqt
 Qt5::Widgets
 Qt5::SerialPort
@@ -179,5 +206,20 @@ Qt5::Quick
 Qt5::Qml
 Qt5::PrintSupport
 Qt5::Sql
-${CMAKE_THREAD_LIBS_INIT}
-qAccordion)
+${EALOGGER_LIB})
+
+# make sure dependencies are build before our main target
+if (EALOGGER_EXTERNAL)
+    add_dependencies(labpowerqt ealogger_external)
+    target_link_libraries(labpowerqt Threads::Threads)
+endif()
+
+if (WIN32)
+    # have to add this explcicitly to avoid linker errors on msvc
+    add_definitions(-D_WINSOCKAPI_)
+    # make this a windows gui application without opening a console
+    target_link_libraries(labpowerqt Qt5::WinMain)
+    set_property(TARGET labpowerqt PROPERTY WIN32_EXECUTABLE true)
+endif(WIN32)
+
+install(TARGETS labpowerqt DESTINATION bin)

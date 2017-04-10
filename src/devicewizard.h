@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,9 +29,11 @@
 #include "devicewizardfinal.h"
 #include "settingsdefinitions.h"
 
+/**
+ * @brief Base class for the device wizard
+ */
 class DeviceWizard : public QWizard
 {
-
     Q_OBJECT
 
 public:
@@ -40,4 +42,4 @@ public:
     void accept() Q_DECL_OVERRIDE;
 };
 
-#endif // DEVICEWIZARD_H
+#endif  // DEVICEWIZARD_H

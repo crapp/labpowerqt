@@ -1,5 +1,5 @@
-// lab power supplies.
-// Copyright © 2015 Christian Rapp <0x2a at posteo dot org>
+// labpowerqt is a Gui application to control programmable lab power supplies
+// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,7 +27,8 @@ DeviceWizardIntro::DeviceWizardIntro(QWidget *parent) : QWizardPage(parent)
 
     infotext->setText(
         "You can use this wizard to add a new Power Supply Device. "
-        "Make sure you have the appropriate permissions to access the device.");
+        "Make sure the device is switched on, connected to your computer and  "
+        "you have the appropriate permissions to access the device.");
     this->setLayout(new QVBoxLayout());
     this->layout()->addWidget(infotext);
 }
