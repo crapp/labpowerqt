@@ -97,8 +97,6 @@ find_package(Qt5Quick REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 find_package(Qt5Sql REQUIRED)
 
-#find_package(Qwt 6.1 REQUIRED)
-
 # generate ui_*.h files
 qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 
