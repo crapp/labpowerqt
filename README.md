@@ -163,7 +163,7 @@ several different branches.
 
 * master      : Main development branch. Everything in here is guaranteed to
 compile and is tested. This is the place for new features and bugfixes. Pull requests welcome.
-* dev         : Test branch and wild west area. May not compile.
+* development : Test branch and wild west area. May not compile.
 * release-x.x : Branch for a release. Only bugfixes are allowed here. Pull requests welcome.
 * gh-pages    : Special branch for static HTML content and images hosted by github.io.
 
