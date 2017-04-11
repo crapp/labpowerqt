@@ -20,7 +20,9 @@ matrix:
         - COMPILEREXEC=g++-6
     - os: linux
       compiler: clang
-      env: COMPILER=clang++-3.7
+      env:
+        - COMPILER=clang++-3.7
+        - COMPILEREXEC=clang++-3.7
     - os: osx
       compiler: clang
     - os: osx
