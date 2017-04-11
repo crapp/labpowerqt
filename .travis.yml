@@ -20,12 +20,6 @@ matrix:
         - COMPILEREXEC=g++-6
     - os: linux
       compiler: clang
-      env:
-        - COMPILER=clang++-3.4
-        - COMPILEREXEC=clang++
-        - CXXFLAGS='-stdlib=libc++ -lc++abi'
-    - os: linux
-      compiler: clang
       env: COMPILER=clang++-3.7
     - os: osx
       compiler: clang
@@ -51,9 +45,6 @@ before_install:
       fi
       if [[ "${COMPILER}" == "g++-6" ]]; then
         sudo apt-get install g++-6 -y
-      fi
-      if [[ "${COMPILER}" == "clang++-3.4" ]]; then
-        sudo apt-get install clang-3.4 -y
       fi
       if [[ "${COMPILER}" == "clang++-3.7" ]]; then
         sudo apt-get install clang-3.7 -y
