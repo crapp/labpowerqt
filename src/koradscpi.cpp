@@ -176,8 +176,8 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
          * 0   CH1 CC|CV mode
          */
         QByteArray val = com->getValue().toByteArray();
-        LogInstance::get_instance().eal_debug("Korad Status byte: " +
-                                              val.toStdString());
+        LogInstance::get_instance().eal_debug(
+            "Korad Status byte: " + std::string(val.constData(), val.length()));
         // Unfortunately Korad SCPI does not seem to be able to determine
         // between different channels regarding output setting.
         if (val[0] & (1 << 6)) {
