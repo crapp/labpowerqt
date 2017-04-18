@@ -91,7 +91,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 # Find the QtWidgets library. This has dependencies on QtGui and QtCore!
-find_package(Qt5Widgets 5.2 REQUIRED)
+find_package(Qt5Widgets 5.4 REQUIRED)
 message(STATUS "Found Qt version ${Qt5Widgets_VERSION_STRING}")
 find_package(Qt5SerialPort REQUIRED)
 find_package(Qt5Quick REQUIRED)
