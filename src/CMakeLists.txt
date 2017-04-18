@@ -58,6 +58,7 @@ if (EALOGGER_EXTERNAL)
                    -DCMAKE_BUILD_TYPE=Release
                    -DBUILD_SHARED_LIBS=OFF
                    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         )
     # get the install dir
     ExternalProject_Get_Property(ealogger_external install_dir)
