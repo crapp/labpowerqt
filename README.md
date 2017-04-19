@@ -9,7 +9,8 @@
 
 
 - [Features](#features)
-- [Setting up LabPowerQt](#setting-up-labpowerqt)
+- [Getting LabPowerQt](#getting-labpowerqt)
+- [Compiling from source](#compiling-from-source)
 - [Using the Application](#using-the-application)
 - [Screenshots](#screenshots)
 - [Development](#development)
@@ -44,23 +45,47 @@ issues](#known-issues) section.
 * Manage recorded sessions
 * Export data to csv files
 
-## Setting up LabPowerQt
+## Getting LabPowerQt
+
+### Linux
+
+Linux users have two different options to run the application. Either install a
+package provided by your distribution or use the [AppImage](https://github.com/probonopd/AppImageKit) to run the LabPowerQt without the need to compile the source code or install
+any dependencies. You can download the AppImage from the github
+[releases tab](https://github.com/crapp/labpowerqt/releases) for this project.
+
+The AppImage was tested on this distributions:
+
+* ArchLinux (2017-04-19)
+* Fedora Workstation 25
+* Ubuntu trusty 
+
+There are packages for the following Linux distributions:
+
+* Archlinux [![Archlinux AUR Version](https://img.shields.io/aur/version/labpowerqt.svg)](https://aur.archlinux.org/packages/labpowerqt)
+
+### Windows
+
+I am providing an [InnoSetup](http://www.jrsoftware.org/isinfo.php) based installer
+for x86 and amd64 containing all dependencies. It is downloadable from [github.com](https://github.com/crapp/labpowerqt/releases)
+
+## Compiling from source
 
 ### Dependencies
 
 The following dependencies are required to run this software:
-* cmake >= 2.8.12 (On Windows you need at least version 3.3)
+* cmake >= 3.1.3 (On Windows you need at least version 3.3)
 * One of these Compilers:
     * gcc >= 4.9
     * clang >= 3.4
     * MSVC >= 14 (Visual Studio 2015)
     * MinGW >= 4.9
-* Qt >= 5.2 (Qt5Widgets, Qt5Gui, Qt5Core, Qt5SerialPort, Qt5Sql, Qt5PrintSupport, Qt5Quick)
+* Qt >= 5.4 (Qt5Widgets, Qt5Gui, Qt5Core, Qt5SerialPort, Qt5Sql, Qt5PrintSupport, Qt5Quick)
 * [ealogger](https://github.com/crapp/ealogger) >= 0.8.1 (Included as external project)
 
-### Installation
+### Compilation 
 
-In order to install LabPowerQt you can obtain the source code from [github](https://github.com/crapp/labpowerqt) or use one of the precompiled packages.
+You can obtain the source code from [github](https://github.com/crapp/labpowerqt). 
 
 If you want to compile LabPowerQt yourself you will find these cmake options useful:
 
@@ -86,10 +111,6 @@ make
 sudo make install
 ```
 
-There are packages for the following Linux distributions:
-
-* Archlinux [![Archlinux AUR Version](https://img.shields.io/aur/version/labpowerqt.svg)](https://aur.archlinux.org/packages/labpowerqt)
-
 #### Windows
 
 You can compile LabPowerQt on Windows using cmake's [Visual Studio Generator](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html#visual-studio-generators).
@@ -108,8 +129,6 @@ You may now open the solution file with visual studio and compile the applicatio
 
 Other possibilities are cmake's NMake Generator or mingw.
 
-I am providing an [InnoSetup](http://www.jrsoftware.org/isinfo.php) based installer
-for x86 and amd64 containing all dependencies. It is downloadable from [github.com](https://github.com/crapp/labpowerqt/releases)
 
 ### Supported Hardware
 
@@ -223,7 +242,7 @@ to submit bugs or feature requests
 
 ## License
 ```
-Copyright (C) 2015, 2016 Christian Rapp
+Copyright (C) 2015, 2016, 2017 Christian Rapp
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

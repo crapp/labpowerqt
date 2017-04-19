@@ -1,14 +1,10 @@
 if (WIN32)
-    cmake_minimum_required(VERSION 3.1.3) # this version knows of MSVC 14
+    cmake_minimum_required(VERSION 3.3 FATAL_ERROR) # this version knows of MSVC 14
 else()
-    cmake_minimum_required(VERSION 2.8.12) #2.8.12 provides an easy way to build with qt5
+    cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR) # 3.1 provides an easy way to build with qt5 and to set properties for targets
 endif(WIN32)
-project(labpowerqt)
 
-#The version number
-set (labpowerqt_VERSION_MAJOR 0)
-set (labpowerqt_VERSION_MINOR 1)
-set (labpowerqt_VERSION_PATCH 2)
+project(labpowerqt VERSION 0.1.3)
 
 option (EALOGGER_EXTERNAL "Download and build ealogger" ON)
 option (SANITIZER "Use AddressSanitizer (ASan) compiler flags" OFF)

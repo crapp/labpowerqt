@@ -1,12 +1,8 @@
 # Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++11")
-    set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
+    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra")
     # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
     set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reorder")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 endif(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 
 # Compiler-specific C++11 activation.
@@ -36,7 +32,7 @@ else ()
 endif ()
 
 if (${SANITIZER})
-    message(WARNING "Using address sanitizer compiler option!")
+    message(WARNING "Using address sanitizer compiler option! This will slow down the application and increase memory consumption")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
@@ -194,9 +190,8 @@ add_executable(labpowerqt
     ${ICON_RESOURCE_ADDED}
 )
 # define our c++ standard and make sure cmake fails if the requirement is not met.
-#set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
-#set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
-
+set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
 target_link_libraries(labpowerqt
 Qt5::Widgets
