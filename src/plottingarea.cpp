@@ -501,6 +501,7 @@ void PlottingArea::setupUI()
                 this->plot->graph(i)->clearData();
             }
             this->startPoint = std::chrono::system_clock::now();
+            this->plot->replot();
         }
     });
     QObject::connect(
