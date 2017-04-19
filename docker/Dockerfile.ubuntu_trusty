@@ -1,35 +1,47 @@
 FROM ubuntu:trusty
 
-ARG workdir="/workdir"
+ARG wdir="/workdir"
+WORKDIR $wdir
+
 ARG cmake_ver="cmake-3.8.0-Linux-x86_64"
 ARG make_core=4
-ENV PATH="${workdir}/${cmake_ver}/bin:${PATH}"
+# use git_rev to make sure the last to layers are run again if there are new
+# commits
+ARG git_rev="HEAD"
+ARG git_branch="master"
+ENV PATH="${wdir}/${cmake_ver}/bin:${PATH}"
+ENV PATH="/opt/qt58/bin:${PATH}"
 
-RUN mkdir -pv $workdir
 RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
         add-apt-repository ppa:beineri/opt-qt58-trusty -y
 RUN apt-get update && apt-get install -y mesa-common-dev gcc-6 g++-6 wget curl make \
         qt58base qt58serialport qt58quickcontrols2 \
-        git
-RUN cd $workdir && \
-        wget -nv "https://cmake.org/files/v3.8/${cmake_ver}.tar.gz" && \
+        git libfuse2
+RUN wget -nv "https://cmake.org/files/v3.8/${cmake_ver}.tar.gz" && \
         tar -xf "${cmake_ver}.tar.gz"
-RUN cd $workdir && \
-        git clone "https://github.com/crapp/labpowerqt.git" && \
+RUN git clone -b $git_branch "https://github.com/crapp/labpowerqt.git" && \
         cd labpowerqt && \
+        git checkout $git_rev && \
         mkdir -pv build && cd build && \
         cmake -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=gcc-6 \
-        -DCMAKE_CXX_COMPILER=g++-6 \
-        -DCMAKE_PREFIX_PATH=/opt/qt58 ../ && \
+          -DCMAKE_C_COMPILER=gcc-6 \
+          -DCMAKE_CXX_COMPILER=g++-6 \
+          -DCMAKE_PREFIX_PATH=/opt/qt58 ../ && \
         make -j $make_core
 
-RUN cd $workdir && \
-        wget -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" && \
+RUN wget -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" && \
         cd labpowerqt/build && \
         find \( -name "moc_*" -or -name "*.o" -or -name "qrc_*" -or -name "Makefile*" -or -name "*.a" \) -exec rm -v {} \; && \
         mv -v ../../linuxdeployqt-continuous-x86_64.AppImage ./linuxdeployqt && chmod a+x linuxdeployqt
-        #./linuxdeployqt -verbose=3 -appimage src/labpowerqt
 
-CMD g++ --version
+CMD /bin/bash
+
+####
+# HOW TO USE
+# run docker container interactively and allow access to fuse device
+# docker run -it --cap-add SYS_ADMIN --device /dev/fuse trustylab
+# enter labpowerqt build directory and run linuxdeployqt
+# ./linuxdeployqt -verbose=3 -appimage -bundle-non-qt-libs src/labpowerqt
+# use docker cp to copy the generated appimage. the appimage has the same
+# architecture than the host system.
