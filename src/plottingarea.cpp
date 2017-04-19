@@ -29,6 +29,7 @@ PlottingArea::PlottingArea(QWidget *parent) : QWidget(parent)
     this->currentDataPointKey = std::chrono::system_clock::now();
     this->lastAction = nullptr;
     this->dataDisplayFrameHeight = -1;
+    this->plot = 0;
 
     this->setupUI();
     this->setupGraph();
@@ -449,7 +450,9 @@ void PlottingArea::setupUI()
     maxHeightAniDisplay->setPropertyName("maximumHeight");
     this->animationGroupDataDisplay->addAnimation(maxHeightAniDisplay);
 
-    // connect all the controls ion the general section to some lambdas
+    // connect all the controls in the general section to some lambdas
+
+    // connect plotting enableconnect plotting enable
     QObject::connect(
         this->cbGeneralPlot, &QCheckBox::stateChanged, [this](int state) {
             QSettings settings;
@@ -461,6 +464,7 @@ void PlottingArea::setupUI()
                 this->plot->setEnabled(false);
             }
         });
+    // connect show data under plot
     QObject::connect(
         this->cbGeneralShowData, &QCheckBox::stateChanged, [this](int state) {
             QSettings settings;
@@ -492,6 +496,7 @@ void PlottingArea::setupUI()
                 this->animationGroupDataDisplay->start();
             }
         });
+    // connect discard data
     QObject::connect(generalDiscardData, &QPushButton::clicked, [this]() {
         if (QMessageBox::question(
                 this, "Discard Data",
@@ -504,6 +509,7 @@ void PlottingArea::setupUI()
             this->plot->replot();
         }
     });
+    // connect export data button
     QObject::connect(
         generalExport, &QPushButton::clicked, [this, generalImageFormat]() {
             // close the upper control area to maximize the plot viewport
@@ -522,6 +528,7 @@ void PlottingArea::setupUI()
             }
             this->toolbarActionTriggered(this->actionGeneral);
         });
+    // connect show grid in plot
     QObject::connect(
         generalShowGrid, &QCheckBox::stateChanged, [this](int state) {
             QSettings settings;
@@ -536,11 +543,15 @@ void PlottingArea::setupUI()
             }
             this->plot->replot();
         });
+    // show legend
     QObject::connect(
         generalShowLegend, &QCheckBox::stateChanged, [this](int state) {
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_LEGEND, state);
+            if (this->plot->graphCount() == 0) {
+                return;
+            }
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->plot->legend->setVisible(true);
             } else {
@@ -548,12 +559,16 @@ void PlottingArea::setupUI()
             }
             this->plot->replot();
         });
+    // show timescale indicator under plot
     QObject::connect(
         this->cbGeneralShowTimescale, &QCheckBox::stateChanged,
         [this](int state) {
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_TIMESCALE, state);
+            if (this->plot->graphCount() == 0) {
+                return;
+            }
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->zoomMagPic->setVisible(true);
                 this->zoomLevel->setVisible(true);
