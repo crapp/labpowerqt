@@ -69,7 +69,7 @@ void PlottingArea::addData(const int &channel, const double &data,
 // to be honest this method has mutated in an unmaintainable monster :(
 void PlottingArea::setupGraph()
 {
-    if (this->plot->graphCount() > 0) {
+    if (this->checkPlot()) {
         this->resetGraph();
     }
 
@@ -546,12 +546,11 @@ void PlottingArea::setupUI()
     // show legend
     QObject::connect(
         generalShowLegend, &QCheckBox::stateChanged, [this](int state) {
+            if (!this->checkPlot())
+                return;
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_LEGEND, state);
-            if (this->plot->graphCount() == 0) {
-                return;
-            }
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->plot->legend->setVisible(true);
             } else {
@@ -563,12 +562,11 @@ void PlottingArea::setupUI()
     QObject::connect(
         this->cbGeneralShowTimescale, &QCheckBox::stateChanged,
         [this](int state) {
+            if (!this->checkPlot())
+                return;
             QSettings settings;
             settings.beginGroup(setcon::PLOT_GROUP);
             settings.setValue(setcon::PLOT_SHOW_TIMESCALE, state);
-            if (this->plot->graphCount() == 0) {
-                return;
-            }
             if (state == static_cast<int>(Qt::CheckState::Checked)) {
                 this->zoomMagPic->setVisible(true);
                 this->zoomLevel->setVisible(true);
@@ -1047,7 +1045,7 @@ void PlottingArea::xAxisRangeChanged(const QCPRange &newRange,
 void PlottingArea::mouseMoveHandler(QMouseEvent *event)
 {
     // don't do anything if there are no graphs.
-    if (this->plot->graphCount() == 0)
+    if (!this->checkPlot())
         return;
 
     QSettings settings;
@@ -1100,6 +1098,14 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
             }
         }
     }
+}
+
+bool PlottingArea::checkPlot() const
+{
+    if (this->plot)
+        if (this->plot->graphCount() > 0)
+            return true;
+    return false;
 }
 
 void PlottingArea::toolbarActionTriggered(QAction *action)

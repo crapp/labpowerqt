@@ -196,6 +196,15 @@ private slots:
      */
     void mouseMoveHandler(QMouseEvent *event);
 
+    /**
+     * @brief Check if the plot object exists and has some graphs
+     * @return True if plot can be used
+     *
+     * @details
+     * Is used by Button slot functions
+     */
+    bool checkPlot() const;
+
     // ui slots
     void toolbarActionTriggered(QAction *action);
     void generalCBCheckState(int state);
