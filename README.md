@@ -25,8 +25,8 @@ LabPowerQt is an application to control laboratory power supplies and to record
 and visualize the data.
 
 The software is written using the Qt Framework and therefor works on Linux,
-Windows and OS X. Although it works cross platform the main target platforms for
-this project are Linux and osx.
+Windows and macOS. Although it works cross platform the main target platforms for
+this project are Linux and macOS.
 
 The application is in an early stage of development make sure to read the [known
 issues](#known-issues) section.
@@ -92,9 +92,9 @@ If you want to compile LabPowerQt yourself you will find these cmake options use
 * EALOGGER_EXTERNAL - Settings this to on will automatically download and build ealogger.
   (Default ON)
 
-#### Linux and OS X
+#### Linux and macOS
 
-Compiling LabPowerQt on Linux and OS X using unix make files.
+Compiling LabPowerQt on Linux and macOS using unix make files.
 
 ```shell
 # download the source code and change to the directory
@@ -236,7 +236,7 @@ to submit bugs or feature requests
   Currently this is not working correctly with QCustomPlot and there is nothing I
   can do about it as I believe it is because of a bug in their code.
 
-* Polling frequencies higher than 1Hz seem to work unreliable on OSX and Windows.
+* Polling frequencies higher than 1Hz seem to work unreliable on macOS and Windows.
 	I have no idea if this is a problem with QSerialPort, the underlying driver
 	implementation or system layer.
 
