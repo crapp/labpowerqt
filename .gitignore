@@ -105,3 +105,4 @@ database/
 gh-pages/
 packages/
 tags
+*.AppImage
