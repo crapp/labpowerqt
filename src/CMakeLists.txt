@@ -1,50 +1,54 @@
 # Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
-if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-    # No reorder warnings because these pop up frequently if you are using the Q_OBJECT macro
+    # No reorder warnings because these pop up frequently if you are using the
+    # Q_OBJECT macro
     set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reorder")
-endif(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+endif()
 
 # Compiler-specific C++11 activation.
-if (${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
         message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.9 or greater")
-    endif ()
-elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
+    endif()
+elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
         message(FATAL_ERROR "${PROJECT_NAME} requires clang 3.3 or greater")
     endif()
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
-    elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    if (${MSVC_VERSION} LESS 1900)
+    if(${MSVC_VERSION} LESS 1900)
         message(
-            # MSVC 1900 has the best C++11 support so far. So, fatal_error if you try to
-            # use anything else.
+            # MSVC 1900 has the best C++11 support so far. So, fatal_error if
+            # you try to use anything else.
           FATAL_ERROR
-          "${PROJECT_NAME} does not support compiling on Windows with MSVC ${MSVC_VERSION}")
+          "${PROJECT_NAME} does not support compiling on Windows with MSVC \
+          ${MSVC_VERSION}")
     endif()
-else ()
+else()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
-endif ()
+endif()
 
-if (${SANITIZER})
-    message(WARNING "Using address sanitizer compiler option! This will slow down the application and increase memory consumption")
+if(${SANITIZER})
+    message(WARNING "Using address sanitizer compiler option! This will slow \
+    down the application and increase memory consumption")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 endif()
 
 add_definitions(-DQT_NO_DEBUG_OUTPUT -DQT_NO_WARNING_OUTPUT)
 
-if (EALOGGER_EXTERNAL)
-    message(STATUS "Trying to get ealogger sources from github and compile the library")
+if(EALOGGER_EXTERNAL)
+    message(STATUS "Trying to get ealogger sources from github and compile the \
+    library")
     include(ExternalProject)
 
     # add ealogger as external project. this will pull the sources from github,
-    # compile them and install the library to a subfolder. as we are using a static
-    # library we can link it directly
+    # compile them and install the library to a subfolder. as we are using a
+    # static library we can link it directly
     ExternalProject_Add(
         ealogger_external
         URL https://github.com/crapp/ealogger/archive/v0.8.1.tar.gz
@@ -58,25 +62,26 @@ if (EALOGGER_EXTERNAL)
         )
     # get the install dir
     ExternalProject_Get_Property(ealogger_external install_dir)
-    set (EALOGGER_LIB
-        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    set(EALOGGER_LIB
+        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger\
+        ${CMAKE_STATIC_LIBRARY_SUFFIX}"
         )
     include_directories(
         "${install_dir}/include"
         )
     set(CMAKE_THREAD_PREFER_PTHREAD ON)
     find_package(Threads REQUIRED)
-else(EALOGGER_EXTERNAL)
+else()
     message(STATUS "Searching for ealogger in default locations")
     find_library(EALOGGER_LIB
         NAMES ealogger)
-    if (EALOGGER_LIB)
+    if(EALOGGER_LIB)
         message(STATUS "Found ealogger library")
-    else(EALOGGER_LIB)
+    else()
         message(FATAL_ERROR "ealogger library not found")
-    endif(EALOGGER_LIB)
+    endif()
     # search for ealogger
-endif(EALOGGER_EXTERNAL)
+endif()
 
 # Add our custom cmake search modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -106,7 +111,7 @@ include_directories(
 
 # configure a header file to pass some of the CMake settings
 # to the source code
-configure_file (
+configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
@@ -189,7 +194,8 @@ add_executable(labpowerqt
     ${SWITCHBUTTON_SOURCE}
     ${ICON_RESOURCE_ADDED}
 )
-# define our c++ standard and make sure cmake fails if the requirement is not met.
+# define our c++ standard and make sure cmake fails if the requirement is not
+# met.
 set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
 
@@ -203,17 +209,17 @@ Qt5::Sql
 ${EALOGGER_LIB})
 
 # make sure dependencies are build before our main target
-if (EALOGGER_EXTERNAL)
+if(EALOGGER_EXTERNAL)
     add_dependencies(labpowerqt ealogger_external)
     target_link_libraries(labpowerqt Threads::Threads)
 endif()
 
-if (WIN32)
+if(WIN32)
     # have to add this explcicitly to avoid linker errors on msvc
     add_definitions(-D_WINSOCKAPI_)
     # make this a windows gui application without opening a console
     target_link_libraries(labpowerqt Qt5::WinMain)
     set_property(TARGET labpowerqt PROPERTY WIN32_EXECUTABLE true)
-endif(WIN32)
+endif()
 
 install(TARGETS labpowerqt DESTINATION bin)
