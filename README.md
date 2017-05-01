@@ -50,17 +50,21 @@ issues](#known-issues) section.
 ### Linux
 
 Linux users have two different options to run the application. Either install a
-package provided by your distribution or use the [AppImage](https://github.com/probonopd/AppImageKit) to run the LabPowerQt without the need to compile the source code or install
-any dependencies. You can download the AppImage from the github
-[releases tab](https://github.com/crapp/labpowerqt/releases) for this project.
+package provided by your distribution or use the
+[AppImage](https://github.com/probonopd/AppImageKit) to run the LabPowerQt without
+the need to compile the source code or install any dependencies. You can download
+the AppImage from the github [releases tab](https://github.com/crapp/labpowerqt/releases) for this project.
 
-The AppImage was tested on this distributions:
+The AppImage was tested on these distributions:
 
 * ArchLinux (2017-04-19)
 * Fedora Workstation 25
-* Ubuntu trusty 
+* Ubuntu trusty (AppImage is build on this distribution)
 
-There are packages for the following Linux distributions:
+If you have used the AppImage on other distributions please let me know if it 
+worked for you.
+
+LabPowerQt packages are available on these Linux distributions:
 
 * Archlinux [![Archlinux AUR Version](https://img.shields.io/aur/version/labpowerqt.svg)](https://aur.archlinux.org/packages/labpowerqt)
 
@@ -74,7 +78,7 @@ for x86 and amd64 containing all dependencies. It is downloadable from [github.c
 ### Dependencies
 
 The following dependencies are required to run this software:
-* cmake >= 3.1.3 (On Windows you need at least version 3.3)
+* cmake >= 3.1.3 (If you want to compile ealogger as well you need version 3.4 or higher)
 * One of these Compilers:
     * gcc >= 4.9
     * clang >= 3.4
@@ -132,7 +136,7 @@ Other possibilities are cmake's NMake Generator or mingw.
 
 ### Supported Hardware
 
-Currently we only support Devices using the [Korad SCPI Protocol](https://sigrok.org/wiki/Korad_KAxxxxP_series)
+Currently the application only supports Devices using the [Korad SCPI Protocol](https://sigrok.org/wiki/Korad_KAxxxxP_series)
 
 * Korad KA3003P; KA3005P; KA3010P
 * Korad KA6002P; KA6003P; KA6005P
@@ -153,9 +157,9 @@ and you can use the orange elements to control the device (by double-clicking th
 The data of the device is stored in memory. You can also persist the data in a SQLite
 database by turning on a Recording.
 
-The data is not displayed in the control but can also be visualized in a Plot on
+The data is not only displayed in the control area but can also be visualized in a Plot on
 the right side of the main window. Have a look at the buttons above the Plot to
-discover all the possibilities you have (e.g. change graph color or line style,
+discover all the possibilities you have (e.g. change graph colors or line style,
 export plot as image, discard data and many more).
 
 The settings dialog is important as you have to use the build in device wizard to
@@ -257,4 +261,3 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
-
