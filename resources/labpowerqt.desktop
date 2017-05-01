@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=LabPowerQt
+Comment=Application to control laboratory power supplies
+Exec=labpowerqt
+Icon=labpowerqt.png
+Terminal=false
