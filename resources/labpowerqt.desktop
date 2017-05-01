@@ -4,5 +4,6 @@ Encoding=UTF-8
 Name=LabPowerQt
 Comment=Application to control laboratory power supplies
 Exec=labpowerqt
-Icon=labpowerqt.png
+Icon=labpowerqt
+Categories=Qt;Electronics
 Terminal=false

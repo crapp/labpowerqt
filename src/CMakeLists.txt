@@ -63,8 +63,7 @@ if(EALOGGER_EXTERNAL)
     # get the install dir
     ExternalProject_Get_Property(ealogger_external install_dir)
     set(EALOGGER_LIB
-        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger\
-        ${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ealogger${CMAKE_STATIC_LIBRARY_SUFFIX}"
         )
     include_directories(
         "${install_dir}/include"
