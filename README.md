@@ -96,9 +96,9 @@ If you want to compile LabPowerQt yourself you will find these cmake options use
 * EALOGGER_EXTERNAL - Settings this to on will automatically download and build ealogger.
   (Default ON)
 
-#### Linux and macOS
+#### Linux
 
-Compiling LabPowerQt on Linux and macOS using unix make files.
+Compiling LabPowerQt on Linux using unix make files.
 
 ```shell
 # download the source code and change to the directory
@@ -113,6 +113,26 @@ cmake -DCMAKE_BUILD_TYPE=Release ../
 make
 # install the application
 sudo make install
+```
+
+#### macOS
+
+Compiling LabPowerQt on macOS with Homebrew using unix make files.
+
+```shell
+# install qt 5 from Homebrew
+brew install qt5
+# download the source code and change to the directory
+# create a build directory
+mkdir build
+cd build
+# run cmake to create makefiles.
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$(brew --prefix qt5) ../
+# now compile the source code and create the application. You can speed up
+# compilation with make's j option.
+make
+# install the application
+make install
 ```
 
 #### Windows
