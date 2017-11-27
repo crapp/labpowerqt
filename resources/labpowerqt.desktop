@@ -5,5 +5,5 @@ Name=LabPowerQt
 Comment=Application to control laboratory power supplies
 Exec=labpowerqt
 Icon=labpowerqt
-Categories=Qt;Electronics
+Categories=Qt;Electronics;
 Terminal=false
