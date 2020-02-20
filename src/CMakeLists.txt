@@ -1,38 +1,3 @@
-# Initialize CXXFLAGS for Linux, OS X and MinGW on Windows
-if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-    # No reorder warnings because these pop up frequently if you are using the
-    # Q_OBJECT macro
-    set(CMAKE_CXX_FLAGS_DEBUG         "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reorder")
-endif()
-
-# Compiler-specific C++11 activation.
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9)
-        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.9 or greater")
-    endif()
-elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
-        message(FATAL_ERROR "${PROJECT_NAME} requires clang 3.3 or greater")
-    endif()
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
-    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    if(${MSVC_VERSION} LESS 1900)
-        message(
-            # MSVC 1900 has the best C++11 support so far. So, fatal_error if
-            # you try to use anything else.
-          FATAL_ERROR
-          "${PROJECT_NAME} does not support compiling on Windows with MSVC \
-          ${MSVC_VERSION}")
-    endif()
-else()
-    message(FATAL_ERROR "Your C++ compiler does not support C++11.")
-endif()
-
 if(${SANITIZER})
     message(WARNING "Using address sanitizer compiler option! This will slow \
     down the application and increase memory consumption")
@@ -193,10 +158,12 @@ add_executable(labpowerqt
     ${SWITCHBUTTON_SOURCE}
     ${ICON_RESOURCE_ADDED}
 )
-# define our c++ standard and make sure cmake fails if the requirement is not
-# met.
-set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
+
+set_target_properties(labpowerqt PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO
+)
 
 target_link_libraries(labpowerqt
 Qt5::Widgets
@@ -221,4 +188,4 @@ if(WIN32)
     set_property(TARGET labpowerqt PROPERTY WIN32_EXECUTABLE true)
 endif()
 
-install(TARGETS labpowerqt DESTINATION bin)
+install(TARGETS labpowerqt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
