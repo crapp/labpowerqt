@@ -1,0 +1,17 @@
+build
+
+cmake
+
+database
+
+external
+
+forms
+
+todo/todo.sh
+todo/todo.cfg
+todo/report.txt
+
+src/test/catch.hpp
+
+korad.py
