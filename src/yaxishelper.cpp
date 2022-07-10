@@ -35,29 +35,30 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
             // only visible graphs count
             if (!plot->graph(j)->visible())
                 continue;
-            QCPDataMap *dataMap = plot->graph(j)->data();
+            auto dataContainer = plot->graph(j)->data();
             std::vector<double> graphValues;
             std::pair<double, double> lowHighPair = {0, 0};
-            if (dataMap->size() > 1) {
+            if (dataContainer->size() > 1) {
                 // get the nearest key to lower
-                QCPDataMap::Iterator itbegin =
-                    dataMap->upperBound(currentXRange.lower);
-                if (itbegin == dataMap->end())
-                    itbegin = dataMap->begin();
+                auto itbegin =
+                    dataContainer->findBegin(currentXRange.lower, false);
+                if (itbegin == dataContainer->end())
+                    itbegin = dataContainer->begin();
                 // get the nearest key to upper
-                QCPDataMap::Iterator itend =
-                    dataMap->lowerBound(currentXRange.upper);
-                if (itend == dataMap->end())
-                    itend = dataMap->end() - 1;
+                auto itend =
+                    dataContainer->findEnd(currentXRange.upper, false);
+                if (itend == dataContainer->end())
+                    itend = dataContainer->end() - 1;
                 // extract all the data for the visible time frame and put it in
                 // vector
                 for (; itbegin != itend; itbegin++) {
                     graphValues.push_back((*itbegin).value);
                 }
                 lowHighPair = this->lowHighVectorValue(std::move(graphValues));
-            } else if (!dataMap->empty()) {
-                lowHighPair.first = dataMap->first().value;
-                lowHighPair.second = dataMap->first().value;
+            } else if (!dataContainer->isEmpty()) {
+                // what exactly is meant here? Can only be true if there is one element in the dataContainer
+                lowHighPair.first = dataContainer->begin()->value;
+                lowHighPair.second = dataContainer->begin()->value;
             }
 
             if (dt == globcon::LPQ_DATATYPE::SETVOLTAGE ||

@@ -16,6 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "plottingarea.h"
+#include "qcustomplot.h"
+#include <ratio>
 
 namespace setcon = settings_constants;
 namespace setdef = settings_default;
@@ -48,7 +50,7 @@ void PlottingArea::addData(const int &channel, const double &data,
     //LogInstance::get_instance().eal_debug("Plotting area received data: type: " + std::to_string(static_cast<int>(type)) + " data: " + std::to_string(data));
     if (this->cbGeneralPlot->isChecked()) {
         int index = (channel - 1) * 5 + static_cast<int>(type);
-        auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        auto msecs = std::chrono::duration<double, std::milli>(
                          t.time_since_epoch())
                          .count();
         double key = msecs / 1000.0;
@@ -503,7 +505,7 @@ void PlottingArea::setupUI()
                 "Do you really want to discard the data in the "
                 "plot? This will not affect Recordings") == QMessageBox::Yes) {
             for (int i = 0; i < this->plot->graphCount(); i++) {
-                this->plot->graph(i)->clearData();
+                this->plot->graph(i)->data()->clear();
             }
             this->startPoint = std::chrono::system_clock::now();
             this->plot->replot();
@@ -524,7 +526,7 @@ void PlottingArea::setupUI()
                 if (generalImageFormat->currentIndex() == 1)
                     this->plot->savePng(imageFile, 0, 0, 2.0);
                 if (generalImageFormat->currentIndex() == 2)
-                    this->plot->savePdf(imageFile, false, 0, 0, "LabPowerQt");
+                    this->plot->savePdf(imageFile, false, 0, QCP::epAllowCosmetic, "LabPowerQt");
             }
             this->toolbarActionTriggered(this->actionGeneral);
         });
@@ -713,8 +715,9 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
         1);
     // xaxis label and ticks
     this->plot->xAxis->setLabel("Time");
-    this->plot->xAxis->setTickLabelType(QCPAxis::LabelType::ltDateTime);
-    this->plot->xAxis->setDateTimeFormat("HH:mm:ss");
+    QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
+    dateTicker->setDateTimeFormat("HH:mm:ss");
+    this->plot->xAxis->setTicker(dateTicker);
     // this->plot->xAxis->setAutoTickStep(false);
     // this->plot->xAxis->setTickStep(30);
     this->plot->xAxis->setTickLabelRotation(45);
@@ -728,7 +731,6 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     // add an icon and a Text item to the plot where can display the current zoom
     // level.
     this->zoomMagPic = new QCPItemPixmap(this->plot);
-    this->plot->addItem(this->zoomMagPic);
     this->zoomMagPic->setPixmap(QPixmap(":/icons/magnifying_glass16.png"));
     this->zoomMagPic->setScaled(false, Qt::AspectRatioMode::KeepAspectRatio);
     this->zoomMagPic->topLeft->setType(QCPItemPosition::ptViewportRatio);
@@ -736,7 +738,6 @@ void PlottingArea::setupGraphPlot(const QSettings &settings)
     this->zoomMagPic->setClipToAxisRect(false);
 
     this->zoomLevel = new QCPItemText(this->plot);
-    this->plot->addItem(this->zoomLevel);
     this->zoomLevel->setTextAlignment(Qt::AlignmentFlag::AlignLeft);
     this->zoomLevel->setText("5m");
     this->zoomLevel->position->setParentAnchor(
@@ -1067,8 +1068,8 @@ void PlottingArea::mouseMoveHandler(QMouseEvent *event)
                 globcon::LPQ_DATATYPE dt = static_cast<globcon::LPQ_DATATYPE>(c);
                 // if the graph is visible get the data
                 if (this->plot->graph(c)->visible()) {
-                    QCPDataMap::Iterator setVit =
-                        this->plot->graph(c)->data()->upperBound(x);
+                    auto setVit =
+                        this->plot->graph(c)->data()->findBegin(x, false);
                     if (setVit != this->plot->graph(c)->data()->end()) {
                         int accuracy = 3;
                         if (dt == globcon::LPQ_DATATYPE::VOLTAGE ||
