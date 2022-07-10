@@ -163,8 +163,10 @@ add_executable(labpowerqt
 )
 # define our c++ standard and make sure cmake fails if the requirement is not
 # met.
-set_property(TARGET labpowerqt PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET labpowerqt PROPERTY CXX_STANDARD 11)
+set_target_properties(labpowerqt PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD 17
+    )
 
 target_link_libraries(labpowerqt
 Qt5::Widgets
