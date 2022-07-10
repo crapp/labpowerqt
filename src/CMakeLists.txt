@@ -54,6 +54,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+# discover ui files automagically
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC_SEARCH_PATHS "${CMAKE_SOURCE_DIR}/forms")
 
 # Find the QtWidgets library. This has dependencies on QtGui and QtCore!
 find_package(Qt5Widgets 5.4 REQUIRED)
@@ -63,8 +66,8 @@ find_package(Qt5Quick REQUIRED)
 find_package(Qt5PrintSupport REQUIRED)
 find_package(Qt5Sql REQUIRED)
 
-# generate ui_*.h files
-qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
+# # generate ui_*.h files
+# qt5_wrap_ui(${CMAKE_PROJECT_NAME}_FORMS ${UI_FILES})
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR} # config.h
