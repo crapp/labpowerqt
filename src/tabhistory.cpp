@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016, 2022 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ void TabHistory::exportToCsv()
         QTextStream txt(&csvf);
         txt << "Recording;Device;OCP;OVP;OTP;TrackingMode;DateTime;Channel;"
                "Output;Mode;Voltage;VoltageSet;Current;CurrentSet;Wattage"
-            << endl;
+            << Qt::endl;
         for (const auto &index : selectedRows) {
             int recId = this->tblModel->record(index.row())
                             .value(dbcon::TBL_RECORDING_ID)
@@ -187,7 +187,7 @@ void TabHistory::exportToCsv()
                     for (int i = 0; i < 14; i++) {
                         txt << ";" << getMeasurements.value(i).toString();
                     }
-                    txt << endl;
+                    txt << Qt::endl;
                 }
             } else {
                 LogInstance::get_instance().eal_error(
