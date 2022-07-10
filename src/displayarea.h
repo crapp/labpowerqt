@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016, 2022 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,9 +73,9 @@ public:
         std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
         std::shared_ptr<FloatingValuesDialog> valuesDialog);
 
-    void dataUpdate(QVariant val, global_constants::LPQ_DATATYPE dt,
+    void dataUpdate(const QVariant& val, global_constants::LPQ_DATATYPE dt,
                     int channel);
-    void dataUpdate(QVariant val, global_constants::LPQ_CONTROL ct, int channel);
+    void dataUpdate(const QVariant& val, global_constants::LPQ_CONTROL ct, int channel);
     void dataUpdate(global_constants::LPQ_MODE md, int channel);
 
 signals:

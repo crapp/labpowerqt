@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016, 2022 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -81,16 +81,16 @@ YAxisBounds YAxisHelper::getyAxisBounds(const QCPRange &currentXRange,
 
     std::pair<double, double> voltLowHigh =
         lowHighVectorValue(std::move(voltageBounds));
-    axb.voltageLower = std::move(voltLowHigh.first);
-    axb.voltageUpper = std::move(voltLowHigh.second);
+    axb.voltageLower = voltLowHigh.first;
+    axb.voltageUpper = voltLowHigh.second;
     std::pair<double, double> currentLowHigh =
         lowHighVectorValue(std::move(currentBounds));
-    axb.currentLower = std::move(currentLowHigh.first);
-    axb.currentUpper = std::move(currentLowHigh.second);
+    axb.currentLower = currentLowHigh.first;
+    axb.currentUpper = currentLowHigh.second;
     std::pair<double, double> wattageLowHigh =
         lowHighVectorValue(std::move(wattageBounds));
-    axb.wattageLower = std::move(wattageLowHigh.first);
-    axb.wattageLower = std::move(wattageLowHigh.second);
+    axb.wattageLower = wattageLowHigh.first;
+    axb.wattageLower = wattageLowHigh.second;
 
     return axb;
 }

@@ -1,6 +1,6 @@
 // This file is part of labpowerqt, a Gui application to control programmable
 // lab power supplies.
-// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016, 2022 Christian Rapp <0x2a at posteo dot org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "displayarea.h"
+
+#include <utility>
 
 namespace globcon = global_constants;
 namespace utils = global_utilities;
@@ -33,38 +35,38 @@ void DisplayArea::setValuesDialog(
     std::shared_ptr<FloatingValuesDialogData> valuesDialogData,
     std::shared_ptr<FloatingValuesDialog> valuesDialog)
 {
-    this->valuesDialog = valuesDialog;
-    this->valuesDialogData = valuesDialogData;
+    this->valuesDialog = std::move(valuesDialog);
+    this->valuesDialogData = std::move(valuesDialogData);
 }
 
-void DisplayArea::dataUpdate(QVariant val, global_constants::LPQ_DATATYPE dt,
+void DisplayArea::dataUpdate(const QVariant& val, global_constants::LPQ_DATATYPE dt,
                              int channel)
 {
     switch (dt) {
     case globcon::LPQ_DATATYPE::SETVOLTAGE:
         this->chanwVector.at(channel - 1)
-            ->voltageSet->setText(std::move(val.toString()));
+            ->voltageSet->setText(val.toString());
         break;
     case globcon::LPQ_DATATYPE::VOLTAGE:
         this->chanwVector.at(channel - 1)
-            ->voltageActual->setText(std::move(val.toString()));
+            ->voltageActual->setText(val.toString());
         break;
     case globcon::LPQ_DATATYPE::SETCURRENT:
         this->chanwVector.at(channel - 1)
-            ->currentSet->setText(std::move(val.toString()));
+            ->currentSet->setText(val.toString());
         break;
     case globcon::LPQ_DATATYPE::CURRENT:
         this->chanwVector.at(channel - 1)
-            ->currentActual->setText(std::move(val.toString()));
+            ->currentActual->setText(val.toString());
         break;
     case globcon::LPQ_DATATYPE::WATTAGE:
         this->chanwVector.at(channel - 1)
-            ->wattageActual->setText(std::move(val.toString()));
+            ->wattageActual->setText(val.toString());
         break;
     }
 }
 
-void DisplayArea::dataUpdate(QVariant val, global_constants::LPQ_CONTROL ct,
+void DisplayArea::dataUpdate(const QVariant& val, global_constants::LPQ_CONTROL ct,
                              int channel)
 {
     switch (ct) {
@@ -80,8 +82,6 @@ void DisplayArea::dataUpdate(QVariant val, global_constants::LPQ_CONTROL ct,
         this->controlStateEnabled(val.toBool());
         break;
     case globcon::LPQ_CONTROL::SOUND:
-        this->labelSound->setPixmap(QPixmap(val.toString()));
-        break;
     case globcon::LPQ_CONTROL::LOCK:
         this->labelSound->setPixmap(QPixmap(val.toString()));
         break;
@@ -239,7 +239,7 @@ void DisplayArea::setupChannels()
                 chanw->voltageSet, &ClickableLabel::doubleClick,
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
-                        std::move(pos), chanw->voltageSet,
+                        pos, chanw->voltageSet,
                         global_constants::LPQ_DATATYPE::SETVOLTAGE, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
@@ -253,7 +253,7 @@ void DisplayArea::setupChannels()
                 chanw->currentSet, &ClickableLabel::doubleClick,
                 [this, chanw, i](QPoint pos, double value) {
                     this->controlValuesDialog(
-                        std::move(pos), chanw->currentSet,
+                        pos, chanw->currentSet,
                         global_constants::LPQ_DATATYPE::SETCURRENT, value);
                     if (this->valuesDialog->exec()) {
                         emit this->doubleValueChanged(
@@ -484,7 +484,7 @@ void DisplayArea::controlStateEnabled(bool state)
     this->labelOCPSet->setClickable(state);
     this->labelOVPSet->setClickable(state);
     this->labelOTPSet->setClickable(state);
-    for (auto chanw : this->chanwVector) {
+    for (const auto& chanw : this->chanwVector) {
         chanw->outputSet->setClickable(state);
         chanw->voltageSet->setClickable(state);
         chanw->currentSet->setClickable(state);
