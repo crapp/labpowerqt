@@ -226,7 +226,7 @@ void KoradSCPI::processCommands(const std::shared_ptr<PowerSupplyStatus> &status
         // really buggy.
         if (val.endsWith("K", Qt::CaseSensitivity::CaseInsensitive)) {
             val = val.left(val.length() - 1);
-            com->setValue(std::move(val));
+            com->setValue(val);
         }
     }
 
