@@ -33,9 +33,9 @@ class ClickableLabel : public QLabel
     Q_OBJECT
 
 public:
-    ClickableLabel(QWidget *parent = 0, Qt::WindowFlags f = 0);
-    ClickableLabel(const QString &text, QWidget *parent = 0,
-                   Qt::WindowFlags f = 0);
+    ClickableLabel(QWidget *parent = nullptr, Qt::WindowFlags f = {});
+    ClickableLabel(const QString &text, QWidget *parent = nullptr,
+                   Qt::WindowFlags f = {});
 
     void setClickable(bool status);
     bool getClickable();
@@ -55,10 +55,10 @@ private:
 
     void initLabel();
 
-    void mouseDoubleClickEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
-    void enterEvent(QEvent *event);
-    void leaveEvent(QEvent *event);
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 };
 
 #endif  // CLICKABLELABEL_H

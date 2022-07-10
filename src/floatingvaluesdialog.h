@@ -55,7 +55,7 @@ class FloatingValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FloatingValuesDialog(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit FloatingValuesDialog(QWidget *parent = nullptr, Qt::WindowFlags f = {});
 
     void setValuesDialogData(std::shared_ptr<FloatingValuesDialogData> data);
 
@@ -89,8 +89,8 @@ private:
     void createUI();
 
 private slots:
-    void accept();
-    void reject();
+    void accept() override;
+    void reject() override;
 };
 
 #endif  // FLOATINGVALUESDIALOG_H
