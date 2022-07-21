@@ -1,5 +1,5 @@
 // labpowerqt is a Gui application to control programmable lab power supplies
-// Copyright © 2015, 2016 Christian Rapp <0x2a at posteo dot org>
+// Copyright © 2015, 2016, 2022 Christian Rapp <0x2a at posteo dot org>
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "labpowermodel.h"
+
+#include <utility>
 
 LabPowerModel::LabPowerModel() : QObject()
 {
@@ -38,7 +40,7 @@ QString LabPowerModel::getDeviceIdentification()
 
 void LabPowerModel::setDeviceIdentification(QString id)
 {
-    this->deviceIdentification = id;
+    this->deviceIdentification = std::move(id);
     emit this->deviceID();
 }
 
@@ -123,7 +125,7 @@ void LabPowerModel::setRecord(bool status) { this->record = status; }
 void LabPowerModel::updatePowerSupplyStatus(
     std::shared_ptr<PowerSupplyStatus> status)
 {
-    this->status = status;
+    this->status = std::move(status);
     if (this->record)
         this->statusBuffer.push_back(this->status);
     emit this->statusUpdate();
