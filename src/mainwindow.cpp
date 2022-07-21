@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     QTextStream titleStream(&titleString, QIODevice::WriteOnly);
     titleStream << "LabPowerQt " << LABPOWERQT_VERSION_MAJOR << "."
                 << LABPOWERQT_VERSION_MINOR;
-    if (QString(LABPOWERQT_VERSION_PATCH) != "0") {
+    if (!QString(LABPOWERQT_VERSION_PATCH).isEmpty()) {
         titleStream << "." << LABPOWERQT_VERSION_PATCH;
     }
     this->setWindowTitle(titleString);
