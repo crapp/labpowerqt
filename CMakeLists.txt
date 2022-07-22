@@ -9,7 +9,7 @@ else()
     cmake_minimum_required(VERSION 3.1.3 FATAL_ERROR)
 endif()
 
-project(labpowerqt VERSION 0.1.3)
+project(labpowerqt VERSION 0.2)
 
 add_subdirectory(forms)
 add_subdirectory(external/qcustomplot)
